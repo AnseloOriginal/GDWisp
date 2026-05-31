@@ -3,8 +3,8 @@ from modules.media.image import ICON
 
 def set_main_view(app: customtkinter.CTkToplevel):
   testProjects = [
-    ("Cool Game","Yesterday"),
-    ("Stupid Game","Last Week")
+    # ("Cool Game","Yesterday"),
+    # ("Stupid Game","Last Week")
   ]
   customtkinter.set_appearance_mode("dark")
   app.title("Gdevelop SVN")
@@ -46,6 +46,11 @@ def set_main_view(app: customtkinter.CTkToplevel):
   project_title = customtkinter.CTkLabel(c2, text="Projects", text_color=("#000000","#FFFFFF"), font=(None, 24, "bold"))
   project_title.grid(row=2,column=1)
   row = 3
+  if len(testProjects) == 0:
+    no_project_title = customtkinter.CTkLabel(c2, text="No Projects yet. Add one to get started.", 
+                           text_color=("#000000","#FFFFFF"), font=(None, 18))
+    no_project_title.grid(row=3,column=1)
+    
   for project in testProjects:
     project_butn = create_project_butn(c2, project[0],project[1],text_colors,button_colors,small_text_colors,1,row,hover_colors=hover_colors)
     row = row + 1
