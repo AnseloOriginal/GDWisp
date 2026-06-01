@@ -1,12 +1,16 @@
 import customtkinter
-from modules.media.image import ICON
+from modules.window.views.helpers import create_icon_butn, create_project_butn
+from typing import TYPE_CHECKING
 
-def set_main_view(app: customtkinter.CTkToplevel):
+if TYPE_CHECKING:
+  from modules.window.views.view import GUI_Funtions
+
+def view(app: customtkinter.CTkToplevel, funcs: "GUI_Funtions"):
   testProjects = [
-    # ("Cool Game","Yesterday"),
-    # ("Stupid Game","Last Week")
+    ("Cool Game","Yesterday"),
+    ("Stupid Game","Last Week")
   ]
-  customtkinter.set_appearance_mode("dark")
+  customtkinter.set_appearance_mode("light")
   app.title("Gdevelop SVN")
   app.configure(fg_color=["#FFFFFF","#18181B"])
   app.grid_columnconfigure(0, weight=1)
@@ -39,7 +43,7 @@ def set_main_view(app: customtkinter.CTkToplevel):
   small_text_colors = ("#103C7D", "#103C7D")
   text_colors = ("#000000", "#000000")
   hover_colors = ("#BDB7FA", "#BDB7FA")
-  add_project_butn = create_icon_butn(c1,"Add Project","add",text_colors,button_colors,1,4,hover_colors=hover_colors)
+  add_project_butn = create_icon_butn(c1,"Add Project","add",text_colors,button_colors,1,4,hover_colors=hover_colors, command=funcs.log_special_message)
   diff_project_butn = create_icon_butn(c1,"Diff Tool","diff",text_colors,button_colors,1,5,hover_colors=hover_colors)
   settings_project_butn = create_icon_butn(c1,"Settings","settings",text_colors,button_colors,1,6,hover_colors=hover_colors)
   help_project_butn = create_icon_butn(c1,"Help","help",text_colors,button_colors,1,7,hover_colors=hover_colors)
@@ -54,68 +58,3 @@ def set_main_view(app: customtkinter.CTkToplevel):
   for project in testProjects:
     project_butn = create_project_butn(c2, project[0],project[1],text_colors,button_colors,small_text_colors,1,row,hover_colors=hover_colors)
     row = row + 1
-
-def create_icon_butn(
-    parent: customtkinter.CTkFrame, text: str, 
-    icon: str, text_color: tuple,
-    butn_color: tuple,
-    col: int, row: int,
-    width: int = 200,
-    height: int = 40,
-    font_size: int=20,
-    pady=5,
-    padx=0,
-    hover_colors=(None, None)
-  ): 
-  image = customtkinter.CTkImage(ICON[icon])
-  butn = customtkinter.CTkButton(
-    parent, 
-    text=text,
-    text_color = text_color,
-    fg_color= butn_color,
-    image= image,
-    compound="left",
-    width=width,
-    height=height,
-    font=(None,font_size),
-    hover_color=hover_colors
-  )
-  butn.grid(row=row, column=col, pady=pady)
-  return butn
-
-def create_project_butn(
-  parent: customtkinter.CTkFrame,
-  main_text: str, small_text: str,
-  main_text_color: tuple, butn_color: tuple, small_text_color: tuple,
-  col: int, row: int,
-  main_font_size=20, small_font_size=10,
-  width: int = 200, height: int = 500,
-  pady=5, padx=0,
-  hover_colors=(None, None),
-  sticky="nsew"
-): 
-  fake_butn = customtkinter.CTkFrame(parent, fg_color=butn_color, width=width, height=height)
-  fake_butn.grid(column=col, row=row, padx=padx, pady=pady, sticky=sticky)
-  fake_butn.grid_columnconfigure(0,minsize=10)
-  fake_butn.grid_columnconfigure(3,minsize=10)
-  
-  fake_butn.grid_columnconfigure(2,weight=1)
-  main_label = customtkinter.CTkLabel(fake_butn, text=main_text, font=(None,main_font_size), text_color=main_text_color)
-  main_label.grid(column=1,row=1)
-  small_label = customtkinter.CTkLabel(fake_butn, text=small_text, font=(None,small_font_size), text_color=small_text_color)
-  small_label.grid(column=2,row=1, sticky='se')
-  def on_hover(event):
-    fake_butn.configure(fg_color=hover_colors)
-
-  def on_unhover(event):
-    fake_butn.configure(fg_color=butn_color)
-  
-  def on_click(event):
-    fake_butn.configure(fg_color=butn_color)
-
-  fake_butn.bind("<Enter>", on_hover)
-  fake_butn.bind("<Leave>",on_unhover)
-  fake_butn.bind("<Button-1>",on_click)
-  return fake_butn
-  
-

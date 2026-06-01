@@ -1,5 +1,5 @@
 import customtkinter
-from . import view
+from modules.window.views.view import View_Manager
 
 class Manager:
   """Manages windows"""
@@ -9,11 +9,12 @@ class Manager:
     root = customtkinter.CTk()
     root.withdraw()
     self.root = root
+    self.view = View_Manager(self)
 
   def new_window(self):
     window = customtkinter.CTkToplevel(self.root)
     window.geometry("800x600")
-    view.set_main_view(window)
+    self.view.create_gui(window,"Main")
     self.app_window_list.append(window)
   
   def mainloop(self):
