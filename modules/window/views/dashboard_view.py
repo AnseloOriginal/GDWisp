@@ -3,13 +3,10 @@ from modules.window.views.helpers import create_icon_butn, create_project_butn
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-  from modules.window.views.view import GUI_Funtions
+  from modules.window.views.view import GUI_Functions
 
-def view(app: customtkinter.CTkToplevel, funcs: "GUI_Funtions"):
-  testProjects = [
-    ("Cool Game","Yesterday"),
-    ("Stupid Game","Last Week")
-  ]
+def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
+  projects = funcs.get_projects_by_date()
   customtkinter.set_appearance_mode("light")
   app.title("Gdevelop SVN")
   app.configure(fg_color=["#FFFFFF","#18181B"])
@@ -43,18 +40,18 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Funtions"):
   small_text_colors = ("#103C7D", "#103C7D")
   text_colors = ("#000000", "#000000")
   hover_colors = ("#BDB7FA", "#BDB7FA")
-  add_project_butn = create_icon_butn(c1,"Add Project","add",text_colors,button_colors,1,4,hover_colors=hover_colors, command=funcs.log_special_message)
+  add_project_butn = create_icon_butn(c1,"Add Project","add",text_colors,button_colors,1,4,hover_colors=hover_colors, command=funcs.add_new_project)
   diff_project_butn = create_icon_butn(c1,"Diff Tool","diff",text_colors,button_colors,1,5,hover_colors=hover_colors)
   settings_project_butn = create_icon_butn(c1,"Settings","settings",text_colors,button_colors,1,6,hover_colors=hover_colors)
   help_project_butn = create_icon_butn(c1,"Help","help",text_colors,button_colors,1,7,hover_colors=hover_colors)
   project_title = customtkinter.CTkLabel(c2, text="Projects", text_color=("#000000","#FFFFFF"), font=(None, 24, "bold"))
   project_title.grid(row=2,column=1)
   row = 3
-  if len(testProjects) == 0:
+  if len(projects) == 0:
     no_project_title = customtkinter.CTkLabel(c2, text="No Projects yet. Add one to get started.", 
                            text_color=("#000000","#FFFFFF"), font=(None, 18))
     no_project_title.grid(row=3,column=1)
     
-  for project in testProjects:
+  for project in projects:
     project_butn = create_project_butn(c2, project[0],project[1],text_colors,button_colors,small_text_colors,1,row,hover_colors=hover_colors)
     row = row + 1
