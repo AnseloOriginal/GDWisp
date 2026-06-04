@@ -14,6 +14,7 @@ def create_icon_butn(
     hover_colors=(None, None),
     command=None
   ): 
+  """Creates a Ctk button with an icon"""
   image = customtkinter.CTkImage(ICON[icon])
   butn = customtkinter.CTkButton(
     parent, 
@@ -42,6 +43,7 @@ def create_project_butn(
   hover_colors=(None, None),
   sticky="nsew"
 ): 
+  """Creates a custom button using CTkFrame"""
   fake_butn = customtkinter.CTkFrame(parent, fg_color=butn_color, width=width, height=height)
   fake_butn.grid(column=col, row=row, padx=padx, pady=pady, sticky=sticky)
   fake_butn.grid_columnconfigure(0,minsize=10)
