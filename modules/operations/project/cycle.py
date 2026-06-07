@@ -25,9 +25,11 @@ def create_new_project(manager: "Manager"):
     if (not exist):
       folder_path = storage.create_project(name, file_path)
       git.setup(folder_path)
+      manager.update_all("Main")  
     else:
       raise ValueError("Project already exists")
   except Exception as e:
     manager.new_window("Error","JSON is corrupt/invaid", "Reason: "+repr(e))
+    
 
                                                                             

@@ -19,3 +19,6 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", msg1: str, msg2
     if (event.widget == app):
       app.destroy()
   app.after(200, lambda: app.bind("<FocusOut>", close))
+  def update():
+    print("Error view cannot be updated")
+  return update

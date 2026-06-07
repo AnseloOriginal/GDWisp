@@ -28,9 +28,11 @@ class View_Manager:
     
   def create_gui(self,app: customtkinter.CTkToplevel, view: VIEW_TYPE,*extras):
     if (view == "Main"):
-      main_view(app,self.funcs)
+      func = main_view(app,self.funcs)
     elif (view == "Error"):
-      error_view(app,self.funcs,extras[0],extras[1])
+      func = error_view(app,self.funcs,extras[0],extras[1])
+
+    return func
       
 
 
