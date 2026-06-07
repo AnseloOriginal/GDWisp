@@ -61,8 +61,9 @@ def create_project_butn(
     fake_butn.configure(fg_color=butn_color)
   
   def on_click(event):
-    fake_butn.configure(fg_color=butn_color)
-
+    fake_butn.after(100,lambda: fake_butn.configure(fg_color=butn_color))
+    fake_butn.after(200,lambda: fake_butn.configure(fg_color=hover_colors))
+    
   fake_butn.bind("<Enter>", on_hover)
   fake_butn.bind("<Leave>",on_unhover)
   fake_butn.bind("<Button-1>",on_click)
