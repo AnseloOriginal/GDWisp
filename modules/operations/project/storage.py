@@ -89,6 +89,7 @@ def create_project(name: str, file_path: str):
   }
   project_list.append(project_dict)
   write_to_disk()
+  return folder_path
 
 def write_to_disk():
   """Write the project list to its json file"""

@@ -1,6 +1,7 @@
 from tkinter import filedialog
 from typing import TYPE_CHECKING
 import modules.operations.project.storage as storage
+import modules.operations.git.project as git
 import json
 
 if TYPE_CHECKING:
@@ -22,7 +23,8 @@ def create_new_project(manager: "Manager"):
     name = data["properties"]["name"]
     exist = storage.project_exists(file_path)
     if (not exist):
-      storage.create_project(name, file_path)
+      folder_path = storage.create_project(name, file_path)
+      git.setup(folder_path)
     else:
       raise ValueError("Project already exists")
   except Exception as e:
