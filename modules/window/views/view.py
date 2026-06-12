@@ -1,9 +1,9 @@
-from typing import Literal, TYPE_CHECKING
+from typing import Literal, TYPE_CHECKING, Callable
 import customtkinter
 from modules.window.views.dashboard_view import view as main_view
 from modules.window.views.error_view import view as error_view
 from modules.debug.dummy import log_special_message
-from modules.operations.project.cycle import create_new_project
+from modules.operations.project.cycle import create_new_project, open_project
 from modules.window.types import VIEW_TYPE
 import modules.operations.project.storage as storage
 
@@ -18,6 +18,7 @@ class GUI_Functions:
     self.add_new_project = lambda: create_new_project(manager)
     self.get_projects_names = storage.get_projects_by_date
     self.get_projects_by_date = storage.get_projects_by_date
+    self.open_project: Callable[[str], None] = lambda location: open_project(manager,location)
 
 
 class View_Manager:
@@ -31,7 +32,8 @@ class View_Manager:
       func = main_view(app,self.funcs)
     elif (view == "Error"):
       func = error_view(app,self.funcs,extras[0],extras[1])
-
+    elif (view  == "Project"):
+      func = error_view(app,self.funcs,extras[0],extras[1])
     return func
       
 

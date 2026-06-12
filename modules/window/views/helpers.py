@@ -1,5 +1,6 @@
 import customtkinter
 from modules.media.image import ICON
+from typing import Callable
 
 def create_icon_butn(
     parent: customtkinter.CTkFrame, text: str, 
@@ -41,7 +42,8 @@ def create_project_butn(
   width: int = 200, height: int = 500,
   pady=5, padx=0,
   hover_colors=(None, None),
-  sticky="nsew"
+  sticky="nsew",
+  onclick = Callable[[], None]
 ): 
   """Creates a custom button using CTkFrame"""
   fake_butn = customtkinter.CTkFrame(parent, fg_color=butn_color, width=width, height=height)
@@ -59,13 +61,20 @@ def create_project_butn(
 
   def on_unhover(event):
     fake_butn.configure(fg_color=butn_color)
+    
   
   def on_click(event):
     fake_butn.after(100,lambda: fake_butn.configure(fg_color=butn_color))
     fake_butn.after(200,lambda: fake_butn.configure(fg_color=hover_colors))
-    
-  fake_butn.bind("<Enter>", on_hover)
-  fake_butn.bind("<Leave>",on_unhover)
-  fake_butn.bind("<Button-1>",on_click)
+    if (onclick):
+      onclick()
+      
+  def binder(*childs: customtkinter.CTkBaseClass):
+    for child in childs:
+      child.bind("<Enter>", on_hover, add="+")
+      child.bind("<Leave>",on_unhover,add="+")
+      child.bind("<Button-1>",on_click,add="+")
+  binder(fake_butn,main_label,small_label)
+
   return fake_butn
   

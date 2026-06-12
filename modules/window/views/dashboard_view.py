@@ -1,6 +1,6 @@
 import customtkinter
 from modules.window.views.helpers import create_icon_butn, create_project_butn
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ small_text_colors = ("#103C7D", "#103C7D")
 text_colors = ("#000000", "#000000")
 hover_colors = ("#BDB7FA", "#BDB7FA")
 
-def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str]]):
+def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str, str]], onclick: Callable[[str], None]):
   entity_list: list[customtkinter.CTkLabel | customtkinter.CTkFrame] = []
   start_row = 3
   if len(data) == 0:
@@ -23,9 +23,13 @@ def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str]]):
 
     no_project_title.grid(row=3,column=1)
     entity_list.append(no_project_title)
-    
+  
+  
   for project in data:
-    project_butn = create_project_butn(c2, project[0],project[1],text_colors,button_colors,small_text_colors,1,start_row,hover_colors=hover_colors)
+    click = lambda: onclick(project[2])
+    project_butn = create_project_butn(c2, project[0],project[1],
+    text_colors,button_colors,small_text_colors,1,start_row,
+    hover_colors=hover_colors, onclick=click)
     start_row = start_row + 1
     entity_list.append(project_butn)
   return entity_list
@@ -69,14 +73,14 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
   help_project_butn = create_icon_butn(c1,"Help","help",text_colors,button_colors,1,7,hover_colors=hover_colors)
   project_title = customtkinter.CTkLabel(c2, text="Projects", text_color=("#000000","#FFFFFF"), font=(None, 24, "bold"))
   project_title.grid(row=2,column=1)
-  c2_list = fill_project_area(c2,projects)
+  c2_list = fill_project_area(c2,projects,funcs.open_project)
   
   def update():
     projects = funcs.get_projects_by_date()
     for entity in c2_list:
       entity.destroy()
       c2_list.remove(entity)
-    for entity in fill_project_area(c2,projects):
+    for entity in fill_project_area(c2,projects,funcs.open_project):
       c2_list.append(entity)
 
     

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import modules.operations.project.storage as storage
 import modules.operations.git.project as git
 import json
+from modules.operations.project.types import ProjectData
 
 if TYPE_CHECKING:
   from modules.window.manager import Manager
@@ -30,6 +31,11 @@ def create_new_project(manager: "Manager"):
       raise ValueError("Project already exists")
   except Exception as e:
     manager.new_window("Error","JSON is corrupt/invaid", "Reason: "+repr(e))
-    
 
-                                                                            
+   
+def open_project(manager: "Manager", location: str):
+  print("Open Project",location)
+  file = open(location)
+  project_json = file.read()
+  project: ProjectData = json.loads(project_json)
+  print(project["layouts"][0]["events"][0])

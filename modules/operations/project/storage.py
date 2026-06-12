@@ -61,10 +61,10 @@ def get_projects_by_date():
       key=lambda x: datetime.fromisoformat(x["last_accessed"]), 
       reverse=True
   )
-  names: list[tuple[str, str]] = []
+  names: list[tuple[str, str, str]] = []
   for project in sorted_projects:
       last_accessed = datetime.fromisoformat(project["last_accessed"])
-      names.append((project["name"], related_date_str(last_accessed)))
+      names.append((project["name"], related_date_str(last_accessed), project["json_dir"]))
   return names
 
 def project_exists(filepath):
