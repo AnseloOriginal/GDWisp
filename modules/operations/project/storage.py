@@ -11,7 +11,7 @@ class project_data(TypedDict):
   folder_dir: str
   last_accessed: str
 
-folder_path = user_data_path(appname="GdevelopSVN",ensure_exists=True, roaming=True)
+folder_path = user_data_path(appname="Gdevelop Forge",ensure_exists=True, roaming=True)
 storage_path = folder_path / "projects.json"
 
 project_list: list[project_data] = []
@@ -95,3 +95,13 @@ def write_to_disk():
   """Write the project list to its json file"""
   data = json.dumps(project_list)
   storage_path.write_text(data)
+
+def get_project_by_location(location: str):
+  ret = None
+  for project in project_list:
+    if (project["json_dir"] == location):
+      ret = project
+  if ret == None:
+    raise FileNotFoundError
+  else:
+    return ret

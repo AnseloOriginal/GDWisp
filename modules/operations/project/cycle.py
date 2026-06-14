@@ -2,6 +2,7 @@ from tkinter import filedialog
 from typing import TYPE_CHECKING
 import modules.operations.project.storage as storage
 import modules.operations.git.project as git
+from modules.operations.git.diff import Diff
 import json
 from modules.operations.project.types import ProjectData
 
@@ -34,8 +35,17 @@ def create_new_project(manager: "Manager"):
 
    
 def open_project(manager: "Manager", location: str):
-  print("Open Project",location)
-  file = open(location)
-  project_json = file.read()
-  project: ProjectData = json.loads(project_json)
-  print(project["layouts"][0]["events"][0])
+  try:
+    print("Open Project: ",location)
+    project_data = storage.get_project_by_location(location)
+    file = open(location)
+    project_json = file.read()
+    project: ProjectData = json.loads(project_json)
+    un_modified_str = git.get_unmodified_file(project_data["folder_dir"],location)
+    if un_modified_str:
+      un_modified: ProjectData | None = json.loads(un_modified_str)
+    else:
+      un_modified = None
+    diff = Diff(project,un_modified)
+  except BaseException:
+    pass

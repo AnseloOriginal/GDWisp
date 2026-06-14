@@ -24,9 +24,8 @@ def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str, str
     no_project_title.grid(row=3,column=1)
     entity_list.append(no_project_title)
   
-  
   for project in data:
-    click = lambda: onclick(project[2])
+    click = lambda target=project[2]: onclick(target)
     project_butn = create_project_butn(c2, project[0],project[1],
     text_colors,button_colors,small_text_colors,1,start_row,
     hover_colors=hover_colors, onclick=click)
@@ -38,7 +37,7 @@ def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str, str
 def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
   projects = funcs.get_projects_by_date()
   customtkinter.set_appearance_mode("light")
-  app.title("Gdevelop SVN")
+  app.title("Gdevelop Forge")
   app.configure(fg_color=["#FFFFFF","#18181B"])
   app.grid_columnconfigure(0, weight=1)
   app.grid_columnconfigure(1, weight=1, minsize=300)

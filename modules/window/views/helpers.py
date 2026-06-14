@@ -43,14 +43,13 @@ def create_project_butn(
   pady=5, padx=0,
   hover_colors=(None, None),
   sticky="nsew",
-  onclick = Callable[[], None]
+  onclick: Callable[[], None] = lambda: print("No handler registered")
 ): 
   """Creates a custom button using CTkFrame"""
   fake_butn = customtkinter.CTkFrame(parent, fg_color=butn_color, width=width, height=height)
   fake_butn.grid(column=col, row=row, padx=padx, pady=pady, sticky=sticky)
   fake_butn.grid_columnconfigure(0,minsize=10)
   fake_butn.grid_columnconfigure(3,minsize=10)
-  
   fake_butn.grid_columnconfigure(2,weight=1)
   main_label = customtkinter.CTkLabel(fake_butn, text=main_text, font=(None,main_font_size), text_color=main_text_color)
   main_label.grid(column=1,row=1)
@@ -74,6 +73,7 @@ def create_project_butn(
       child.bind("<Enter>", on_hover, add="+")
       child.bind("<Leave>",on_unhover,add="+")
       child.bind("<Button-1>",on_click,add="+")
+  
   binder(fake_butn,main_label,small_label)
 
   return fake_butn
