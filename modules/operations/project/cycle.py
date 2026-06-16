@@ -47,5 +47,6 @@ def open_project(manager: "Manager", location: str):
     else:
       un_modified = None
     diff = Diff(project,un_modified)
+    manager.new_window("Project",project_data["name"],location,diff)
   except BaseException:
     pass
