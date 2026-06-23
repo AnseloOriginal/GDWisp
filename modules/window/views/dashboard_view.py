@@ -1,15 +1,10 @@
 import customtkinter
 from modules.window.views.helpers import create_icon_butn, create_project_butn
 from typing import TYPE_CHECKING, Callable
-
+from modules.config.colors import main_frame, theme_colors
 
 if TYPE_CHECKING:
   from modules.window.views.view import GUI_Functions
-
-button_colors = ("#D9D4FF", "#D9D4FF")
-small_text_colors = ("#103C7D", "#103C7D")
-text_colors = ("#000000", "#000000")
-hover_colors = ("#BDB7FA", "#BDB7FA")
 
 def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str, str]], onclick: Callable[[str], None]):
   entity_list: list[customtkinter.CTkLabel | customtkinter.CTkFrame] = []
@@ -18,17 +13,21 @@ def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str, str
     no_project_title = customtkinter.CTkLabel(
                           c2, 
                           text="No Projects yet. Add one to get started.",
-                          text_color=("#000000","#FFFFFF"), font=(None, 18)
+                          font=(None, 18)
                         )
 
     no_project_title.grid(row=3,column=1)
     entity_list.append(no_project_title)
-  
+  text_color = theme_colors["butn_text_color"]
+  butn_color = theme_colors["butn_color"]
+  small_text_color = theme_colors["small_text_color"]
+  hover_color = theme_colors["hover_color"]
+
   for project in data:
     click = lambda target=project[2]: onclick(target)
     project_butn = create_project_butn(c2, project[0],project[1],
-    text_colors,button_colors,small_text_colors,1,start_row,
-    hover_colors=hover_colors, onclick=click)
+    text_color,butn_color,small_text_color,1,start_row,
+    hover_color=hover_color, onclick=click)
     start_row = start_row + 1
     entity_list.append(project_butn)
   return entity_list
@@ -38,7 +37,6 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
   projects = funcs.get_projects_by_date()
   customtkinter.set_appearance_mode("light")
   app.title("Gdevelop Forge")
-  app.configure(fg_color=["#FFFFFF","#18181B"])
   app.grid_columnconfigure(0, weight=1)
   app.grid_columnconfigure(1, weight=1, minsize=300)
   app.grid_columnconfigure(2, weight=1, minsize=300)
@@ -48,29 +46,35 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
   
 
   c1 = customtkinter.CTkFrame(app, width=300)
-  c1.configure(fg_color=["#FAFAFA","#313236"], border_color=["#586CA3","#575961"], 
-               border_width=1)
+  c1.configure(
+    fg_color=main_frame["color"],
+    border_color=main_frame["border_color"],
+    border_width=main_frame["border_width"]
+  )
   c1.grid(row=1, column=1, padx=20, pady=20, sticky="nsew")
   c1.grid_columnconfigure(0,weight=1)
   c1.grid_columnconfigure(2,weight=1)
   c1.grid_rowconfigure(0,minsize=10)
 
   c2 = customtkinter.CTkFrame(app, width=300)
-  c2.configure(fg_color=["#FAFAFA","#313236"], border_color=["#586CA3","#575961"], 
-               border_width=1)
+  c2.configure(
+    fg_color=main_frame["color"],
+    border_color=main_frame["border_color"],
+    border_width=main_frame["border_width"]
+  )
   c2.grid(row=1, column=2, padx=20, pady=20, sticky="nsew")
   c2.grid_columnconfigure(0,minsize=50)
   c2.grid_columnconfigure(1,minsize=200,weight=1)
   c2.grid_columnconfigure(2,minsize=50)
   c2.grid_rowconfigure(0,minsize=10)
-  main_title = customtkinter.CTkLabel(c1, text="Gdevelop SVN", text_color=("#000000","#FFFFFF"), font=(None, 24, "bold"))
+  main_title = customtkinter.CTkLabel(c1, text="Gdevelop SVN", font=(None, 24, "bold"))
   main_title.grid(row=2,column=1)
 
-  add_project_butn = create_icon_butn(c1,"Add Project","add",text_colors,button_colors,1,4,hover_colors=hover_colors, command=funcs.add_new_project)
-  diff_project_butn = create_icon_butn(c1,"Diff Tool","diff",text_colors,button_colors,1,5,hover_colors=hover_colors)
-  settings_project_butn = create_icon_butn(c1,"Settings","settings",text_colors,button_colors,1,6,hover_colors=hover_colors)
-  help_project_butn = create_icon_butn(c1,"Help","help",text_colors,button_colors,1,7,hover_colors=hover_colors)
-  project_title = customtkinter.CTkLabel(c2, text="Projects", text_color=("#000000","#FFFFFF"), font=(None, 24, "bold"))
+  add_project_butn = create_icon_butn(c1,"Add Project","add",None,None,1,4, command=funcs.add_new_project)
+  diff_project_butn = create_icon_butn(c1,"Diff Tool","diff",None,None,1,5)
+  settings_project_butn = create_icon_butn(c1,"Settings","settings",None,None,1,6)
+  help_project_butn = create_icon_butn(c1,"Help","help",None,None,1,7)
+  project_title = customtkinter.CTkLabel(c2, text="Projects", font=(None, 24, "bold"))
   project_title.grid(row=2,column=1)
   c2_list = fill_project_area(c2,projects,funcs.open_project)
   

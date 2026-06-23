@@ -5,6 +5,7 @@ from modules.window.views.error_view import view as error_view
 from modules.window.views.project_view import view as project_view
 from modules.debug.dummy import log_special_message
 from modules.operations.project.cycle import create_new_project, open_project
+from modules.operations.project.tools import get_project_information
 from modules.window.types import VIEW_TYPE
 import modules.operations.project.storage as storage
 
@@ -20,6 +21,7 @@ class GUI_Functions:
     self.get_projects_names = storage.get_projects_by_date
     self.get_projects_by_date = storage.get_projects_by_date
     self.open_project: Callable[[str], None] = lambda location: open_project(manager,location)
+    self.get_project_information = get_project_information
 
 
 class View_Manager:

@@ -1,8 +1,8 @@
 from typing import TypedDict, Any
 
 class PropertiesDiff(TypedDict):
-  old: str | bool | dict | int | list
-  new: str | bool | dict | int | list | None
+  old: str | bool | dict | int | list | None
+  new: str | bool | dict | int | list
   name: str
 
 

@@ -4,6 +4,7 @@ from modules.operations.git.diff_types import PropertiesDiff
 
 class Diff:
   def __init__(self,p1: ProjectData, p2: ProjectData | None):
+    #p1 is meant to be the current copy while p2 the copy from the repo
     self.p1 = p1
     self.p2 = p2
     self.__diff_properties()
@@ -21,8 +22,8 @@ class Diff:
         pass
       else:
         diff: PropertiesDiff = {
-          "old": data1,
-          "new": data2,
+          "old": data2,
+          "new": data1,
           "name": prop
         }
         propsDiff.append(diff)

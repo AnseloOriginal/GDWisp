@@ -2,8 +2,10 @@ import sys
 from modules.window.tray import Tray
 from modules.media.image import logo_image
 from modules.window.manager import Manager
+from modules.config.colors import set_theme
 import modules.operations.project.storage as storage
 
+set_theme()
 storage.load_app_list()
 tray = Tray(logo_image)
 manager = Manager()

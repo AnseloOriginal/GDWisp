@@ -12,7 +12,7 @@ def create_icon_butn(
     font_size: int=20,
     pady=5,
     padx=0,
-    hover_colors=(None, None),
+    hover_color=None,
     command=None
   ): 
   """Creates a Ctk button with an icon"""
@@ -27,7 +27,7 @@ def create_icon_butn(
     width=width,
     height=height,
     font=(None,font_size),
-    hover_color=hover_colors,
+    hover_color=hover_color,
     command=command
   )
   butn.grid(row=row, column=col, pady=pady)
@@ -41,7 +41,7 @@ def create_project_butn(
   main_font_size=20, small_font_size=10,
   width: int = 200, height: int = 500,
   pady=5, padx=0,
-  hover_colors=(None, None),
+  hover_color=None,
   sticky="nsew",
   onclick: Callable[[], None] = lambda: print("No handler registered")
 ): 
@@ -56,7 +56,7 @@ def create_project_butn(
   small_label = customtkinter.CTkLabel(fake_butn, text=small_text, font=(None,small_font_size), text_color=small_text_color)
   small_label.grid(column=2,row=1, sticky='se')
   def on_hover(event):
-    fake_butn.configure(fg_color=hover_colors)
+    fake_butn.configure(fg_color=hover_color)
 
   def on_unhover(event):
     fake_butn.configure(fg_color=butn_color)
@@ -64,7 +64,7 @@ def create_project_butn(
   
   def on_click(event):
     fake_butn.after(100,lambda: fake_butn.configure(fg_color=butn_color))
-    fake_butn.after(200,lambda: fake_butn.configure(fg_color=hover_colors))
+    fake_butn.after(200,lambda: fake_butn.configure(fg_color=hover_color))
     if (onclick):
       onclick()
       
@@ -78,3 +78,24 @@ def create_project_butn(
 
   return fake_butn
   
+class AutoHidingScrollFrame(customtkinter.CTkScrollableFrame):
+
+  def __init__(self, master: customtkinter.CTkBaseClass, **kwargs):
+    self._scrollbar_visible = True
+    super().__init__(master,**kwargs)
+    self.bind("<Configure>", self.check_scrollbar, add="+")
+
+  def check_scrollbar(self,event):
+    self.update_idletasks()
+    viewport_height = self._parent_canvas.winfo_height()
+    content_height = self.winfo_reqheight()
+    print(content_height,viewport_height)
+    needs_scrollbar = content_height > viewport_height
+    if needs_scrollbar == self._scrollbar_visible:
+        return
+    self._scrollbar_visible = needs_scrollbar
+    if needs_scrollbar:
+        self._scrollbar.grid()
+    else:
+        self._scrollbar.grid_remove()
+
