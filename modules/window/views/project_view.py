@@ -1,3 +1,5 @@
+from tkinter import COMMAND
+
 import customtkinter
 from typing import TYPE_CHECKING, Protocol
 from modules.config.colors import main_frame
@@ -72,13 +74,20 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     current_branch = customtkinter.CTkLabel(c1, text="Current Branch: "+info.get("branch","Unknown"),
       font=(None, 18, "bold"),anchor="w")
     current_branch.grid(row=5, column=1, sticky="ew")
-    textBox = customtkinter.CTkTextbox(c1,width=100, height=200)
-    textBox.grid(row=7, column=1, sticky="ew")
+    commit_textbox = customtkinter.CTkTextbox(c1,width=100, height=200)
+    commit_textbox.grid(row=7, column=1, sticky="ew")
+    placeholder_text = "Enter details of your changes."
+    commit_textbox.insert("0.0", placeholder_text)
     button_height = 30
+
 
     quick_create = lambda master,text: customtkinter.CTkButton(master, height=button_height, text=text)
     commit_butn = quick_create(c1,"Commit")
     commit_butn.grid(column=1,row=9,sticky="ew")
+    commit_butn.configure(
+      command=lambda: print("Commit")
+    )
+    commit_butn.configure(state="disabled")
 
     two_butn_space = customtkinter.CTkFrame(c1, width=button_height)
     two_butn_space.grid(row=11, column=1, sticky="ew")
@@ -90,14 +99,21 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     push_butn.grid(column=0,row=0,sticky="ew")
     pull_butn.grid(column=2,row=0,sticky="ew")
     
-
     diff_viewer = ProjectViewDiff(changes_tab,diff,parent=c2)
     diff_viewer.grid(row=0,column=0,sticky="nsew")
     tree.register_handler(lambda string: (
       diff_viewer.change_view(string),
       c2.set("Changes View")
     ))
-  
+
+    def on_key_press(evt):
+      content = commit_textbox.get("1.0", "end").strip()
+      if len(content) > 0 and content != placeholder_text:
+        commit_butn.configure(state="normal")
+      else:
+        commit_butn.configure(state="disabled")
+    commit_textbox.bind("<KeyRelease>", on_key_press)
+
     def update():
       pass
     return update
