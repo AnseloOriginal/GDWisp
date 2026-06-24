@@ -1,10 +1,14 @@
+import asyncio
 from tkinter import COMMAND
-
 import customtkinter
 from typing import TYPE_CHECKING, Protocol
+
+import git
 from modules.config.colors import main_frame
 from modules.window.views.tree import Tree, TreeStructure
+from modules.window.views.helpers import ForcedPopup
 from modules.window.views.project_view_diff import ProjectViewDiff
+import modules.operations.git.tools as git_tools 
 
 if TYPE_CHECKING:
   from modules.window.views.view import GUI_Functions
@@ -84,9 +88,6 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     quick_create = lambda master,text: customtkinter.CTkButton(master, height=button_height, text=text)
     commit_butn = quick_create(c1,"Commit")
     commit_butn.grid(column=1,row=9,sticky="ew")
-    commit_butn.configure(
-      command=lambda: print("Commit")
-    )
     commit_butn.configure(state="disabled")
 
     two_butn_space = customtkinter.CTkFrame(c1, width=button_height)
@@ -114,6 +115,29 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
         commit_butn.configure(state="disabled")
     commit_textbox.bind("<KeyRelease>", on_key_press)
 
+    async def on_commit():
+      popup = ForcedPopup(app)
+      stage = "starting"
+      try:
+        msg = commit_textbox.get("1.0", "end").strip()
+        popup.title("Starting Commit")
+        popup.add_text("Starting commit. Please wait...",False)
+        folder: str = info["folder_dir"]
+        stage = "staging"
+        result1 = await asyncio.to_thread(git_tools.stage_all_files, folder)        
+        popup.add_text(f"Staged {result1['file_count']} file(s) for commit")
+        stage = "committing"
+        if (result1['file_count'] == 0):
+          raise ValueError("cannot commit with no changes")
+        result2 = await asyncio.to_thread(git_tools.commit, folder, msg)
+        popup.add_text(f"Commit successful ({result2['hexsha']})",True,"success")
+        popup.show_close(True)
+      except Exception as e:
+        popup.add_text(f"Commit failed during {stage} stage",True,"error")
+        popup.add_text(f"Reason for failure is {str(e)}",True,"error")
+        popup.show_close(True)
+      
+    commit_butn.configure(command=lambda: asyncio.run(on_commit()))
     def update():
       pass
     return update

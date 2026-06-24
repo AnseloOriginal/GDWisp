@@ -43,7 +43,7 @@ def get_unmodified_file(path_to_repo: str, path_to_file: str):
   
 
 def repo_data(path_to_repo: str):
-  data = {}
+  data: dict[str, str] = {}
   if (not has_repo(path_to_repo)):
     return data
   repo = git.Repo(path_to_repo)

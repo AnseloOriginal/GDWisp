@@ -20,7 +20,7 @@ theme_colors = {
     "hover_color": ("#BDB7FA", "#BDB7FA"),
     "border_color": ("#3E454A", "#949A9F"),
     "butn_text_color": ("#000000", "#000000"),
-    "small_text_color": ("#103C7D", "#103C7D")
+    "small_text_color": ("#103C7D", "#103C7D"),
 }
 
 #Used by the tree in Project view
@@ -38,3 +38,7 @@ standard_diff = {
 	"new": "#007843"
 }
 
+status_colors = {
+	"error": "#D32F2F",
+	"success": "#2E7D32"
+}
