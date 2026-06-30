@@ -26,3 +26,7 @@ def commit(location: str, msg: str):
 		"hexsha": commit.hexsha[0:6]
 	}
 
+def commit_list(location: str):
+	repo = git.Repo(location)
+	commits = repo.iter_commits(all=True, max_count=20)
+	return commits

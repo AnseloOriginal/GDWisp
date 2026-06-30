@@ -5,9 +5,10 @@ from typing import TYPE_CHECKING, Protocol
 
 import git
 from modules.config.colors import main_frame
-from modules.window.views.tree import Tree, TreeStructure
-from modules.window.views.helpers import ForcedPopup
-from modules.window.views.project_view_diff import ProjectViewDiff
+from modules.window.views.project_view_helpers.tree import Tree, TreeStructure
+from modules.window.views.project_view_helpers.timeline import Timeline
+from modules.window.views.helpers import ForcedPopup, multiple_button, AutoHidingScrollFrame
+from modules.window.views.project_view_helpers.diff import ProjectViewDiff
 import modules.operations.git.tools as git_tools 
 
 if TYPE_CHECKING:
@@ -106,7 +107,8 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
       diff_viewer.change_view(string),
       c2.set("Changes View")
     ))
-
+    render_tools(tools_tab,info["folder_dir"])
+    diff_viewer.apply_fix(False)
     def on_key_press(evt):
       content = commit_textbox.get("1.0", "end").strip()
       if len(content) > 0 and content != placeholder_text:
@@ -145,3 +147,25 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     import traceback
     print("CRASHED INSIDE CALLBACK:")
     traceback.print_exc() # Forcibly prints the hidden error trace
+
+def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
+  parent.grid_columnconfigure((0,2), weight=1)
+  parent.grid_columnconfigure(1, minsize=2)
+  parent.grid_rowconfigure(0, weight=1)
+  divider = customtkinter.CTkFrame(parent,width=2,fg_color="black")
+  divider.grid(column=1,row=0,sticky="ns")
+  
+  timeline_section = customtkinter.CTkFrame(parent)
+  timeline_section.grid(column=0,row=0,sticky="nsew")
+  timeline_section.grid_columnconfigure(1, weight=1)
+  timeline = Timeline(timeline_section,repo_folder)
+  timeline.grid(column=0,row=0, sticky="nswe")
+
+  tools = customtkinter.CTkFrame(parent)
+  tools.grid(column=2,row=0,sticky="nsew")
+  tools.grid_columnconfigure((0,2), minsize=20)
+  tools.grid_columnconfigure(1, weight=1)
+  tools.grid_columnconfigure((0,2), minsize=20)
+  tools.grid_rowconfigure(1, weight=1)
+  f1, b1 = multiple_button(tools,"View Changes","Diff Commits")
+  f1.grid(column=1,row=1, sticky="nswe")

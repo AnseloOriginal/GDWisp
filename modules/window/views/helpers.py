@@ -138,3 +138,16 @@ class ForcedPopup(customtkinter.CTkToplevel):
     else:
       self.close_butn.configure(state="disabled")
 
+def multiple_button(parent,*labels: str, minsize: int = 25):
+  frame = customtkinter.CTkFrame(parent)
+  buttons: list[customtkinter.CTkButton] = []
+  n = 0
+  for label in labels:
+    button = customtkinter.CTkButton(frame,text=label)
+    button.grid(row=0,column=n)
+    buttons.append(button)
+    gap_col  = n - 1
+    if (n >= 1):
+        frame.grid_columnconfigure(gap_col,minsize=minsize,weight=1)
+    n = n + 2
+  return frame,buttons 
