@@ -152,14 +152,15 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   parent.grid_columnconfigure((0,2), weight=1)
   parent.grid_columnconfigure(1, minsize=2)
   parent.grid_rowconfigure(0, weight=1)
-  divider = customtkinter.CTkFrame(parent,width=2,fg_color="black")
-  divider.grid(column=1,row=0,sticky="ns")
+  # divider = customtkinter.CTkFrame(parent,width=2,fg_color="black")
+  # divider.grid(column=1,row=0,sticky="ns")
   
   timeline_section = customtkinter.CTkFrame(parent)
   timeline_section.grid(column=0,row=0,sticky="nsew")
   timeline_section.grid_columnconfigure(1, weight=1)
+  timeline_section.grid_rowconfigure(1, weight=1)
   timeline = Timeline(timeline_section,repo_folder)
-  timeline.grid(column=0,row=0, sticky="nswe")
+  timeline.grid(column=1,row=1, sticky="nsew")
 
   tools = customtkinter.CTkFrame(parent)
   tools.grid(column=2,row=0,sticky="nsew")

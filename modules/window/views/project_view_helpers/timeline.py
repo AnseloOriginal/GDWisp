@@ -1,5 +1,6 @@
 import queue
 from time import perf_counter
+from git.exc import BadObject
 from git.objects import commit
 from git import Commit
 from modules.window.views.helpers import AutoHidingScrollFrame
@@ -27,14 +28,14 @@ class InfoEventType(TypedDict):
 	refs: RefType
 	commits: list[ConsumedCommit]
 
-class Timeline(customtkinter.CTkFrame):
+class Timeline(customtkinter.CTkScrollableFrame):
 	def __init__(
 		self, 
 		master: customtkinter.CTkBaseClass,
 		repo_path: str,
 		 **kwargs
 	):
-		super().__init__(master, **kwargs)
+		super().__init__(master, width=350,height=500,**kwargs)
 		self.grid_columnconfigure((0,4),minsize=5)
 		self.grid_columnconfigure(2,minsize=10)
 		self.grid_columnconfigure((1,3),weight=1)
@@ -107,9 +108,9 @@ class Dot(customtkinter.CTkButton):
 
 
 
-class BranchLine(customtkinter.CTkLabel):
+class BranchLine(customtkinter.CTkButton):
 	def __init__(self,parent,commit: ConsumedCommit, n: int):
-		super().__init__(parent,text=commit.summary,anchor="w")
+		super().__init__(parent,text=commit.summary,anchor="w",fg_color="transparent")
 		self.id = commit.hexsha
 		self.commit = commit
 		self.n = n
@@ -123,6 +124,8 @@ class BranchDrawingEngine(tk.Canvas):
 			width=100,
 			**kwargs,
 			bg=main_frame["color"][0],
+			borderwidth=0,
+			border=0
 		)
 		self.width = width
 		self.repo_path = repo_path
@@ -150,9 +153,8 @@ class BranchDrawingEngine(tk.Canvas):
 
 	def create_branch(self,branch_name:str,hexsha: str):
 		color_list = [
-			"orange",
-			"blue",
-			"purple"
+			"orange", "blue", "purple",
+			"red", "yellow"
 		]
 		count = len(self.branches)
 		branch = Branch(color=color_list[count])
@@ -170,6 +172,14 @@ class BranchDrawingEngine(tk.Canvas):
 			if branch.has_child(hexsha):
 				return name
 		return False
+
+	def remove_from_branches(self,hexsha: str):
+		parents: list[str] = []
+		for name,branch in self.branches.items():
+			parent = branch.remove_child(hexsha)
+			if parent:
+				parents.append(parent)
+		return parents
 
 	def build(self,
 		lines: list[BranchLine],
@@ -189,18 +199,23 @@ class BranchDrawingEngine(tk.Canvas):
 		for line in lines:
 			print("Processing",line.id)
 			is_root = len(line.commit.parents) == 0
-			is_tip = self.is_ref_of(line.id) #This also contains the branch
+			is_tip = self.is_ref_of(line.id) # This returns the branch name
 			is_merge = len(line.commit.parents) > 1
 			one_child = len(line.commit.parents) ==  1
+
+			if (is_tip):
+				exists_in_other_branch = self.exists_in_branch(line.id)
+				if (exists_in_other_branch):
+					parents = self.remove_from_branches(line.id)
+					for child in parents:
+						merge_list.append((child,line.id))
+				print("Found new branch: ",is_tip," Commit: ",line.id)
+				self.create_branch(is_tip,line.id)
 
 			if (is_merge):
 				print("Found merge",line.commit.parents)
 				self.add_to_branch(line.id,line.commit.parents[0])
 				merge_list.append((line.id,line.commit.parents[1]))
-
-			if (is_tip):
-				print("Found new branch: ",is_tip," Commit: ",line.id)
-				self.create_branch(is_tip,line.id)
 
 			if (one_child):
 				parent_exists = self.exists_in_branch(line.commit.parents[0])
@@ -214,7 +229,7 @@ class BranchDrawingEngine(tk.Canvas):
 			print(" ")
 			print(" ")
 			
-		dist = 0
+		dist = 0 if len(self.branches) == 1 else (len(self.branches)-2)*-30
 		for name,branch in self.branches.items():
 			last_hexsha = None
 			color = branch.color
@@ -255,5 +270,15 @@ class Branch:
 
 	def has_child(self,hexsha: str):
 		return self.list.count(hexsha) > 0
+
+	def remove_child(self,hexsha: str):
+		"""Removes a child and returns its parent if it exists"""
+		if self.has_child(hexsha):
+			index = self.list.index(hexsha)
+			self.list.remove(hexsha)
+			parent = False if index == 0 else self.list[index-1]
+			return parent
+		else:
+			return False
 
 
