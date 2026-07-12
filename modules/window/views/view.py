@@ -36,7 +36,7 @@ class View_Manager:
     elif (view == "Error"):
       func = error_view(app,self.funcs,extras[0],extras[1])
     elif (view  == "Project"):
-      func = project_view(app,self.funcs,extras[0],extras[1],extras[2])
+      func = project_view(app,self.funcs,extras[0],extras[1])
     return func
       
 

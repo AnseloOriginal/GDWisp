@@ -8,7 +8,6 @@ class Diff:
     self.p1 = p1
     self.p2 = p2
     self.__diff_properties()
-    
   
   def __diff_properties(self):
     property_list = ProjectPropertiesData.__annotations__.keys()
@@ -31,3 +30,13 @@ class Diff:
       self.propertiesDiff = propsDiff
     else:
       self.propertiesDiff = None
+
+  def data_as_str(self):
+    data_str = []
+    if self.propertiesDiff:
+      data_str.append(f"Changed {len(self.propertiesDiff)} project properties")
+    return data_str
+
+  def changes_exists(self):
+    p1 = self.propertiesDiff is not None
+    return p1

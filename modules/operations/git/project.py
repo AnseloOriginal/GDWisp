@@ -2,6 +2,7 @@ from modules.operations.git.helpers import has_repo, create_repo
 import git
 import pathlib
 from typing import cast
+
 def setup(path: str):
   """Creates and Setup a new repo"""
   if (not has_repo(path)):
@@ -18,6 +19,7 @@ def create_gitignore(path: str):
       return
   ignore_path = folder / ".gitignore"
   ignore_path.write_text("*.autosave")
+
 
 def get_unmodified_file(path_to_repo: str, path_to_file: str):
   """Gets the unmodified file from the repo. Only utf-8 srings are supported"""

@@ -1,5 +1,6 @@
 from time import perf_counter
 
+import customtkinter
 import git
 from git.refs import head
 
@@ -46,6 +47,16 @@ class CommitHelper:
     except git.GitCommandError:
       return final_refs
 
-  def commits(self):
-    commits = self.repo.iter_commits(all=True,max_count=20)
+  def commits(self,skip: int):
+    print("Skipping: ",skip)
+    commits = self.repo.iter_commits(all=True,max_count=20,skip=skip)
     return commits
+
+  def no_of_commits(self):
+    return int(self.repo.git.rev_list('--count', 'HEAD'))
+
+def safe_get(seq, index, default=None):
+    try:
+        return seq[index]
+    except (TypeError, IndexError, KeyError):
+        return default

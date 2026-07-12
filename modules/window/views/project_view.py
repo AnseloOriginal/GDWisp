@@ -2,28 +2,25 @@ import asyncio
 from tkinter import COMMAND
 import customtkinter
 from typing import TYPE_CHECKING, Protocol
+from datetime import datetime, timezone, timedelta
 
 import git
 from modules.config.colors import main_frame
-from modules.window.views.project_view_helpers.tree import Tree, TreeStructure
-from modules.window.views.project_view_helpers.timeline import Timeline
-from modules.window.views.helpers import ForcedPopup, multiple_button, AutoHidingScrollFrame
+from modules.window.views.project_view_helpers.commitlogic import CommitLogic
+from modules.window.views.project_view_helpers.tree import Tree, TreeStructure, generate_tree_data
+from modules.window.views.project_view_helpers.timeline import ConsumedCommit, Timeline
+from modules.window.views.helpers import ForcedPopup, multiple_button, AutoHidingScrollFrame, LabeledText, AdvancePadding
 from modules.window.views.project_view_helpers.diff import ProjectViewDiff
-import modules.operations.git.tools as git_tools 
+from modules.window.views.project_view_helpers.extrainfo import CommitExtraInfo
+import modules.operations.git.tools as git_tools
+from modules.window.views.project_view_helpers.updater import Updater 
 
 if TYPE_CHECKING:
   from modules.window.views.view import GUI_Functions
   from modules.operations.git.diff import Diff
+  
 
-def generate_tree_data(diff: "Diff"): 
-  data: TreeStructure = {}
-  if (diff.propertiesDiff != None):
-    if (data.get("Project", None) == None):
-      data["Project"] = {}
-    data["Project"]["Properties"] = "properties"
-  return data
-
-def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, location: str, diff: "Diff"):
+def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, location: str):
   try:
     info = funcs.get_project_information(location)
     app.title("Gdevelop Project: "+name)
@@ -73,8 +70,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
 
     changes_text = customtkinter.CTkLabel(c1, text="Changes",font=(None, 18, "bold"),anchor="w")
     changes_text.grid(row=1, column=1, sticky="ew")
-    tree_data = generate_tree_data(diff)
-    tree = Tree(c1,tree_data,False)
+    tree = Tree(c1,location,info["folder_dir"])
     tree.grid(row=3,column=1,sticky="ew")
     current_branch = customtkinter.CTkLabel(c1, text="Current Branch: "+info.get("branch","Unknown"),
       font=(None, 18, "bold"),anchor="w")
@@ -101,45 +97,37 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     push_butn.grid(column=0,row=0,sticky="ew")
     pull_butn.grid(column=2,row=0,sticky="ew")
     
-    diff_viewer = ProjectViewDiff(changes_tab,diff,parent=c2)
+    diff_viewer = ProjectViewDiff(changes_tab,tree.diff,parent=c2)
     diff_viewer.grid(row=0,column=0,sticky="nsew")
-    tree.register_handler(lambda string: (
+    tree.register_click_handler(lambda string: (
       diff_viewer.change_view(string),
       c2.set("Changes View")
     ))
-    render_tools(tools_tab,info["folder_dir"])
+    def on_new_diff(diff):
+      print("Recieving")
+      diff_viewer.diff = diff
+    tree.register_update_handler(on_new_diff)
+    timeline = render_tools(tools_tab,info["folder_dir"])
     diff_viewer.apply_fix(False)
     def on_key_press(evt):
       content = commit_textbox.get("1.0", "end").strip()
-      if len(content) > 0 and content != placeholder_text:
+      if len(content) > 0 and content != placeholder_text and not tree.no_change:
         commit_butn.configure(state="normal")
       else:
         commit_butn.configure(state="disabled")
     commit_textbox.bind("<KeyRelease>", on_key_press)
 
-    async def on_commit():
-      popup = ForcedPopup(app)
-      stage = "starting"
-      try:
-        msg = commit_textbox.get("1.0", "end").strip()
-        popup.title("Starting Commit")
-        popup.add_text("Starting commit. Please wait...",False)
-        folder: str = info["folder_dir"]
-        stage = "staging"
-        result1 = await asyncio.to_thread(git_tools.stage_all_files, folder)        
-        popup.add_text(f"Staged {result1['file_count']} file(s) for commit")
-        stage = "committing"
-        if (result1['file_count'] == 0):
-          raise ValueError("cannot commit with no changes")
-        result2 = await asyncio.to_thread(git_tools.commit, folder, msg)
-        popup.add_text(f"Commit successful ({result2['hexsha']})",True,"success")
-        popup.show_close(True)
-      except Exception as e:
-        popup.add_text(f"Commit failed during {stage} stage",True,"error")
-        popup.add_text(f"Reason for failure is {str(e)}",True,"error")
-        popup.show_close(True)
+    def on_commit():
+      def on_success(hexsha):
+        commit_textbox.delete("1.0","end")
+        tree.reset()
+        tree.refresh()
+        diff_viewer._render_placeholder()
+        commit_butn.configure(state="disabled")
+      msg = commit_textbox.get("1.0", "end").strip()
+      commit = CommitLogic(app,msg,info["folder_dir"], on_success)
       
-    commit_butn.configure(command=lambda: asyncio.run(on_commit()))
+    commit_butn.configure(command= on_commit)
     def update():
       pass
     return update
@@ -154,7 +142,7 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   parent.grid_rowconfigure(0, weight=1)
   # divider = customtkinter.CTkFrame(parent,width=2,fg_color="black")
   # divider.grid(column=1,row=0,sticky="ns")
-  
+
   timeline_section = customtkinter.CTkFrame(parent)
   timeline_section.grid(column=0,row=0,sticky="nsew")
   timeline_section.grid_columnconfigure(1, weight=1)
@@ -166,7 +154,50 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   tools.grid(column=2,row=0,sticky="nsew")
   tools.grid_columnconfigure((0,2), minsize=20)
   tools.grid_columnconfigure(1, weight=1)
-  tools.grid_columnconfigure((0,2), minsize=20)
-  tools.grid_rowconfigure(1, weight=1)
-  f1, b1 = multiple_button(tools,"View Changes","Diff Commits")
-  f1.grid(column=1,row=1, sticky="nswe")
+  # tools.grid_rowconfigure(1, weight=1)
+
+  g1 = AdvancePadding(tools,"Timeline Tools")
+  default_text = "—"
+  author = LabeledText(g1.padded,"Author",default_text)
+  commit_id = LabeledText(g1.padded,"Commit ID",default_text)
+  author = LabeledText(g1.padded,"Author",default_text)
+  action = LabeledText(g1.padded,"Action",default_text)
+  timestamp = LabeledText(g1.padded,"Timestamp",default_text)
+  g1.autogrid(author,commit_id,author,action,timestamp,spacing=2)
+  f1, b1 = multiple_button(g1.nonpadded,"Extra Info","Diff Commits")
+  g1.autogrid(f1,spacing=10)
+  g1.grid(column=1,row=1, sticky="nswe")
+
+  g2 = AdvancePadding(tools, "Branch Tools")
+  f2, b2 = multiple_button(g2.nonpadded,"Change Branch","Create Branch")
+  f3, b3 = multiple_button(g2.nonpadded,"Merge Branch","Delete Branch")
+  g2.autogrid(f2,f3,spacing=2)
+  g2.grid(column=1,row=2,sticky="nswe",pady=(10,0))
+
+  g3 = AdvancePadding(tools, "Remote Tools")
+  f4, b4 = multiple_button(g3.nonpadded,"Add Remote","Sync")
+  f5, b5 = multiple_button(g3.nonpadded,"Remove Remote",)
+  g2.autogrid(f4,f5,spacing=2)
+  g3.grid(column=1,row=3,sticky="nswe",pady=(10,0))
+
+  g4 = AdvancePadding(tools, "Advanced Tools")
+  f6, b6 = multiple_button(g4.nonpadded,"Revert","Reset")
+  g4.autogrid(f6,spacing=2)
+  g4.grid(column=1,row=4,sticky="nswe",pady=(10,0))
+
+  b1[0].configure(state="disabled")
+  def on_timeline_click(hexsha: str, commit: ConsumedCommit):
+    commit_id.change_text(hexsha[0:6])
+    author.change_text(commit.author)
+    action.change_text(commit.action)
+    tz = timezone(timedelta(seconds=-commit.date_tz))
+    time = datetime.fromtimestamp(commit.date,tz)
+    timestamp.change_text(time.strftime("%I:%M%p, %d %B %Y").lstrip("0"))
+    b1[0].configure(state="active")
+    b1[0].configure(command=lambda: CommitExtraInfo(parent,repo_folder,hexsha))
+  timeline.ext_funcs = on_timeline_click
+
+  return timeline
+
+
+

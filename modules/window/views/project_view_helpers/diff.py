@@ -32,7 +32,7 @@ class DiffLine(customtkinter.CTkFrame):
         new.grid(column=8, row=0, sticky="ew")
 
 class ProjectViewDiff(customtkinter.CTkFrame):
-    def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff, parent: customtkinter.CTkTabview | None =None):
+    def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
         super().__init__(master)
         self.diff = diff
         self.grid_columnconfigure((0,2),minsize=20)
@@ -56,12 +56,13 @@ class ProjectViewDiff(customtkinter.CTkFrame):
     def change_view(self,newview: str):
         if (newview == "properties"):
             self._render_properties()
-
+        elif newview == "placeholder":
+            self._render_placeholder()
 
     def _render_properties(self):
         self.apply_fix(True)
         self.wipe()
-        if (not self.diff.propertiesDiff):
+        if (not self.diff or not self.diff.propertiesDiff):
             return
 
         area = self.create_content_area()

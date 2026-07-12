@@ -1,7 +1,7 @@
 from platformdirs import user_data_path
 import json
 import pathlib
-from typing import TypedDict
+from typing import Literal, TypedDict
 from datetime import datetime, timezone
 from math import floor
 
@@ -96,10 +96,14 @@ def write_to_disk():
   data = json.dumps(project_list)
   storage_path.write_text(data)
 
-def get_project_by_location(location: str):
+def get_project_with_data(
+  lookup: str, 
+  target: Literal["json_dir","folder_dir", "name" ] = "json_dir"
+):
+  """Get project using its property"""
   ret = None
   for project in project_list:
-    if (project["json_dir"] == location):
+    if (project[target] == lookup):
       ret = project
   if ret == None:
     raise FileNotFoundError
