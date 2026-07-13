@@ -1,4 +1,4 @@
-from platformdirs import user_data_path
+from modules.config.paths import folder_path
 import json
 import pathlib
 from typing import Literal, TypedDict
@@ -11,7 +11,7 @@ class project_data(TypedDict):
   folder_dir: str
   last_accessed: str
 
-folder_path = user_data_path(appname="Gdevelop Forge",ensure_exists=True, roaming=True)
+
 storage_path = folder_path / "projects.json"
 
 project_list: list[project_data] = []

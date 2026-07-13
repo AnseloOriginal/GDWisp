@@ -2,6 +2,7 @@ import customtkinter
 from modules.window.views.helpers import create_icon_butn, create_project_butn
 from typing import TYPE_CHECKING, Callable
 from modules.config.colors import main_frame, theme_colors
+from modules.window.views.dashboard_helpers.helpers import is_configured, WelcomeMenu
 
 if TYPE_CHECKING:
   from modules.window.views.view import GUI_Functions
@@ -34,7 +35,11 @@ def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str, str
 
 
 def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
+  if not is_configured():
+    WelcomeMenu(app)
+    
   projects = funcs.get_projects_by_date()
+  
   customtkinter.set_appearance_mode("light")
   app.title("Gdevelop Forge")
   app.grid_columnconfigure(0, weight=1)

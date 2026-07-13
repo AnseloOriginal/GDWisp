@@ -4,9 +4,11 @@ from modules.media.image import logo_image
 from modules.window.manager import Manager
 from modules.config.colors import set_theme
 import modules.operations.project.storage as storage
+import modules.settings.settings as settings
 
 set_theme()
 storage.load_app_list()
+settings.load()
 tray = Tray(logo_image)
 manager = Manager()
 
