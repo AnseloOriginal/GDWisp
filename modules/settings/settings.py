@@ -37,4 +37,4 @@ def save_settings():
 		if os.path.exists(temp_file_name):
 			os.remove(temp_file_name)
 		raise e 
-		#Do not close crash as this is important
+		# Do not close but crash as this is important

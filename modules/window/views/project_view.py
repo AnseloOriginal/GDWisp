@@ -11,9 +11,12 @@ from modules.window.views.project_view_helpers.tree import Tree, TreeStructure, 
 from modules.window.views.project_view_helpers.timeline import ConsumedCommit, Timeline
 from modules.window.views.helpers import ForcedPopup, multiple_button, AutoHidingScrollFrame, LabeledText, AdvancePadding
 from modules.window.views.project_view_helpers.diff import ProjectViewDiff
-from modules.window.views.project_view_helpers.extrainfo import CommitExtraInfo
-import modules.operations.git.tools as git_tools
 from modules.window.views.project_view_helpers.updater import Updater 
+from modules.window.views.project_view_helpers.extrainfo import CommitExtraInfo
+from modules.operations.project.watcher import Projectwatcher
+import modules.operations.git.tools as git_tools
+
+
 
 if TYPE_CHECKING:
   from modules.window.views.view import GUI_Functions
@@ -72,6 +75,10 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     changes_text.grid(row=1, column=1, sticky="ew")
     tree = Tree(c1,location,info["folder_dir"])
     tree.grid(row=3,column=1,sticky="ew")
+    def on_project_change():
+      tree.reset()
+      tree.refresh()
+    watcher = Projectwatcher(info["folder_dir"],on_project_change)
     current_branch = customtkinter.CTkLabel(c1, text="Current Branch: "+info.get("branch","Unknown"),
       font=(None, 18, "bold"),anchor="w")
     current_branch.grid(row=5, column=1, sticky="ew")
@@ -126,8 +133,12 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
         commit_butn.configure(state="disabled")
       msg = commit_textbox.get("1.0", "end").strip()
       commit = CommitLogic(app,msg,info["folder_dir"], on_success)
-      
     commit_butn.configure(command= on_commit)
+
+    def clean_up(event):
+      if event.widget == app:
+        watcher.stop()
+    app.bind("<Destroy>",clean_up)
     def update():
       pass
     return update
