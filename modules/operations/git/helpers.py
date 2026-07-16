@@ -47,9 +47,9 @@ class CommitHelper:
     except git.GitCommandError:
       return final_refs
 
-  def commits(self,skip: int):
-    print("Skipping: ",skip)
-    commits = self.repo.iter_commits(all=True,max_count=20,skip=skip)
+  def commits(self,skip: int,max=20):
+    print("Skipping:",skip,"with a max:",20)
+    commits = self.repo.iter_commits(all=True,max_count=max,skip=skip)
     return commits
 
   def no_of_commits(self):

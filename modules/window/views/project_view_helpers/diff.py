@@ -40,6 +40,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         self.grid_rowconfigure(1,weight=1)
         self.grid_rowconfigure((0,2),minsize=20)
         self.parent = parent
+        self.current_view = "placeholder"
         self._render_placeholder()
 
     def wipe(self):
@@ -58,6 +59,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_properties()
         elif newview == "placeholder":
             self._render_placeholder()
+        self.current_view = newview
 
     def _render_properties(self):
         self.apply_fix(True)
@@ -128,3 +130,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self.parent.grid_rowconfigure(0, weight=0, 
                 minsize=self.parent._apply_widget_scaling(self.parent._outer_spacing)
             )
+    def refresh(self):
+        if self.current_view == "placeholder":
+            return
+        self.change_view(self.current_view)

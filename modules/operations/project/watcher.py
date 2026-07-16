@@ -39,6 +39,8 @@ class ProjectEventHandler(FileSystemEventHandler):
 		for excluded in self.exclusion_list:
 			if excluded in path.parts:
 				return True
+			if excluded in path.suffixes:
+				return True
 		return False
 
 class Projectwatcher:

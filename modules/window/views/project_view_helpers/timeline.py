@@ -67,14 +67,18 @@ class Timeline(customtkinter.CTkScrollableFrame):
 		self.scanvas.grid(column=1,row=1, sticky="nsew")
 		first_thread = threading.Thread(target=self.update_info)
 		self.running_thread = True
+		self.running_top_thread = False
 		first_thread.start()
 		
-	def update_info(self):
+	def update_info(self,is_top=False):
 		start = perf_counter()
 		helper = CommitHelper(self.path)
 		if self.no_of_commits is None:
 			self.no_of_commits = helper.no_of_commits()
-		raw_commits = helper.commits(self.processed)
+		if is_top:
+			raw_commits = helper.commits(0,max=10)
+		else:
+			raw_commits = helper.commits(self.processed)
 		commits = [ConsumedCommit(commit) for commit in raw_commits]
 		refs = helper.get_refs()
 		evt: InfoEventType = {
@@ -84,16 +88,26 @@ class Timeline(customtkinter.CTkScrollableFrame):
 		end = perf_counter() - start
 		print(f"Timeline update took {end}s to complete")
 		self.queue.put(evt)
-		self.after(0, self.update_ui)
+		self.after(0, self.update_ui, is_top)
 
-	def update_ui(self):
+	def update_ui(self, is_top: bool):
 		print("[UI Update]")
 		data: InfoEventType = self.queue.get(block=False)
-		self.put_texts(data["commits"])
+		commits = data["commits"]
+		for commit in commits[:]:
+			if not is_top:
+				break
+			line_exists = self.lines.get(commit.hexsha,False)
+			if line_exists:
+				commits.remove(commit)
+		self.put_texts(commits,is_top)
 		# Only call after put_texts has updated lines
 		self.build_nodes(data["refs"])
 		#Do the end of thread here to ensure if only updates after build
-		self.running_thread = False
+		if is_top:
+			self.running_top_thread = False
+		else:
+			self.running_thread = False
 
 	def put_texts(self, commits: list[ConsumedCommit], above: bool = False): 
 		self.commit_list |= {commit.hexsha: commit for commit in commits}
@@ -132,6 +146,16 @@ class Timeline(customtkinter.CTkScrollableFrame):
 			return
 		commit.action = self.scanvas.commit_type(hexsha)
 		self.ext_funcs(hexsha, commit)
+
+	def check_new_commits(self):
+		if self.running_top_thread:
+			return False
+		self.running_top_thread = True
+		top_update_thread = threading.Thread(target=self.update_info, args=[True])
+		top_update_thread.start()
+
+			
+
 
 	def check_scroll(self,top, bottom):
 		self._scrollbar.set(top,bottom)
@@ -219,11 +243,15 @@ class BranchDrawingEngine(tk.Canvas):
 		return False
 
 	def create_branch(self,branch_name:str,hexsha: str):
-		count = len(self.branches)
-		lane = -40 + (len(self.branches) * 20)
-		branch = Branch(lane,color=self.generate_unique_color(count+1))
-		branch.add_child(hexsha)
-		self.branches[branch_name] = branch
+		existing_branch = self.branches.get(branch_name,None)
+		if existing_branch:
+			existing_branch.add_parent(hexsha)
+		else:
+			count = len(self.branches)
+			lane = -40 + (len(self.branches) * 20)
+			branch = Branch(lane,color=self.generate_unique_color(count+1))
+			branch.add_child(hexsha)
+			self.branches[branch_name] = branch
 
 	def add_to_branch(self,descendant: str, hexsha: str):
 		for name,branch in self.branches.items():
@@ -419,6 +447,11 @@ class Branch:
 	def add_child(self,hexsha: str):
 		if not self.has_child(hexsha):
 			self.list.insert(0,hexsha)
+			self.fast_set.add(hexsha)
+
+	def add_parent(self,hexsha: str):
+		if not self.has_child(hexsha):
+			self.list.append(hexsha)
 			self.fast_set.add(hexsha)
 
 	def has_child(self,hexsha: str):

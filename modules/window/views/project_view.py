@@ -78,7 +78,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     def on_project_change():
       tree.reset()
       tree.refresh()
-    watcher = Projectwatcher(info["folder_dir"],on_project_change)
+    watcher = Projectwatcher(info["folder_dir"],lambda: app.after(0,on_project_change))
     current_branch = customtkinter.CTkLabel(c1, text="Current Branch: "+info.get("branch","Unknown"),
       font=(None, 18, "bold"),anchor="w")
     current_branch.grid(row=5, column=1, sticky="ew")
@@ -113,6 +113,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     def on_new_diff(diff):
       print("Recieving")
       diff_viewer.diff = diff
+      diff_viewer.refresh()
     tree.register_update_handler(on_new_diff)
     timeline = render_tools(tools_tab,info["folder_dir"])
     diff_viewer.apply_fix(False)
@@ -131,6 +132,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
         tree.refresh()
         diff_viewer._render_placeholder()
         commit_butn.configure(state="disabled")
+        timeline.check_new_commits()
       msg = commit_textbox.get("1.0", "end").strip()
       commit = CommitLogic(app,msg,info["folder_dir"], on_success)
     commit_butn.configure(command= on_commit)
