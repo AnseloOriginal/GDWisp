@@ -1,7 +1,7 @@
 import json
-from modules.operations.git.diff import Diff
-import modules.operations.git.project as git
-from modules.operations.project.types import ProjectData
+from src.operations.git.diff import Diff
+import src.operations.git.project as git
+from src.operations.project.types import ProjectData
 
 
 def project_diff(file_dir: str, folder_dir: str):

@@ -1,4 +1,4 @@
-from modules.config.paths import folder_path
+from src.core.paths import folder_path
 import json
 import pathlib
 from typing import Literal, TypedDict

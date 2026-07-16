@@ -4,17 +4,17 @@ from time import perf_counter
 from git.exc import BadObject
 from git.objects import commit
 from git import Commit
-from modules.window.views.helpers import AutoHidingScrollFrame
-from modules.operations.git.tools import commit_list
-from modules.operations.git.helpers import CommitHelper, safe_get
+from src.window.views.helpers import AutoHidingScrollFrame
+from src.operations.git.tools import commit_list
+from src.operations.git.helpers import CommitHelper, safe_get
 from collections.abc import Iterator
 import customtkinter
 from typing import Literal, TypedDict, Callable
-from modules.media.image import ICON
+from src.media.image import ICON
 from queue import Queue
 import threading
 import tkinter as tk
-from modules.config.colors import main_frame
+from src.core.colors import main_frame
 import colorsys
 
 bullet = customtkinter.CTkImage(ICON["bullet"])

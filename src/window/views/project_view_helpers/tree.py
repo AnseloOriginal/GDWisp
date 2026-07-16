@@ -3,11 +3,11 @@ from queue import Queue
 from threading import Thread
 from typing import Literal, Callable
 import customtkinter
-from modules.media.image import ICON
-from modules.config.colors import tree_theme
-from modules.operations.git.diff import Diff
-from modules.operations.project.diff_related import project_diff
-from modules.window.views.project_view_helpers.extrainfo import GrowingProgressBar
+from src.media.image import ICON
+from src.core.colors import tree_theme
+from src.operations.git.diff import Diff
+from src.operations.project.diff_related import project_diff
+from src.window.views.project_view_helpers.extrainfo import GrowingProgressBar
 
 
 type TreeStructure = dict[str, TreeStructure | str]

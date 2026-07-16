@@ -3,11 +3,11 @@ from types import NoneType
 from typing import Literal
 import customtkinter
 from git import diff
-from modules.config.colors import standard_diff
-from modules.media.image import ICON
-from modules.operations.git.diff import Diff
-from modules.window.views.helpers import AutoHidingScrollFrame
-from modules.window.views.conversion import properties_name
+from src.core.colors import standard_diff
+from src.media.image import ICON
+from src.operations.git.diff import Diff
+from src.window.views.helpers import AutoHidingScrollFrame
+from src.window.views.conversion import properties_name
 
 class DiffLine(customtkinter.CTkFrame):
 

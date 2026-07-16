@@ -2,7 +2,7 @@ import customtkinter
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-  from modules.window.views.view import GUI_Functions
+  from src.window.views.view import GUI_Functions
 
 def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", msg1: str, msg2: str):
   app.bell() 

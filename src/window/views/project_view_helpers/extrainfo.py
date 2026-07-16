@@ -2,10 +2,10 @@ import customtkinter as CTk
 from queue import Queue
 import threading
 from git import Commit
-from modules.operations.git.tools import get_commit
+from src.operations.git.tools import get_commit
 import tkinter.font as tkfont
 
-from modules.operations.project.tools import diff_from_commit
+from src.operations.project.tools import diff_from_commit
 
 class ConsumedCommit:
 	def __init__(self, commit: Commit):

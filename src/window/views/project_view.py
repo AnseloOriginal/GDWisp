@@ -5,22 +5,22 @@ from typing import TYPE_CHECKING, Protocol
 from datetime import datetime, timezone, timedelta
 
 import git
-from modules.config.colors import main_frame
-from modules.window.views.project_view_helpers.commitlogic import CommitLogic
-from modules.window.views.project_view_helpers.tree import Tree, TreeStructure, generate_tree_data
-from modules.window.views.project_view_helpers.timeline import ConsumedCommit, Timeline
-from modules.window.views.helpers import ForcedPopup, multiple_button, AutoHidingScrollFrame, LabeledText, AdvancePadding
-from modules.window.views.project_view_helpers.diff import ProjectViewDiff
-from modules.window.views.project_view_helpers.updater import Updater 
-from modules.window.views.project_view_helpers.extrainfo import CommitExtraInfo
-from modules.operations.project.watcher import Projectwatcher
-import modules.operations.git.tools as git_tools
+from src.core.colors import main_frame
+from src.window.views.project_view_helpers.commitlogic import CommitLogic
+from src.window.views.project_view_helpers.tree import Tree, TreeStructure, generate_tree_data
+from src.window.views.project_view_helpers.timeline import ConsumedCommit, Timeline
+from src.window.views.helpers import ForcedPopup, multiple_button, AutoHidingScrollFrame, LabeledText, AdvancePadding
+from src.window.views.project_view_helpers.diff import ProjectViewDiff
+from src.window.views.project_view_helpers.updater import Updater 
+from src.window.views.project_view_helpers.extrainfo import CommitExtraInfo
+from src.operations.project.watcher import Projectwatcher
+import src.operations.git.tools as git_tools
 
 
 
 if TYPE_CHECKING:
-  from modules.window.views.view import GUI_Functions
-  from modules.operations.git.diff import Diff
+  from src.window.views.view import GUI_Functions
+  from src.operations.git.diff import Diff
   
 
 def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, location: str):

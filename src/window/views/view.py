@@ -1,16 +1,16 @@
 from typing import Literal, TYPE_CHECKING, Callable
 import customtkinter
-from modules.window.views.dashboard_view import view as main_view
-from modules.window.views.error_view import view as error_view
-from modules.window.views.project_view import view as project_view
-from modules.debug.dummy import log_special_message
-from modules.operations.project.cycle import create_new_project, open_project
-from modules.operations.project.tools import get_project_information
-from modules.window.types import VIEW_TYPE
-import modules.operations.project.storage as storage
+from src.window.views.dashboard_view import view as main_view
+from src.window.views.error_view import view as error_view
+from src.window.views.project_view import view as project_view
+from src.debug.dummy import log_special_message
+from src.operations.project.cycle import create_new_project, open_project
+from src.operations.project.tools import get_project_information
+from src.window.types import VIEW_TYPE
+import src.operations.project.storage as storage
 
 if TYPE_CHECKING:
-  from modules.window.manager import Manager
+  from src.window.manager import Manager
 
 class GUI_Functions:
   
@@ -26,7 +26,7 @@ class GUI_Functions:
 
 class View_Manager:
   def __init__(self,manager: "Manager", *extras) -> None:
-    from modules.window.manager import Manager
+    from src.window.manager import Manager
     self.funcs = GUI_Functions(manager)
     self.manager = manager
     

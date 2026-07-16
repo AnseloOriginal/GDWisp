@@ -1,14 +1,14 @@
 from tkinter import filedialog
 from typing import TYPE_CHECKING
-from modules.operations.project.diff_related import project_diff
-import modules.operations.project.storage as storage
-import modules.operations.git.project as git
-from modules.operations.git.diff import Diff
+from src.operations.project.diff_related import project_diff
+import src.operations.project.storage as storage
+import src.operations.git.project as git
+from src.operations.git.diff import Diff
 import json
-from modules.operations.project.types import ProjectData
+from src.operations.project.types import ProjectData
 
 if TYPE_CHECKING:
-  from modules.window.manager import Manager
+  from src.window.manager import Manager
 
 def create_new_project(manager: "Manager"):
   """Prompts the user to create a new project"""

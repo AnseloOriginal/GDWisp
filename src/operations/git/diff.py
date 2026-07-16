@@ -1,6 +1,6 @@
-from modules.operations.project.types import ProjectData, ProjectPropertiesData
+from src.operations.project.types import ProjectData, ProjectPropertiesData
 from typing import Any
-from modules.operations.git.diff_types import PropertiesDiff
+from src.operations.git.diff_types import PropertiesDiff
 
 class Diff:
   def __init__(self,p1: ProjectData, p2: ProjectData | None):

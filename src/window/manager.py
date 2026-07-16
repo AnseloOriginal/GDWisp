@@ -1,7 +1,7 @@
 import customtkinter
-from modules.window.views.view import View_Manager
+from src.window.views.view import View_Manager
 from typing import TYPE_CHECKING
-from modules.window.types import VIEW_TYPE, ManagedWindow
+from src.window.types import VIEW_TYPE, ManagedWindow
 from typing import TypedDict
 from uuid import uuid4
 

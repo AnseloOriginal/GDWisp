@@ -1,8 +1,8 @@
 from sys import maxsize, prefix
 
 import customtkinter
-from modules.media.image import ICON
-from modules.config.colors import status_colors
+from src.media.image import ICON
+from src.core.colors import status_colors
 from typing import Callable
 
 def create_icon_butn(

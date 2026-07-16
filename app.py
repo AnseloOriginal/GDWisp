@@ -1,10 +1,10 @@
 import sys
-from modules.window.tray import Tray
-from modules.media.image import logo_image
-from modules.window.manager import Manager
-from modules.config.colors import set_theme
-import modules.operations.project.storage as storage
-import modules.settings.settings as settings
+from src.window.tray import Tray
+from src.media.image import logo_image
+from src.window.manager import Manager
+from src.core.colors import set_theme
+import src.operations.project.storage as storage
+import src.preferences.settings as settings
 
 set_theme()
 storage.load_app_list()

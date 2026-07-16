@@ -1,5 +1,5 @@
-import modules.settings.settings as settings
-from modules.config.colors import main_frame, theme_colors
+import src.preferences.settings as settings
+from src.core.colors import main_frame, theme_colors
 import customtkinter as CTk
 
 def is_configured():
