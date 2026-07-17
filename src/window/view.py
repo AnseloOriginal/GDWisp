@@ -1,8 +1,8 @@
 from typing import Literal, TYPE_CHECKING, Callable
 import customtkinter
-from src.window.views.dashboard_view import view as main_view
-from src.window.views.error_view import view as error_view
-from src.window.views.project_view import view as project_view
+from src.window.screens.dashboard.view import view as main_view
+from src.window.screens.shared.error_view import view as error_view
+from src.window.screens.project.view import view as project_view
 from src.debug.dummy import log_special_message
 from src.operations.project.cycle import create_new_project, open_project
 from src.operations.project.tools import get_project_information

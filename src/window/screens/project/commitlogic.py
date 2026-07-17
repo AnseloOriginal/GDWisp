@@ -1,7 +1,6 @@
 from typing import Callable
 
-import customtkinter as CTk
-from src.window.views.helpers import ForcedPopup
+from src.window.screens.shared.forced_popup import ForcedPopup
 import src.operations.git.tools as git_tools 
 import threading
 import queue

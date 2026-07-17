@@ -7,7 +7,7 @@ from src.media.image import ICON
 from src.core.colors import tree_theme
 from src.operations.git.diff import Diff
 from src.operations.project.diff_related import project_diff
-from src.window.views.project_view_helpers.extrainfo import GrowingProgressBar
+from src.window.screens.project.extrainfo import GrowingProgressBar
 
 
 type TreeStructure = dict[str, TreeStructure | str]

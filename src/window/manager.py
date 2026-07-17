@@ -1,5 +1,5 @@
 import customtkinter
-from src.window.views.view import View_Manager
+from src.window.view import View_Manager
 from typing import TYPE_CHECKING
 from src.window.types import VIEW_TYPE, ManagedWindow
 from typing import TypedDict

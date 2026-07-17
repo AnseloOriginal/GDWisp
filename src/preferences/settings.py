@@ -1,5 +1,5 @@
 from pydantic import ValidationError
-from src.settings.model import AppSettings
+from src.preferences.model import AppSettings
 from src.core.paths import folder_path
 import json
 import tempfile

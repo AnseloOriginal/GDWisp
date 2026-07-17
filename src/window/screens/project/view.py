@@ -4,22 +4,22 @@ import customtkinter
 from typing import TYPE_CHECKING, Protocol
 from datetime import datetime, timezone, timedelta
 
-import git
 from src.core.colors import main_frame
-from src.window.views.project_view_helpers.commitlogic import CommitLogic
-from src.window.views.project_view_helpers.tree import Tree, TreeStructure, generate_tree_data
-from src.window.views.project_view_helpers.timeline import ConsumedCommit, Timeline
-from src.window.views.helpers import ForcedPopup, multiple_button, AutoHidingScrollFrame, LabeledText, AdvancePadding
-from src.window.views.project_view_helpers.diff import ProjectViewDiff
-from src.window.views.project_view_helpers.updater import Updater 
-from src.window.views.project_view_helpers.extrainfo import CommitExtraInfo
+from src.window.screens.project.commitlogic import CommitLogic
+from src.window.screens.project.tree import Tree, TreeStructure, generate_tree_data
+from src.window.screens.project.timeline import ConsumedCommit, Timeline
+from src.window.screens.shared.helpers import AutoHidingScrollFrame, LabeledText, AdvancePadding
+from src.window.screens.shared.buttons import multiple_button
+from src.window.screens.shared.forced_popup import ForcedPopup
+from src.window.screens.project.diff import ProjectViewDiff
+from src.window.screens.project.extrainfo import CommitExtraInfo
 from src.operations.project.watcher import Projectwatcher
 import src.operations.git.tools as git_tools
 
 
 
 if TYPE_CHECKING:
-  from src.window.views.view import GUI_Functions
+  from window.view import GUI_Functions
   from src.operations.git.diff import Diff
   
 

@@ -1,12 +1,7 @@
 from itertools import count
-import queue
 from time import perf_counter
-from git.exc import BadObject
-from git.objects import commit
 from git import Commit
-from src.window.views.helpers import AutoHidingScrollFrame
-from src.operations.git.tools import commit_list
-from src.operations.git.helpers import CommitHelper, safe_get
+from src.operations.git.helpers import CommitHelper
 from collections.abc import Iterator
 import customtkinter
 from typing import Literal, TypedDict, Callable

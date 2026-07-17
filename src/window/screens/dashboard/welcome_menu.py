@@ -2,13 +2,6 @@ import src.preferences.settings as settings
 from src.core.colors import main_frame, theme_colors
 import customtkinter as CTk
 
-def is_configured():
-	s = settings.get_settings()
-	if s.name == "" or s.email == "":
-		return False
-	else:
-		return True
-
 def labeled(parent,text: str,default: str):
 	frame = CTk.CTkFrame(parent)
 	label_text = CTk.CTkLabel(frame,text=text)
@@ -72,10 +65,3 @@ class WelcomeMenu(CTk.CTkToplevel):
 		s.email = email
 		settings.save_settings()
 		self.destroy()
-
-
-
-
-
-
-

@@ -6,8 +6,8 @@ from git import diff
 from src.core.colors import standard_diff
 from src.media.image import ICON
 from src.operations.git.diff import Diff
-from src.window.views.helpers import AutoHidingScrollFrame
-from src.window.views.conversion import properties_name
+from src.window.screens.shared.helpers import AutoHidingScrollFrame
+from src.window.screens.shared.conversion import properties_name
 
 class DiffLine(customtkinter.CTkFrame):
 

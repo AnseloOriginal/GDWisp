@@ -16,4 +16,3 @@ tray.register_on_new(lambda: manager.new_window("Main"))
 tray.register_on_quit(lambda: manager.close_all())
 
 manager.mainloop()
-

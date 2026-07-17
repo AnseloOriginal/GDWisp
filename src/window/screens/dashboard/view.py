@@ -1,11 +1,11 @@
 import customtkinter
-from src.window.views.helpers import create_icon_butn, create_project_butn
+from src.window.screens.shared.buttons import create_icon_butn, create_project_butn
 from typing import TYPE_CHECKING, Callable
 from src.core.colors import main_frame, theme_colors
-from src.window.views.dashboard_helpers.helpers import is_configured, WelcomeMenu
-
+from src.window.screens.dashboard.helpers import is_configured
+from src.window.screens.dashboard.welcome_menu import  WelcomeMenu
 if TYPE_CHECKING:
-  from src.window.views.view import GUI_Functions
+  from src.window.view import GUI_Functions
 
 def fill_project_area(c2: customtkinter.CTkFrame, data: list[tuple[str, str, str]], onclick: Callable[[str], None]):
   entity_list: list[customtkinter.CTkLabel | customtkinter.CTkFrame] = []
