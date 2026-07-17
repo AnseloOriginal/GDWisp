@@ -1,7 +1,7 @@
 import asyncio
 from tkinter import COMMAND
 import customtkinter
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Literal
 from datetime import datetime, timezone, timedelta
 
 from src.core.colors import main_frame
@@ -15,8 +15,7 @@ from src.window.screens.project.diff import ProjectViewDiff
 from src.window.screens.project.extrainfo import CommitExtraInfo
 from src.operations.project.watcher import Projectwatcher
 import src.operations.git.tools as git_tools
-
-
+from src.operations.git.watcher import GitWatcher
 
 if TYPE_CHECKING:
   from window.view import GUI_Functions
@@ -111,7 +110,6 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
       c2.set("Changes View")
     ))
     def on_new_diff(diff):
-      print("Recieving")
       diff_viewer.diff = diff
       diff_viewer.refresh()
     tree.register_update_handler(on_new_diff)
@@ -124,6 +122,16 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
       else:
         commit_butn.configure(state="disabled")
     commit_textbox.bind("<KeyRelease>", on_key_press)
+
+    def on_git_change(action: Literal["commit", "branch"], branch_name: str | None = None):
+      if action == "commit":
+        timeline.check_new_commits()
+      elif branch_name:
+        current_branch.configure(
+          text="Current Branch: "+branch_name
+        )
+    
+    git_watcher = GitWatcher(info["folder_dir"],lambda action, extra=None: app.after(0, on_git_change(action,extra)))
 
     def on_commit():
       def on_success(hexsha):
