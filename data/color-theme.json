@@ -28,10 +28,10 @@
   },
   "CTkEntry": {
     "corner_radius": 6,
-    "border_width": 2,
-    "fg_color": ["#F9F9FA", "#343638"],
-    "border_color": ["#979DA2", "#565B5E"],
-    "text_color": ["gray14", "gray84"],
+    "border_width": 1,
+    "fg_color": ["#FFFFFF","#FFFFFF"],
+    "border_color": ["#000000","#000000"],
+    "text_color": ["#000000","#000000"],
     "placeholder_text_color": ["gray52", "gray62"]
   },
   "CTkCheckBox": {

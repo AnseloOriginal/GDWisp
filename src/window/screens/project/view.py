@@ -7,12 +7,15 @@ from datetime import datetime, timezone, timedelta
 from src.core.colors import main_frame
 from src.window.screens.project.commitlogic import CommitLogic
 from src.window.screens.project.tree import Tree, TreeStructure, generate_tree_data
-from src.window.screens.project.timeline import ConsumedCommit, Timeline
+from src.window.screens.project.timeline import BranchLine, ConsumedCommit, Timeline
 from src.window.screens.shared.helpers import AutoHidingScrollFrame, LabeledText, AdvancePadding
 from src.window.screens.shared.buttons import multiple_button
 from src.window.screens.shared.forced_popup import ForcedPopup
 from src.window.screens.project.diff import ProjectViewDiff
 from src.window.screens.project.extrainfo import CommitExtraInfo
+from src.window.screens.project.branch_tool import BranchTool
+from src.window.screens.project.remote_tool import RemoteTool
+from src.window.screens.project.branch_tool import modes as BranchToolModes
 from src.operations.project.watcher import Projectwatcher
 import src.operations.git.tools as git_tools
 from src.operations.git.watcher import GitWatcher
@@ -123,15 +126,19 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
         commit_butn.configure(state="disabled")
     commit_textbox.bind("<KeyRelease>", on_key_press)
 
-    def on_git_change(action: Literal["commit", "branch"], branch_name: str | None = None):
+    def on_git_change(action: Literal["commit", "branch"], branch_name: str | None):
       if action == "commit":
         timeline.check_new_commits()
       elif branch_name:
         current_branch.configure(
           text="Current Branch: "+branch_name
         )
-    
-    git_watcher = GitWatcher(info["folder_dir"],lambda action, extra=None: app.after(0, on_git_change(action,extra)))
+    def run_on_git_change(
+      action: Literal["commit", "branch"], 
+      branch_name: str | None = None
+    ):
+      app.after(0, on_git_change, action, branch_name)
+    git_watcher = GitWatcher(info["folder_dir"],run_on_git_change)
 
     def on_commit():
       def on_success(hexsha):
@@ -191,19 +198,20 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
 
   g2 = AdvancePadding(tools, "Branch Tools")
   f2, b2 = multiple_button(g2.nonpadded,"Change Branch","Create Branch")
-  f3, b3 = multiple_button(g2.nonpadded,"Merge Branch","Delete Branch")
+  f3, b3 = multiple_button(g2.nonpadded,"Rename Branch","Delete Branch")
   g2.autogrid(f2,f3,spacing=2)
   g2.grid(column=1,row=2,sticky="nswe",pady=(10,0))
 
   g3 = AdvancePadding(tools, "Remote Tools")
-  f4, b4 = multiple_button(g3.nonpadded,"Add Remote","Sync")
-  f5, b5 = multiple_button(g3.nonpadded,"Remove Remote",)
+  f4, b4 = multiple_button(g3.nonpadded,"Add Remote","Remove Remote")
+  f5, b5 = multiple_button(g3.nonpadded,"Sync",)
   g2.autogrid(f4,f5,spacing=2)
   g3.grid(column=1,row=3,sticky="nswe",pady=(10,0))
 
   g4 = AdvancePadding(tools, "Advanced Tools")
   f6, b6 = multiple_button(g4.nonpadded,"Revert","Reset")
-  g4.autogrid(f6,spacing=2)
+  f7, b7 = multiple_button(g4.nonpadded,"Merge")
+  g4.autogrid(f6, f7, spacing=2)
   g4.grid(column=1,row=4,sticky="nswe",pady=(10,0))
 
   b1[0].configure(state="disabled")
@@ -217,7 +225,23 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
     b1[0].configure(state="active")
     b1[0].configure(command=lambda: CommitExtraInfo(parent,repo_folder,hexsha))
   timeline.ext_funcs = on_timeline_click
+  def configure_butn_tool(
+    button: customtkinter.CTkButton, 
+    mode: BranchToolModes,
+    action_type: Literal["Remote", "Branch"] = "Branch"
+  ):
+    if action_type == "Branch":
+      button.configure(command=lambda: BranchTool(parent,mode,repo_folder))
+    else:
+      button.configure(command=lambda: RemoteTool(parent,mode,repo_folder))
 
+  configure_butn_tool(b2[0],"change")
+  configure_butn_tool(b2[1],"create")
+  configure_butn_tool(b3[0],"rename")
+  configure_butn_tool(b3[1],"delete")
+  configure_butn_tool(b7[0],"merge")
+  configure_butn_tool(b4[0],"create","Remote")
+  configure_butn_tool(b4[1],"delete","Remote")
   return timeline
 
 
