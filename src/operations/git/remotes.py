@@ -13,7 +13,7 @@ def get_remotes(folder: str):
 def add_remote(folder: str, name: str, url: str):
 	try:
 		repo = git.Repo(folder)
-		remote = repo.create_remote(name,url)
+		repo.create_remote(name,url)
 		return True
 	except (git.GitError, OSError) as e:
 		error: Error = {
@@ -28,7 +28,13 @@ def delete_remote(folder: str, name: str):
 		remote = repo.remotes[name]
 		repo.delete_remote(remote)
 		return True
-	except (git.GitError, IndexError) as e:
+	except KeyError:
+		error: Error = {
+			"title": "Failed to delete remote",
+			"msg": f"Remote {name} doesn't exist"
+		}
+		return error
+	except (git.GitError, ) as e:
 		error: Error = {
 			"title": "Failed to delete remote",
 			"msg": str(e)

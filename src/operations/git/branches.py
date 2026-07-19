@@ -34,10 +34,10 @@ def checkout_branch(folder: str, name: str):
 			"msg": e.failed_reasons[0]
 		}
 		return error
-	except IndexError as e:
+	except KeyError as e:
 		error: Error = {
 			"title": "Failed to checkout branch",
-			"msg": "Branch does not exist"
+			"msg": f"Branch {name} does not exist"
 		}
 		return error
 
@@ -48,10 +48,16 @@ def rename_branch(folder: str, branch_name: str, new_name: str):
 		branch = repo.heads[branch_name]
 		branch.rename(new_name)
 		return True
-	except (git.GitError, IndexError) as e:
+	except git.GitError as e:
 		error: Error = {
 			"title": "Failed to rename branch",
 			"msg": str(e)
+		}
+		return error
+	except KeyError as e:
+		error: Error = {
+			"title": "Failed to rename branch",
+			"msg": f"Branch {branch_name} does not exist"
 		}
 		return error
 
@@ -61,9 +67,15 @@ def delete_branch(folder: str, name: str):
 		branch = repo.heads[name]
 		repo.delete_head(branch)
 		return True
-	except (git.GitError, IndexError) as e:
+	except git.GitError as e:
 		error: Error = {
 			"title": "Failed to delete branch",
 			"msg": str(e)
+		}
+		return error
+	except KeyError as e:
+		error: Error = {
+			"title": "Failed to delete branch",
+			"msg": f"Branch {name} does not exist"
 		}
 		return error

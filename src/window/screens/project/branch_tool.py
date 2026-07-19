@@ -92,7 +92,7 @@ class BranchTool(CTk.CTkToplevel):
 				return git_branches.checkout_branch(self.folder,name)
 			case "rename":
 				branch_name = self.option_value(0)
-				new_name = self.option_value(0)
+				new_name = self.text_value(0)
 				if not branch_name or not new_name:
 					return None
 				return git_branches.rename_branch(self.folder,branch_name,new_name)
