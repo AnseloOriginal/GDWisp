@@ -1,9 +1,6 @@
 import git
 from typing import TypedDict
-
-class Error(TypedDict):
-	title: str
-	msg: str
+from src.operations.git.types import GitError
 
 def get_branches(folder: str):
 	repo = git.Repo(folder)
@@ -16,7 +13,7 @@ def create_branch(folder: str, name: str):
 		repo.create_head(name)
 		return True
 	except (git.GitError, OSError) as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to create branch",
 			"msg": str(e)
 		}
@@ -29,13 +26,13 @@ def checkout_branch(folder: str, name: str):
 		branch.checkout()
 		return True
 	except git.CheckoutError as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to checkout branch",
 			"msg": e.failed_reasons[0]
 		}
 		return error
 	except KeyError as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to checkout branch",
 			"msg": f"Branch {name} does not exist"
 		}
@@ -49,13 +46,13 @@ def rename_branch(folder: str, branch_name: str, new_name: str):
 		branch.rename(new_name)
 		return True
 	except git.GitError as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to rename branch",
 			"msg": str(e)
 		}
 		return error
 	except KeyError as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to rename branch",
 			"msg": f"Branch {branch_name} does not exist"
 		}
@@ -68,13 +65,13 @@ def delete_branch(folder: str, name: str):
 		repo.delete_head(branch)
 		return True
 	except git.GitError as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to delete branch",
 			"msg": str(e)
 		}
 		return error
 	except KeyError as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to delete branch",
 			"msg": f"Branch {name} does not exist"
 		}

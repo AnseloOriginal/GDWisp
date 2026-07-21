@@ -16,9 +16,10 @@ from src.window.screens.project.extrainfo import CommitExtraInfo
 from src.window.screens.project.branch_tool import BranchTool
 from src.window.screens.project.remote_tool import RemoteTool
 from src.window.screens.project.branch_tool import modes as BranchToolModes
+from src.window.screens.project.sync_tool import SyncTool
 from src.operations.project.watcher import Projectwatcher
 import src.operations.git.tools as git_tools
-from src.operations.git.watcher import GitWatcher
+from src.operations.git.watcher import GitWatcher, EventPayload
 
 if TYPE_CHECKING:
   from window.view import GUI_Functions
@@ -96,15 +97,15 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     commit_butn.grid(column=1,row=9,sticky="ew")
     commit_butn.configure(state="disabled")
 
-    two_butn_space = customtkinter.CTkFrame(c1, width=button_height)
-    two_butn_space.grid(row=11, column=1, sticky="ew")
-    two_butn_space.grid_columnconfigure(1,minsize=20)
-    two_butn_space.grid_columnconfigure(0,weight=1)
-    two_butn_space.grid_columnconfigure(2,weight=1)
-    push_butn = quick_create(two_butn_space,"Push")
-    pull_butn = quick_create(two_butn_space,"Pull")
-    push_butn.grid(column=0,row=0,sticky="ew")
-    pull_butn.grid(column=2,row=0,sticky="ew")
+    sync_butn = quick_create(c1,"Sync")
+    sync_butn.grid(row=11, column=1, sticky="ew")
+    def update_sync_butn(is_tracked: bool | str):
+      text = "Sync" if is_tracked else "Link to Remote"
+      sync_butn.configure(
+        text = text,
+        command=lambda: SyncTool(c1,info["folder_dir"],"link")
+      )
+    update_sync_butn(info["is_tracked"])
     
     diff_viewer = ProjectViewDiff(changes_tab,tree.diff,parent=c2)
     diff_viewer.grid(row=0,column=0,sticky="nsew")
@@ -126,18 +127,22 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
         commit_butn.configure(state="disabled")
     commit_textbox.bind("<KeyRelease>", on_key_press)
 
-    def on_git_change(action: Literal["commit", "branch"], branch_name: str | None):
+    def on_git_change(action: Literal["commit", "branch"], payload: EventPayload | None):
       if action == "commit":
         timeline.check_new_commits()
-      elif branch_name:
-        current_branch.configure(
-          text="Current Branch: "+branch_name
+      if not payload:
+        return
+      if "name" in payload:
+         current_branch.configure(
+          text="Current Branch: "+payload["name"]
         )
+      if "is_tracked" in payload:
+        update_sync_butn(payload["is_tracked"])
     def run_on_git_change(
       action: Literal["commit", "branch"], 
-      branch_name: str | None = None
+      payload: EventPayload | None
     ):
-      app.after(0, on_git_change, action, branch_name)
+      app.after(0, on_git_change, action, payload)
     git_watcher = GitWatcher(info["folder_dir"],run_on_git_change)
 
     def on_commit():
@@ -204,7 +209,7 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
 
   g3 = AdvancePadding(tools, "Remote Tools")
   f4, b4 = multiple_button(g3.nonpadded,"Add Remote","Remove Remote")
-  f5, b5 = multiple_button(g3.nonpadded,"Sync",)
+  f5, b5 = multiple_button(g3.nonpadded,"Push","Pull")
   g2.autogrid(f4,f5,spacing=2)
   g3.grid(column=1,row=3,sticky="nswe",pady=(10,0))
 
@@ -242,6 +247,8 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   configure_butn_tool(b7[0],"merge")
   configure_butn_tool(b4[0],"create","Remote")
   configure_butn_tool(b4[1],"delete","Remote")
+  b5[0].configure(command=lambda: SyncTool(parent,repo_folder,"push"))
+  b5[1].configure(command=lambda: SyncTool(parent,repo_folder,"pull"))
   return timeline
 
 

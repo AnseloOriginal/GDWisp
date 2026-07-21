@@ -2,9 +2,10 @@ import customtkinter
 from src.core.colors import status_colors
 
 class ForcedPopup(customtkinter.CTkToplevel):
-  def __init__(self, parent: customtkinter.CTk | customtkinter.CTkToplevel, *args):
-    super().__init__(parent,*args)
+  def __init__(self, parent: customtkinter.CTk | customtkinter.CTkToplevel, title:str="", **args):
+    super().__init__(parent,**args)
     self.geometry("400x260")
+    self.title(title)
     self.grab_set()
     self.attributes("-topmost", True)
     self.protocol("WM_DELETE_WINDOW", lambda: None)

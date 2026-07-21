@@ -1,9 +1,5 @@
 import git
-from typing import TypedDict
-
-class Error(TypedDict):
-	title: str
-	msg: str
+from src.operations.git.types import GitError
 
 def get_remotes(folder: str):
 	repo = git.Repo(folder)
@@ -16,7 +12,7 @@ def add_remote(folder: str, name: str, url: str):
 		repo.create_remote(name,url)
 		return True
 	except (git.GitError, OSError) as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to create remote",
 			"msg": str(e)
 		}
@@ -29,13 +25,13 @@ def delete_remote(folder: str, name: str):
 		repo.delete_remote(remote)
 		return True
 	except KeyError:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to delete remote",
 			"msg": f"Remote {name} doesn't exist"
 		}
 		return error
 	except (git.GitError, ) as e:
-		error: Error = {
+		error: GitError = {
 			"title": "Failed to delete remote",
 			"msg": str(e)
 		}

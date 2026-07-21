@@ -50,4 +50,5 @@ def repo_data(path_to_repo: str):
     return data
   repo = git.Repo(path_to_repo)
   data["branch"] = repo.active_branch.name
+  data["is_tracked"] = "true" if repo.active_branch.tracking_branch() is not None else ""
   return data

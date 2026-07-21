@@ -1,7 +1,7 @@
 from pathlib import Path
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from typing import Callable, Literal, Union, overload, Protocol
+from typing import Callable, Literal, TypedDict, Union, NotRequired
 from threading import Timer
 import git
 
@@ -12,12 +12,9 @@ exclusion_list = [".lock"]
 ref_path = ".git/refs/heads/"
 main_path = ".git/"
 
-class ExtFuncProtocol(Protocol):
-    @overload
-    def __call__(self, action: Literal["commit"]) -> None: ...
-    @overload
-    def __call__(self, action: Literal["branch"], branch_name: str | None) -> None: ...
-    def __call__(self, action: str, branch_name: str | None = None) -> None: ...
+class EventPayload(TypedDict):
+	name: NotRequired[str]
+	is_tracked: NotRequired[bool]
 
 class EventHandler(FileSystemEventHandler):
 	def __init__(self,func: Callable[[git_event], None]) -> None:
@@ -58,7 +55,7 @@ class EventHandler(FileSystemEventHandler):
 
 class GitWatcher:
 
-	def __init__(self, location: str, on_change: ExtFuncProtocol):
+	def __init__(self, location: str, on_change: Callable[[git_event,EventPayload | None], None]):
 		git_folder = Path(location) / main_path
 		commit_folder = Path(location) / ref_path
 		self.location = location
@@ -79,15 +76,17 @@ class GitWatcher:
 
 	def ready(self, evt: git_event):
 		if evt == "commit":
-			self.on_change("commit")	
+			self.on_change("commit",None)	
 		else:
+			payload: EventPayload = {}
 			try:
 				repo = git.Repo(self.location)
-				name = repo.active_branch.name
+				payload["name"] = repo.active_branch.name
+				payload["is_tracked"] = repo.active_branch.tracking_branch() is not None
 			except (git.InvalidGitRepositoryError, TypeError, ValueError):
-				name = None
-			print("Change happening",evt,name)
-			self.on_change(evt,name)
+				pass
+			print("Change happening",evt,payload)
+			self.on_change(evt,payload)
 		self.timer = None
 
 	def stop(self):
