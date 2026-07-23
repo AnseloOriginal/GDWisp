@@ -131,31 +131,39 @@ class SyncTool(CTk.CTkToplevel):
 	def action_announce(self):
 		match self.mode:
 			case "pull":
-				self.popup.add_text("Started pull.")
+				self.popup.add_text("Started pull operation.")
 			case "push":
-				self.popup.add_text("Started push.")
+				self.popup.add_text("Started push operation.")
 			case "link":
 				self.popup.add_text(f"Linking Remote {self.remote}")
-				self.popup.add_text("Started pull.")
+				self.popup.add_text("Started pull operation.")
 			case "sync":
 				self.popup.add_text("Started sync procedure.")
-		self.popup.add_text("Please wait...")
 				
 	def action_execute_thread(self):
 		result = "Nothing ran"
+		progress = git_sync.ProgressUpdate(
+			lambda msg: self.send_msg_from_thread(msg)
+		)
 		match self.mode:
 			case "pull":
-				result = git_sync.pull(self.folder)
+				result = git_sync.pull(self.folder,progress=progress)
 			case "push":
-				result = git_sync.push(self.folder,None)
+				result = git_sync.push(self.folder,None,progress=progress)
 			case "link":
-				result = git_sync.push(self.folder,self.remote)
+				result = git_sync.push(self.folder,self.remote,progress=progress)
 			case "sync":
-				result = git_sync.pull(self.folder)
+				result = git_sync.pull(self.folder,progress=progress)
 				if result == True:
-					result = git_sync.push(self.folder,None)
+					self.send_msg_from_thread("Started push operation")
+					result = git_sync.push(self.folder,None,progress=progress)
 		self.queue.put(result)
 		self.after(0, self.action_end)
+
+	def send_msg_from_thread(self, msg: str):
+		if not self.popup or not msg.strip():
+			return
+		self.after(0, lambda: self.popup.add_text(msg))
 
 	def action_end(self):
 		results = self.queue.get()
@@ -165,6 +173,7 @@ class SyncTool(CTk.CTkToplevel):
 			self.popup.add_text(results.get("title","Unknown Crash"),tag="error")
 			self.popup.add_text(results.get("msg","Unknown Crash Error"),tag="error")
 		self.popup.show_close(True)
+		
 
 
 
