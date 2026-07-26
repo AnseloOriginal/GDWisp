@@ -37,7 +37,6 @@ class EventHandler(FileSystemEventHandler):
 	def on_change(self, type:event, path: str ):
 		if self.is_excluded(path):
 			return
-		print("Detecting",type,path)
 		if "refs" in path:
 			self.func("commit")
 		elif "HEAD" in path:
@@ -85,7 +84,6 @@ class GitWatcher:
 				payload["is_tracked"] = repo.active_branch.tracking_branch() is not None
 			except (git.InvalidGitRepositoryError, TypeError, ValueError):
 				pass
-			print("Change happening",evt,payload)
 			self.on_change(evt,payload)
 		self.timer = None
 

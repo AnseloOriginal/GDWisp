@@ -1,8 +1,10 @@
-from time import perf_counter
+import datetime
+from time import perf_counter, timezone
 
 import customtkinter
 import git
 from git.refs import head
+from datetime import datetime, timezone, time
 
 def has_repo(path: str):
   """Check if the path provided is a valid git repository"""
@@ -49,7 +51,7 @@ class CommitHelper:
 
   def commits(self,skip: int,max=20):
     print("Skipping:",skip,"with a max:",20)
-    commits = self.repo.iter_commits(all=True,max_count=max,skip=skip)
+    commits = self.repo.iter_commits(max_count=max,skip=skip,branches=True)
     return commits
 
   def no_of_commits(self):
@@ -60,3 +62,6 @@ def safe_get(seq, index, default=None):
         return seq[index]
     except (TypeError, IndexError, KeyError):
         return default
+
+def current_time():
+  return datetime.now(timezone.utc).strftime("%I:%M%p, %d %B %Y").lstrip("0")

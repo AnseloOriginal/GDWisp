@@ -5,6 +5,7 @@ from src.window.screens.shared.buttons import multiple_button
 import src.operations.git.branches as git_branches
 from threading import Thread
 from src.window.screens.shared.error_popup import ErrorPopup
+from src.window.screens.shared.confirmation import ConfirmationDialog
 
 type modes = Literal["create","change","rename","delete","merge"]
 
@@ -72,7 +73,37 @@ class BranchTool(CTk.CTkToplevel):
 
 		for items in self.textboxes:
 			items.configure(state="disabled")
-		Thread(target=self.action_execute).start()
+		Thread(target=self.action_verify).start()
+
+	def action_verify(self):
+		results = self.action_verify_mode()
+		if results:
+			self.action_execute()
+		else:
+			self.after(0,self.action_verify_confirm)
+
+
+	def action_verify_mode(self):
+		match self.mode:
+			case "change":
+				return not git_branches.is_dirty(self.folder)
+			case _:
+				return True
+
+	def action_verify_confirm(self):
+		buttons = []
+		text = "Unsupported."
+		match self.mode:
+			case "change":
+				text = 'You have uncommited changes. \n You can either return and Commit/Reset or save and continue'
+				buttons.append("Save & Change")
+		ConfirmationDialog(self,text,*buttons,on_answer=self.action_verify_end)
+
+	def action_verify_end(self, yes: bool, selection: str):
+		if yes:
+			Thread(target=self.action_execute()).start()
+		else:
+			self.destroy()
 
 	def action_execute(self):
 		self.result = self.action_execute_mode()
