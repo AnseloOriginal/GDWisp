@@ -56,7 +56,6 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
       fg_color=main_frame["color"],
       border_color=main_frame["border_color"],
       border_width=main_frame["border_width"],
-
     )
     c2.grid_rowconfigure(0, minsize=0, weight=0)
     # c2._outer_button_overhang = 0
@@ -66,8 +65,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     changes_tab = c2.add("Changes View")
     changes_tab.grid_rowconfigure(0, weight=1)
     changes_tab.grid_columnconfigure(0, weight=1)
-    tools_tab = c2.add("Tools")
-    roadmap_tab = c2.add("Roadmap Tools")
+    tools_tab = c2.add("Timeline & Tools")
     app.focus()
     app.after(10, lambda: app.state('zoomed'))
 
@@ -90,7 +88,6 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     placeholder_text = "Enter details of your changes."
     commit_textbox.insert("0.0", placeholder_text)
     button_height = 30
-
 
     quick_create = lambda master,text: customtkinter.CTkButton(master, height=button_height, text=text)
     commit_butn = quick_create(c1,"Commit")
@@ -119,6 +116,16 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     tree.register_update_handler(on_new_diff)
     timeline = render_tools(tools_tab,info["folder_dir"])
     diff_viewer.apply_fix(False)
+
+    def apply_c2_fix():
+      tabname = c2.get()
+      print("Changed tab to",tabname)
+      if tabname != "Changes View":
+        diff_viewer.apply_fix(True)
+      elif diff_viewer.current_view == "placeholder":
+        diff_viewer.apply_fix(False)
+    c2.configure(command=apply_c2_fix)
+
     def on_key_press(evt):
       content = commit_textbox.get("1.0", "end").strip()
       if len(content) > 0 and content != placeholder_text and not tree.no_change:
