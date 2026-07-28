@@ -119,7 +119,6 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
 
     def apply_c2_fix():
       tabname = c2.get()
-      print("Changed tab to",tabname)
       if tabname != "Changes View":
         diff_viewer.apply_fix(True)
       elif diff_viewer.current_view == "placeholder":
