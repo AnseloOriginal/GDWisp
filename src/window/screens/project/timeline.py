@@ -97,7 +97,7 @@ class Timeline(customtkinter.CTkScrollableFrame):
 				commits.remove(commit)
 		self.put_texts(commits,is_top)
 		# Only call after put_texts has updated lines
-		self.build_nodes(data["refs"])
+		self.build_nodes(data["refs"],is_top)
 		#Do the end of thread here to ensure if only updates after build
 		if is_top:
 			self.running_top_thread = False
@@ -124,13 +124,14 @@ class Timeline(customtkinter.CTkScrollableFrame):
 			else:
 				self.used_bottom_spaces += 1
 		
-	def build_nodes(self,refs: RefType):
+	def build_nodes(self,refs: RefType, is_top=False):
 		if len(self.new_lines) == 0:
 			return
 		self.scanvas.build(
 			self.new_lines,
 			refs,
-			self.lines
+			self.lines,
+			is_top
 		)
 
 	def on_click(self, hexsha: str):
@@ -330,7 +331,8 @@ class BranchDrawingEngine(tk.Canvas):
 	def build(self,
 		lines: dict[str,BranchLine],
 		refs: RefType,
-		all_lines: dict[str,BranchLine]
+		all_lines: dict[str,BranchLine],
+		is_top: bool = False
 	):
 		self.all_lines = all_lines
 		circles = []
@@ -382,12 +384,23 @@ class BranchDrawingEngine(tk.Canvas):
 					self.add_to_branch(line.id,line.commit.parents[0])
 			print(" ")
 			print(" ")
+		if is_top:
+			self.adjust_top_area(lines)
 		self.draw_main_branch_line(lines)
 		self.draw_connecting_line("branch",branching_list)
 		self.draw_connecting_line("merge",merge_list)
 		self.draw_connecting_line("fbranch",self.future_branching_list)
 		self.draw_connecting_line("fmerge",self.future_merge_list)
 		self.draw_circles_for(lines)
+
+	def adjust_top_area(self, lines: dict[str, BranchLine]):
+		accomodation = 0
+		for hexsha, line in lines.items():
+			height = line.winfo_height()*1.5
+			accomodation += height
+		print("Accomodating",accomodation,len(lines))
+		self.configure(scrollregion=self.bbox("all"))
+		self.yview_scroll(accomodation, "pixels")
 	
 	def draw_connecting_line(
 		self,
