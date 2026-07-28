@@ -101,7 +101,7 @@ class BranchTool(CTk.CTkToplevel):
 
 	def action_verify_end(self, yes: bool, selection: str):
 		if yes:
-			Thread(target=self.action_execute()).start()
+			Thread(target=self.action_execute).start()
 		else:
 			self.destroy()
 
