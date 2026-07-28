@@ -1,7 +1,7 @@
 import customtkinter as CTk
 
 class ErrorPopup(CTk.CTkToplevel):
-  def __init__(self,parent, msg1: str, msg2: str):
+  def __init__(self,parent, msg1: str, msg2: str, timeout=200):
     super().__init__(parent)
     self.bell() 
     self.geometry("400x50")
@@ -15,5 +15,5 @@ class ErrorPopup(CTk.CTkToplevel):
     def close(event):
       if (event.widget == self):
         self.destroy()
-    self.after(200, lambda: self.bind("<FocusOut>", close))
+    self.after(timeout, lambda: self.bind("<FocusOut>", close))
     

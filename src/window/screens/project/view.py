@@ -17,6 +17,7 @@ from src.window.screens.project.branch_tool import BranchTool
 from src.window.screens.project.remote_tool import RemoteTool
 from src.window.screens.project.branch_tool import modes as BranchToolModes
 from src.window.screens.project.sync_tool import SyncTool
+from src.window.screens.project.timeline_action import TimelineAction, SelectedCommit
 from src.operations.project.watcher import Projectwatcher
 import src.operations.git.tools as git_tools
 from src.operations.git.watcher import GitWatcher, EventPayload
@@ -225,17 +226,34 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   g4.autogrid(f6, f7, spacing=2)
   g4.grid(column=1,row=4,sticky="nswe",pady=(10,0))
 
+  selected: SelectedCommit = {
+    "summary": None,
+    "hexsha": None
+  }
+
   b1[0].configure(state="disabled")
-  def on_timeline_click(hexsha: str, commit: ConsumedCommit):
-    commit_id.change_text(hexsha[0:6])
-    author.change_text(commit.author)
-    action.change_text(commit.action)
-    tz = timezone(timedelta(seconds=-commit.date_tz))
-    time = datetime.fromtimestamp(commit.date,tz)
-    timestamp.change_text(time.strftime("%I:%M%p, %d %B %Y").lstrip("0"))
-    b1[0].configure(state="active")
-    b1[0].configure(command=lambda: CommitExtraInfo(parent,repo_folder,hexsha))
-  timeline.ext_funcs = on_timeline_click
+  def on_timeline_update(hexsha: str, commit_or_refresh: ConsumedCommit | bool):
+    if not isinstance(commit_or_refresh,bool):
+      commit = commit_or_refresh
+      selected["hexsha"] = hexsha
+      selected["summary"] = commit.summary
+      commit_id.change_text(hexsha[0:6])
+      author.change_text(commit.author)
+      action.change_text(commit.action)
+      tz = timezone(timedelta(seconds=-commit.date_tz))
+      time = datetime.fromtimestamp(commit.date,tz)
+      timestamp.change_text(time.strftime("%I:%M%p, %d %B %Y").lstrip("0"))
+      b1[0].configure(state="active")
+      b1[0].configure(command=lambda: CommitExtraInfo(parent,repo_folder,hexsha))
+    elif commit_or_refresh:
+      selected["hexsha"] = None
+      selected["summary"] = None
+      commit_id.change_text("-")
+      author.change_text("-")
+      action.change_text("-")
+      timestamp.change_text("-")
+
+  timeline.ext_funcs = on_timeline_update
   def configure_butn_tool(
     button: customtkinter.CTkButton, 
     mode: BranchToolModes,
@@ -255,6 +273,9 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   configure_butn_tool(b4[1],"delete","Remote")
   b5[0].configure(command=lambda: SyncTool(parent,repo_folder,"push"))
   b5[1].configure(command=lambda: SyncTool(parent,repo_folder,"pull"))
+  b6[0].configure(command=lambda: TimelineAction(repo_folder,parent,"revert",selected))
+  b6[1].configure(command=lambda: TimelineAction(repo_folder,parent,"reset",selected,
+    timeline.refresh))
   return timeline
 
 

@@ -47,7 +47,7 @@ class Timeline(customtkinter.CTkScrollableFrame):
 		self.grid_rowconfigure((0,2),minsize=5)
 		self.path = repo_path
 		self.queue = Queue()
-		self.ext_funcs: None | Callable[[str, ConsumedCommit],None] = None
+		self.ext_funcs: None | Callable[[str, ConsumedCommit | bool],None] = None
 		self.processed: int = 0
 		self.no_of_commits: None | int = None
 		self._parent_canvas.configure(yscrollcommand=self.check_scroll)
@@ -149,9 +149,27 @@ class Timeline(customtkinter.CTkScrollableFrame):
 		top_update_thread = threading.Thread(target=self.update_info, args=[True])
 		top_update_thread.start()
 
-			
 
+	def clear(self):
+		for id,line in self.lines.items():
+			line.destroy()
+		self.processed = 0
+		self.no_of_commits = None
+		self.used_bottom_spaces = 0
+		self.used_top_spaces = 0
+		self.lines = {}
+		self.new_lines= {}
+		# Do not clear any thread booleans
 
+	def refresh(self):
+		self.clear()
+		self.scanvas.clear()
+		self.running_thread = True
+		if self.ext_funcs:
+			self.ext_funcs("",True)
+		self._parent_canvas.yview_moveto(0)
+		threading.Thread(target=self.update_info).start()
+		
 	def check_scroll(self,top, bottom):
 		self._scrollbar.set(top,bottom)
 		top, bottom = self._parent_canvas.yview()
@@ -429,6 +447,18 @@ class BranchDrawingEngine(tk.Canvas):
 				lambda evt, cx=cx, cy=cy, i=circle: self.modify_circle(i,cx,cy,7))
 			self.tag_bind(circle, "<Leave>", 
 				lambda evt, cx=cx, cy=cy, i=circle: self.modify_circle(i,cx,cy,5))
+
+	def clear(self):
+		self.delete("all")
+		self.branches = {}
+		self.refs = []
+		self.master_merge_list = []
+		self.master_branching_list = []
+		self.future_commit_list = []
+		self.future_branching_list = []
+		self.future_merge_list = []
+		self.all_lines = {}
+		self.circle_data = {}
 
 class Branch:
 	def __init__(self, lane: int, color: str="black") -> None:

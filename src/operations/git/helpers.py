@@ -1,5 +1,7 @@
 import datetime
 from time import perf_counter, timezone
+from typing import Callable, cast, Union
+from src.operations.git.types import GitError
 
 import customtkinter
 import git
@@ -65,3 +67,25 @@ def safe_get(seq, index, default=None):
 
 def current_time():
   return datetime.now(timezone.utc).strftime("%I:%M%p, %d %B %Y").lstrip("0")
+
+def run_git_command(
+  folder: str,
+  command: Callable[[git.Repo],str | None],
+  action: str = "do something"
+):
+  try:
+    repo = git.Repo(folder)
+    output = command(repo)
+    return output
+  except git.InvalidGitRepositoryError:
+    err: GitError = {
+      "msg": f"Repository at {folder} is not valid. Please contact the developers.",
+      "title": "Repository invalid."
+    }
+    return err
+  except git.GitCommandError as e:
+    err: GitError = {
+      "msg": str(e),
+      "title": f"Failed to {action}"
+    }
+    return err
