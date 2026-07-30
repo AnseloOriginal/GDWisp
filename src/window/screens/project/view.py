@@ -15,6 +15,7 @@ from src.window.screens.project.diff import ProjectViewDiff
 from src.window.screens.project.extrainfo import CommitExtraInfo
 from src.window.screens.project.branch_tool import BranchTool
 from src.window.screens.project.remote_tool import RemoteTool
+from src.window.screens.project.stash_tool import StashTool
 from src.window.screens.project.branch_tool import modes as BranchToolModes
 from src.window.screens.project.sync_tool import SyncTool
 from src.window.screens.project.timeline_action import TimelineAction, SelectedCommit
@@ -223,7 +224,8 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   g4 = AdvancePadding(tools, "Advanced Tools")
   f6, b6 = multiple_button(g4.nonpadded,"Revert","Reset")
   f7, b7 = multiple_button(g4.nonpadded,"Merge")
-  g4.autogrid(f6, f7, spacing=2)
+  f8, b8 = multiple_button(g4.nonpadded,"Restore")
+  g4.autogrid(f6, f7, f8, spacing=2)
   g4.grid(column=1,row=4,sticky="nswe",pady=(10,0))
 
   selected: SelectedCommit = {
@@ -276,6 +278,7 @@ def render_tools(parent: customtkinter.CTkFrame, repo_folder: str):
   b6[0].configure(command=lambda: TimelineAction(repo_folder,parent,"revert",selected))
   b6[1].configure(command=lambda: TimelineAction(repo_folder,parent,"reset",selected,
     timeline.refresh))
+  b8[0].configure(command=lambda: StashTool(parent,"restore",repo_folder))
   return timeline
 
 
