@@ -30,4 +30,7 @@ properties_name = {
 	"sceneResourcePreloading": "Scene Resoucrce Preloading Method",
 	"sceneResourcesUnloading": "Scene Resoucrce Unloading Method",
 	"areEffectsHiddenInEditor": "Hide Effects in Editor",
+	"templateSlug": "Template Identifier",
+	"description": "Project Description"
+
 }

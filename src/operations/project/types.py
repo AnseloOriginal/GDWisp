@@ -91,6 +91,8 @@ class ProjectPropertiesData(TypedDict):
 	sceneResourcePreloading: Literal["at-startup", "never"]
 	sceneResourcesUnloading: Literal["at-scene-exit", "never"]
 	areEffectsHiddenInEditor: NotRequired[bool]
+	templateSlug: str
+	description: str
 
 class ExtensionProperties(TypedDict):
 	extension: str
