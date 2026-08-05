@@ -1,7 +1,7 @@
 from __future__ import annotations
 from queue import Queue
 from threading import Thread
-from typing import Literal, Callable
+from typing import Literal, Callable, Mapping
 import customtkinter
 from src.media.image import ICON
 from src.core.colors import tree_theme
@@ -99,9 +99,9 @@ class Tree(customtkinter.CTkScrollableFrame):
 		for key in tree.keys():
 			data = tree[key]
 			child = ""
-			if (isinstance(data, str)):
+			if isinstance(data, str):
 				child = button(branch.children_frame,key)
-				child.configure(command=lambda: self._handle_click(data))
+				child.configure(command=lambda data=data: self._handle_click(data))
 			else:
 				child = self.to_branch(data,branch.children_frame,key)
 			branch.add_child(child)
@@ -189,9 +189,17 @@ class TreeBranch(customtkinter.CTkFrame):
 
 
 def generate_tree_data(diff: "Diff"): 
-  data: TreeStructure = {}
-  if (diff.propertiesDiff != None):
-    if (data.get("Project", None) == None):
-      data["Project"] = {}
-    data["Project"]["Properties"] = "properties"
-  return data
+	data: TreeStructure = {}
+
+	if diff.propertiesDiff is not None:
+		ensure_exist(data,"Project")
+		data["Project"]["Properties"] = "properties"
+	if diff.globalVarDiff != None:
+		ensure_exist(data,"Project")
+		data["Project"]["Global Variables"] = "globalvar"
+	return data
+
+
+def ensure_exist(d: dict, key: str, value = {}):
+	if d.get(key) is None:
+		d[key] = value

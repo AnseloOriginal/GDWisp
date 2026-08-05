@@ -3,33 +3,12 @@ from types import NoneType
 from typing import Literal
 import customtkinter
 from git import diff
-from src.core.colors import standard_diff
+from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
 from src.operations.git.diff import Diff
 from src.window.screens.shared.helpers import AutoHidingScrollFrame
 from src.window.screens.shared.conversion import properties_name
-
-class DiffLine(customtkinter.CTkFrame):
-
-    def __init__(self, master, name: str, oldText: str, newText: str, addColumn = True):
-        super().__init__(master)
-        self.grid_columnconfigure((1,3,5,7), minsize=10)
-        bullet_image = customtkinter.CTkImage(light_image=ICON["bullet"], size=(10,10))
-        bullet = customtkinter.CTkLabel(self, image=bullet_image, text="")
-        bullet.grid(column=0, row=0,sticky="ew")
-        labelText = name + ":" if addColumn else ""
-        label = customtkinter.CTkLabel(self,text=labelText,anchor="w")
-        new = customtkinter.CTkLabel(self,text=newText,text_color=standard_diff["new"],anchor="w")
-        label.grid(column=2, row=0,sticky="ew")
-        if (len(oldText) == 0):
-            new.grid(column=4, row=0,sticky="ew")    
-            return
-        old = customtkinter.CTkLabel(self,text=oldText,text_color=standard_diff["old"],anchor="w")
-        arrow_image = customtkinter.CTkImage(light_image=ICON["right arrow"])
-        arrow = customtkinter.CTkLabel(self, image=arrow_image, text="")
-        old.grid(column=4, row=0,sticky="ew")
-        arrow.grid(column=6, row=0)
-        new.grid(column=8, row=0, sticky="ew")
+from src.window.screens.project.diff_viewer.basic_ui import DiffLine, VarDiffWidget
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
@@ -55,9 +34,13 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         text.grid(column=1,row=1,sticky="nsew")
 
     def change_view(self,newview: str):
-        if (newview == "properties"):
+        if newview == "properties":
             self._render_properties()
         elif newview == "placeholder":
+            self._render_placeholder()
+        elif newview == "globalvar":
+            self._render_globalvar()
+        else:
             self._render_placeholder()
         self.current_view = newview
 
@@ -67,11 +50,8 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         if (not self.diff or not self.diff.propertiesDiff):
             return
 
-        area = self.create_content_area()
-        area.grid(column=1,row=1,sticky="nsew")
-        area.grid_columnconfigure(0,minsize=20)
-        heading = customtkinter.CTkLabel(area,text="Project Properties",font=(None, 18, "bold"),anchor="nw")
-        heading.grid(column=1,row=0, sticky="ew", pady=20)
+        area = self.area_centered_helper()
+        self.default_heading_helper(area,"Project Properties")
         count = 1
         for props in self.diff.propertiesDiff:
             label = self.to_string(props["name"], "properties")
@@ -80,6 +60,40 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             diff = DiffLine(area,label,old,new)
             diff.grid(row=count,column=1, sticky="ew")
             count = count + 1
+
+    def _render_globalvar(self):
+        self.apply_fix(True)
+        self.wipe()
+        if (not self.diff or not self.diff.globalVarDiff):
+            return
+        
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(self,"Global Variables")
+        count = 1
+        for diff in self.diff.globalVarDiff:
+            widget = VarDiffWidget(area,diff)
+            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            count = count + 1
+
+
+    def area_centered_helper(self, transparent: bool = False, expand: bool = False):
+        area = self.create_content_area(transparent)
+        area.grid(column=1,row=1,sticky="nsew")
+        if expand:
+            area.grid_columnconfigure(1,weight=1)
+            area.grid_columnconfigure((0,2),minsize=20)
+        else:
+            area.grid_columnconfigure(0,minsize=20)
+        return area
+
+    def default_heading_helper(self,parent,text: str):
+        heading = customtkinter.CTkLabel(
+            parent,text=text,font=(None, 18, "bold"),anchor="nw"
+        )
+        heading.grid(column=1,row=0, sticky="ew", pady=20)
+        return heading
+
+
 
     def to_string(
             self,obj, 
@@ -102,14 +116,14 @@ class ProjectViewDiff(customtkinter.CTkFrame):
                 print(obj,type(obj))
                 return "[COMPLEX]"
 
-    def create_content_area(self):
-        pass
+    def create_content_area(self,transparent: bool):
+        color = standard_diff["frame_fg_color"] if (not transparent) else "transparent"
         focus = customtkinter.CTkFrame(
             self,
             height=500,
-            fg_color=standard_diff["frame_fg_color"],
+            fg_color=color,
             border_color=standard_diff["frame_border_color"],
-            border_width=standard_diff["frame_border_width"],
+            border_width=standard_diff["frame_border_width"] if not transparent else 0,
         )
         focus.grid_columnconfigure((0,2), minsize=5)
         focus.grid_rowconfigure((0,2), minsize=5)
@@ -117,7 +131,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         focus.grid_rowconfigure(1, weight=1)
         focus.grid(column=1,row=1,sticky="news")
         scroll = AutoHidingScrollFrame(focus,
-                fg_color=standard_diff["frame_fg_color"]
+                fg_color=color
         )
         return scroll
 
