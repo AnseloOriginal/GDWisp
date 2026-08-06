@@ -11,6 +11,7 @@ import threading
 import tkinter as tk
 from src.core.colors import main_frame
 import colorsys
+import random
 
 bullet = customtkinter.CTkImage(ICON["bullet"])
 type ParentChildData = list[tuple[str,str]]
@@ -368,6 +369,10 @@ class BranchDrawingEngine(tk.Canvas):
 				print("Found merge",line.commit.parents)
 				self.master_merge_list.append(line.id)
 				self.add_to_branch(line.id,line.commit.parents[0])
+				second_parent = line.commit.parents[1]
+				if not self.exists_in_branch(second_parent):
+					name = f"Lane for {second_parent}"
+					self.create_branch(name,second_parent)
 				merge_list.append((line.id,line.commit.parents[1]))
 
 			if one_child:
@@ -384,23 +389,34 @@ class BranchDrawingEngine(tk.Canvas):
 					self.add_to_branch(line.id,line.commit.parents[0])
 			print(" ")
 			print(" ")
-		if is_top:
-			self.adjust_top_area(lines)
+
 		self.draw_main_branch_line(lines)
 		self.draw_connecting_line("branch",branching_list)
 		self.draw_connecting_line("merge",merge_list)
 		self.draw_connecting_line("fbranch",self.future_branching_list)
 		self.draw_connecting_line("fmerge",self.future_merge_list)
 		self.draw_circles_for(lines)
+		if is_top:
+			self.adjust_top_area(lines)
 
 	def adjust_top_area(self, lines: dict[str, BranchLine]):
+		self.update_idletasks()
 		accomodation = 0
+		extraspace = 0 #need due to the fact that circle is at center
 		for hexsha, line in lines.items():
-			height = line.winfo_height()*1.5
+			pady = line.grid_info().get("pady",0)
+			if not isinstance(pady,int):
+				pady = pady[0] + pady[1]
+			else:
+				pady = pady * 2
+			extraspace = line.winfo_height()/2
+			height = line.winfo_height()
+			final_value = height + pady
 			accomodation += height
 		print("Accomodating",accomodation,len(lines))
-		self.configure(scrollregion=self.bbox("all"))
-		self.yview_scroll(accomodation, "pixels")
+		x1, y1, x2, y2 = self.bbox("all")
+		self.configure(scrollregion=(x1, y1 - extraspace, x2, y2))
+		self.yview_scroll(int(accomodation), "units")
 	
 	def draw_connecting_line(
 		self,
@@ -431,6 +447,7 @@ class BranchDrawingEngine(tk.Canvas):
 		for hexsha, line in lines.items():
 			branch = self.branch_of(hexsha)
 			if not branch:
+				print("Line",line.id,"has not branch")
 				continue
 			lane =  branch.lane
 			color = branch.color
