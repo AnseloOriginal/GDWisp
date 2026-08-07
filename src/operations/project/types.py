@@ -159,6 +159,7 @@ class LayoutData(InstanceContainerData):
 	name: str
 	stopSoundsOnStartup: bool
 	title: str
+	disableInputWhenNotFocused: bool
 	behaviorSharedData: list[behaviorSharedData]
 	usedResources: list[ResourceReference]
 	resourcePreloading: NotRequired[Literal['at-startup', "never", "inherit"]]

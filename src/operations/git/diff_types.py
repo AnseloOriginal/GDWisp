@@ -11,3 +11,6 @@ class VariableDiff(TypedDict):
   var_type: OldNewDiff | None
   default: OldNewDiff | None
   change: Literal["Modified", "Created", "Deleted"]
+
+class SceneDiff(TypedDict):
+  properties: list[OldNewDiff] | None

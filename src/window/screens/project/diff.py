@@ -3,6 +3,7 @@ from types import NoneType
 from typing import Literal
 import customtkinter
 from git import diff
+from src.operations.git.diff_types import SceneDiff
 from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
 from src.operations.git.diff import Diff
@@ -40,6 +41,9 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_placeholder()
         elif newview == "globalvar":
             self._render_globalvar()
+        elif newview.startswith("scene::"):
+            parts = newview.split("::")
+            self._render_scene(parts[1],parts[2])
         else:
             self._render_placeholder()
         self.current_view = newview
@@ -75,6 +79,32 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
 
+    def _render_scene(self,scene_name: str, component: str):
+        self.apply_fix(True)
+        self.wipe()
+        if not self.diff:
+            return
+        scene = self.diff.scene_diffs.get(scene_name)
+        if not scene:
+            return
+        if component == "properties":
+            self.__render_scene_properties(scene,scene_name)
+
+    def __render_scene_properties(self, scene: SceneDiff, name: str):
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(area,f"{name} Scene Properties")
+        props = scene.get("properties")
+        if not props:
+            return
+        count = 1
+        for prop in props:
+            line = DiffLine(area,
+                prop["name"],
+                self.to_string(prop["old"],"force"),
+                self.to_string(prop["new"],"force")
+            )
+            line.grid(row=count,column=1, sticky="ew")
+            count = count + 1
 
     def area_centered_helper(self, transparent: bool = False, expand: bool = False):
         area = self.create_content_area(transparent)

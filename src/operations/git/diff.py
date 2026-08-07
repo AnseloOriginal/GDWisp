@@ -1,23 +1,55 @@
 from src.operations.project.types import ProjectData, ProjectPropertiesData, LayoutData, RootVariableData
-from typing import Any, Iterable, Mapping
-from src.operations.git.diff_types import OldNewDiff, VariableDiff
+from typing import Any, Iterable, Mapping, Union, Literal
+from src.operations.git.diff_types import OldNewDiff, SceneDiff, VariableDiff
 
 class Diff:
   def __init__(self,p1: ProjectData, p2: ProjectData | None):
     #p1 is meant to be the current copy while p2 the copy from the repo
     self.p1 = p1
     self.p2 = p2
+    self.scene_diffs: dict[str, SceneDiff] = {}
     self.diff_project()
-    self.diff_scene_data()
+    self.diff_scenes()
+    
 
   def diff_project(self):
     self.diff_properties()
     self.diff_global_variables()
 
-  def diff_scene_data(self):
-    layout = LayoutData.__annotations__.keys()
+  def diff_scenes(self):
+    source = {scene["name"]: scene for scene in self.p1["layouts"]}
+    old = {scene["name"]: scene for scene in self.p2["layouts"]} if self.p2 else None
+    for name, scene in source.items():
+      old_scene = old.get(name) if old else None
+      props_diff = self.diff_scene_properties(scene,old_scene)
+      scene_diff: SceneDiff = {
+        "properties": props_diff
+      }
+      if props_diff:
+        self.scene_diffs[name] = scene_diff
 
 
+  def diff_scene_properties(self, source: LayoutData, old: LayoutData | None):
+    newpluscolor = source | {
+      "color": self.color_to_str(source["r"],source["v"],source["b"])
+    }
+    oldpluscolor = old | {
+      "color": self.color_to_str(old["r"],old["v"],old["b"])
+    } if old else None
+    diff = self.old_new_diff(
+      ["color","stopSoundsOnStartup","title","resourcePreloading","resourceUnloading",
+        "disableInputWhenNotFocused"
+      ],
+      newpluscolor,
+      oldpluscolor,
+      {
+        "color": "Color", "stopSoundsOnStartup": "Stop Sounds On Startup",
+        "title": "Title", "resourcePreloading": "Preload Resources",
+        "resourceUnloading": "Unload Resources", 
+        "disableInputWhenNotFocused": "Disable Input when not Focused"
+      }
+    )
+    return diff
 
   def diff_properties(self):
     properties = ProjectPropertiesData.__annotations__.keys()
@@ -112,6 +144,7 @@ class Diff:
     keys: Iterable[str],
     source: Mapping[str, Any],
     new: Mapping[str, Any] | None,
+    alt_names: dict[str, str] = {}
   ):
     ONdiff: list[OldNewDiff] = []
     for key in keys:
@@ -120,16 +153,20 @@ class Diff:
       if data1 == data2 or data1 == None:
         pass
       else:
+        alt_name = alt_names.get(key)
         diff: OldNewDiff = {
           "old": data2,
           "new": data1,
-          "name": key
+          "name": alt_name if alt_name else key
         }
         ONdiff.append(diff)
     if (len(ONdiff) > 0):
       return ONdiff
     else:
       return None
+
+  def color_to_str(self,r: int, g: int, b: int):
+    return f"{r}; {g}; {b}"
 
 
   def data_as_str(self):
@@ -141,4 +178,5 @@ class Diff:
   def changes_exists(self):
     t1 = self.propertiesDiff is not None
     t2 = self.globalVarDiff is not None
-    return t1 or t2
+    t3 = len(self.scene_diffs) > 0
+    return t1 or t2 or t3

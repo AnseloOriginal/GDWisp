@@ -197,6 +197,11 @@ def generate_tree_data(diff: "Diff"):
 	if diff.globalVarDiff != None:
 		ensure_exist(data,"Project")
 		data["Project"]["Global Variables"] = "globalvar"
+	for name, scene_diff in diff.scene_diffs.items():
+		tree = {}
+		if scene_diff["properties"]:
+			tree["Properties"] = f"scene::{name}::properties"
+		data[f"{name} ( Scene )"] = tree
 	return data
 
 
