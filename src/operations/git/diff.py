@@ -21,12 +21,22 @@ class Diff:
     old = {scene["name"]: scene for scene in self.p2["layouts"]} if self.p2 else None
     for name, scene in source.items():
       old_scene = old.get(name) if old else None
-      props_diff = self.diff_scene_properties(scene,old_scene)
+
       scene_diff: SceneDiff = {
-        "properties": props_diff
+        "properties": self.diff_scene_properties(scene,old_scene),
+        "variables": self.diff_scene_variables(scene,old_scene)
       }
-      if props_diff:
+      for s, a in scene_diff.items():
+        if a is None:
+          continue
         self.scene_diffs[name] = scene_diff
+        break
+
+  def diff_scene_variables(self, source: LayoutData, old: LayoutData | None):
+    return self.variable_diff(
+      source["variables"],
+      old["variables"] if old else None
+    )
 
 
   def diff_scene_properties(self, source: LayoutData, old: LayoutData | None):

@@ -75,9 +75,8 @@ class Tree(customtkinter.CTkScrollableFrame):
 		self.grid_columnconfigure(0, weight=0)
 		self.grid_rowconfigure(0, weight=0)
 		tree = generate_tree_data(diff)
-		self.mainFrame = self.to_branch(tree,self)
+		self.mainFrame = self.to_branch(tree,self,None,True)
 		self.mainFrame.grid(column=0, row=0)
-		
 
 	def update_tree(self):
 		diff = project_diff(self.location,self.folder)
@@ -93,18 +92,17 @@ class Tree(customtkinter.CTkScrollableFrame):
 		self.loading.grid(column=0, row=0, sticky="nsew",pady=20)
 		self.loading.bar.start()
 
-	def to_branch(self,tree: TreeStructure,master,name: None | str=None):
-		children: list[customtkinter.CTkButton | TreeBranch] = []
-		branch = TreeBranch(master,name)
-		for key in tree.keys():
-			data = tree[key]
-			child = ""
+	def to_branch(self,tree: TreeStructure,master,name: None | str=None, entry=False):
+		branch = TreeBranch(master,name,entry)
+		for key, data in tree.items():
+			child = None
 			if isinstance(data, str):
 				child = button(branch.children_frame,key)
 				child.configure(command=lambda data=data: self._handle_click(data))
-			else:
+			elif isinstance(data, dict):
 				child = self.to_branch(data,branch.children_frame,key)
-			branch.add_child(child)
+			if child:
+				branch.add_child(child)
 		return branch
 
 	def register_click_handler(self,func: on_click_func):
@@ -135,40 +133,46 @@ class TreeBranch(customtkinter.CTkFrame):
 	def __init__(self,
 		master: customtkinter.CTkBaseClass,
 		name: str | None,
+		flatten = False
 	):
 		super().__init__(master)
 		#Lets leave column 0 and row 0 in case of any padding
 		self.tree_children: list[customtkinter.CTkButton | TreeBranch] = []
 		self.hidden = False
+		self.flatten = flatten
 		self.row = 0
-		if (name):
+		if name and not flatten:
 			self.name_butn = button(self,name,"expanded")
 			self.name_butn.configure(command=lambda: self.toggle())
 			self.name_butn.grid(column=1,row=1)
 		else:
 			self.name_butn = None
+
 		self.children_frame = customtkinter.CTkFrame(self)
 		self.children_frame.grid(column=1,row=2)
 		self.children_frame.grid_columnconfigure(1, weight=1)
-		self.children_frame.grid_columnconfigure(0, minsize=10)
+		padding = 0 if flatten else 10
+		self.children_frame.grid_columnconfigure(0, minsize=padding)
+
+		if flatten:
+			self.show()
 
 	def add_child(self,child: customtkinter.CTkButton | TreeBranch):
 		child.grid(
 			column=1,
 			row=self.row,
-			# padx=(20,0),
-			# pady=(20,0),
 			sticky="ew"
 		)
-		self.row = self.row + 1
+		self.row += 1
 		self.tree_children.append(child)
 
 	def toggle(self):
 		self.hidden = not self.hidden
 		self.apply()
 		
-
 	def hide(self):
+		if self.flatten:
+			return
 		self.hidden = True
 		self.apply()
 
@@ -176,8 +180,8 @@ class TreeBranch(customtkinter.CTkFrame):
 		self.hidden = False
 		self.apply()
 
-	def apply(self): 
-		if (self.hidden):
+	def apply(self):
+		if self.hidden and not self.flatten:
 			self.children_frame.grid_remove()
 			if self.name_butn:
 				self.name_butn.configure(image=button_closed)
@@ -189,22 +193,30 @@ class TreeBranch(customtkinter.CTkFrame):
 
 
 def generate_tree_data(diff: "Diff"): 
-	data: TreeStructure = {}
+	tree: TreeStructure = {}
 
 	if diff.propertiesDiff is not None:
-		ensure_exist(data,"Project")
-		data["Project"]["Properties"] = "properties"
+		ensure_exist(tree,"Project")
+		tree["Project"]["Properties"] = "properties"
+
 	if diff.globalVarDiff != None:
-		ensure_exist(data,"Project")
-		data["Project"]["Global Variables"] = "globalvar"
+		ensure_exist(tree,"Project")
+		tree["Project"]["Global Variables"] = "globalvar"
+
 	for name, scene_diff in diff.scene_diffs.items():
-		tree = {}
+		scene_tree = {}
+		prename = f"scene::{name}::"
 		if scene_diff["properties"]:
-			tree["Properties"] = f"scene::{name}::properties"
-		data[f"{name} ( Scene )"] = tree
-	return data
+			scene_tree["Properties"] = prename+"properties"
+
+		if scene_diff["variables"]:
+			scene_tree["Variables"] = prename+"variables"
+
+		tree[f"{name} ( Scene )"] = scene_tree
+	print(tree)
+	return tree
 
 
-def ensure_exist(d: dict, key: str, value = {}):
+def ensure_exist(d: dict, key: str, value: dict | None = None):
 	if d.get(key) is None:
-		d[key] = value
+		d[key] = value if value is not None else {}

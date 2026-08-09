@@ -14,3 +14,4 @@ class VariableDiff(TypedDict):
 
 class SceneDiff(TypedDict):
   properties: list[OldNewDiff] | None
+  variables: list[VariableDiff] | None

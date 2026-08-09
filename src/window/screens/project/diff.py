@@ -88,11 +88,26 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         if not scene:
             return
         if component == "properties":
-            self.__render_scene_properties(scene,scene_name)
+            self._render_scene_properties(scene,scene_name)
+        elif component == "variables":
+            self._render_scene_variables(scene,scene_name)
 
-    def __render_scene_properties(self, scene: SceneDiff, name: str):
+    def _render_scene_variables(self, scene: SceneDiff, name: str):
+        var = scene.get("variables")
+        if not var:
+            return
         area = self.area_centered_helper(True,True)
-        self.default_heading_helper(area,f"{name} Scene Properties")
+        self.default_heading_helper(self,f"{name} Variables")
+
+        count = 1
+        for diff in var:
+            widget = VarDiffWidget(area,diff)
+            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            count = count + 1
+
+    def _render_scene_properties(self, scene: SceneDiff, name: str):
+        area = self.area_centered_helper()
+        self.default_heading_helper(area,f"{name} Properties")
         props = scene.get("properties")
         if not props:
             return
