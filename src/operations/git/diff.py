@@ -1,7 +1,8 @@
 from src.operations.project.types import ProjectData, ProjectPropertiesData, LayoutData, RootVariableData
 from typing import Any, Iterable, Mapping, Union, Literal
-from src.operations.git.diff_types import OldNewDiff, SceneDiff, VariableDiff
+from src.operations.git.diff_types import OldNewDiff, SceneDiff, VariableDiff, OldType, NewType, ActionType
 import src.operations.git.diff_renaming as renaming
+import src.operations.git.diff_helper as helper
 
 class Diff:
   def __init__(self,p1: ProjectData, p2: ProjectData | None):
@@ -82,38 +83,27 @@ class Diff:
       old_var = old.get(var_name)
       processed.append(var_name)
       if old_var is None:
-        diff: VariableDiff = {
-          "name": var_name,
-          "var_type": {
-            "old": None,
-            "new": var["type"],
-            "name": "Variable Type"
-          },
-          "default": {
-            "old": None,
-            "new": var.get("value",0), # Might not be there
-            "name": "Default Value"
-          },
-          "change": "Created"
-        }
+        diff = helper.single_variable_diff(
+          var_name, None, var.get("value",0), None, var["type"],"Created"
+        )
         diffs.append(diff)
       else:
         typeDiff: OldNewDiff | None = None
         defaultDiff: OldNewDiff | None = None
+
         if var["type"] != old_var["type"]:
-          typeDiff = {
-            "old": old_var["type"],
-            "new": var["type"],
-            "name": "Variable Type"
-          }
+          typeDiff = helper.single_variable_diff_block(
+            old_var["type"],  var["type"],  "Variable Type"
+          )
+          
         if var.get("value",0) != old_var.get("value",0):
-          defaultDiff = {
-            "old": old_var.get("value",0),
-            "new": var.get("value",0),
-            "name": "Default Value"
-          }
+          defaultDiff = helper.single_variable_diff_block(
+            old_var.get("value",0),  var.get("value",0),  "Default Value"
+          )
+
         if not (typeDiff or defaultDiff):
           continue
+
         diff: VariableDiff = {
           "name": var_name,
           "var_type": typeDiff,
@@ -125,25 +115,14 @@ class Diff:
       for var_name, var in old.items():
         if var_name in processed:
           continue
-        diff: VariableDiff = {
-          "name": var_name,
-          "var_type": {
-            "old": var["type"],
-            "new": "Deleted",
-            "name": "Variable Type"
-          },
-          "default": {
-            "old": var.get("value",0),
-            "new": "Deleted",
-            "name": "Default Value"
-          },
-          "change": "Deleted"
-        }
+        d = "Deleted"
+        diff = helper.single_variable_diff(
+          var_name,var.get("value",0) , d, var["type"], d, "Deleted"
+        )
         diffs.append(diff)
-    if len(diffs) > 0:
-      return diffs
-    else:
-      return None
+        
+    return diffs if diffs else None
+  
 
   def old_new_diff(
     self, 
@@ -166,10 +145,8 @@ class Diff:
           "name": alt_name if alt_name else key
         }
         ONdiff.append(diff)
-    if (len(ONdiff) > 0):
-      return ONdiff
-    else:
-      return None
+
+    return ONdiff if ONdiff else None
 
   def color_to_str(self,r: int, g: int, b: int):
     return f"{r}; {g}; {b}"
