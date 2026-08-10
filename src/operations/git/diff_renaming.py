@@ -35,7 +35,7 @@ properties = {
 
 }
 
-scene_variables = {
+scene_properties = {
 	"color": "Color", 
 	"stopSoundsOnStartup": "Stop Sounds On Startup",
 	"title": "Title", 

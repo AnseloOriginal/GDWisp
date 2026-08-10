@@ -54,7 +54,7 @@ class Diff:
       ],
       newpluscolor,
       oldpluscolor,
-      renaming.scene_variables
+      renaming.scene_properties
     )
     return diff
 
@@ -120,7 +120,7 @@ class Diff:
           var_name,var.get("value",0) , d, var["type"], d, "Deleted"
         )
         diffs.append(diff)
-        
+
     return diffs if diffs else None
   
 
