@@ -1,6 +1,7 @@
 from src.operations.project.types import ProjectData, ProjectPropertiesData, LayoutData, RootVariableData
 from typing import Any, Iterable, Mapping, Union, Literal
 from src.operations.git.diff_types import OldNewDiff, SceneDiff, VariableDiff
+import src.operations.git.diff_renaming as renaming
 
 class Diff:
   def __init__(self,p1: ProjectData, p2: ProjectData | None):
@@ -52,12 +53,7 @@ class Diff:
       ],
       newpluscolor,
       oldpluscolor,
-      {
-        "color": "Color", "stopSoundsOnStartup": "Stop Sounds On Startup",
-        "title": "Title", "resourcePreloading": "Preload Resources",
-        "resourceUnloading": "Unload Resources", 
-        "disableInputWhenNotFocused": "Disable Input when not Focused"
-      }
+      renaming.scene_variables
     )
     return diff
 
@@ -65,7 +61,7 @@ class Diff:
     properties = ProjectPropertiesData.__annotations__.keys()
     source = self.p1["properties"]
     new = self.p2["properties"] if self.p2 else None
-    self.propertiesDiff = self.old_new_diff(properties,source,new)
+    self.propertiesDiff = self.old_new_diff(properties,source,new,renaming.properties)
 
   def diff_global_variables(self):
     self.globalVarDiff = self.variable_diff(

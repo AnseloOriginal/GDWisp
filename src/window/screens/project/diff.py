@@ -8,7 +8,6 @@ from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
 from src.operations.git.diff import Diff
 from src.window.screens.shared.helpers import AutoHidingScrollFrame
-from src.window.screens.shared.conversion import properties_name
 from src.window.screens.project.diff_viewer.basic_ui import DiffLine, VarDiffWidget
 
 class ProjectViewDiff(customtkinter.CTkFrame):
@@ -58,10 +57,9 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         self.default_heading_helper(area,"Project Properties")
         count = 1
         for props in self.diff.propertiesDiff:
-            label = self.to_string(props["name"], "properties")
-            old = self.to_string(props["old"],"force")
-            new = self.to_string(props["new"],"force")
-            diff = DiffLine(area,label,old,new)
+            old = self.to_string(props["old"])
+            new = self.to_string(props["new"])
+            diff = DiffLine(area,props["name"],old,new)
             diff.grid(row=count,column=1, sticky="ew")
             count = count + 1
 
@@ -115,8 +113,8 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         for prop in props:
             line = DiffLine(area,
                 prop["name"],
-                self.to_string(prop["old"],"force"),
-                self.to_string(prop["new"],"force")
+                self.to_string(prop["old"]),
+                self.to_string(prop["new"])
             )
             line.grid(row=count,column=1, sticky="ew")
             count = count + 1
@@ -141,25 +139,20 @@ class ProjectViewDiff(customtkinter.CTkFrame):
 
 
     def to_string(
-            self,obj, 
-            conv_type1: Literal["properties","force"], 
-            conv_type2: Literal["none"] = "none"
+            self,obj
         ):
-        if conv_type1 == "properties":
-            return properties_name.get(obj, "Unknown")
-        elif conv_type1 == "force":
-            obj_type = type(obj)
-            if (obj_type == str):
-                return '"'+obj+'"'
-            elif(obj_type == int or obj_type == bool):
-                return str(obj)
-            elif (type(obj) == NoneType):
-                return ""
-            elif (type(obj) == list):
-                return str(obj)
-            else:
-                print(obj,type(obj))
-                return "[COMPLEX]"
+        obj_type = type(obj)
+        if (obj_type == str):
+            return f'"{obj}"'
+        elif(obj_type == int or obj_type == bool):
+            return str(obj)
+        elif (type(obj) == NoneType):
+            return ""
+        elif (type(obj) == list):
+            return str(obj)
+        else:
+            print(obj,type(obj))
+            return "[COMPLEX]"
 
     def create_content_area(self,transparent: bool):
         color = standard_diff["frame_fg_color"] if (not transparent) else "transparent"

@@ -1,4 +1,4 @@
-properties_name = {
+properties = {
 	"adaptGameResolutionAtRuntime": "Adapt Game Resolution",
 	"folderProject": "Folder Project",
 	"orientation": "Orientation",
@@ -33,4 +33,13 @@ properties_name = {
 	"templateSlug": "Template Identifier",
 	"description": "Project Description"
 
+}
+
+scene_variables = {
+	"color": "Color", 
+	"stopSoundsOnStartup": "Stop Sounds On Startup",
+	"title": "Title", 
+	"resourcePreloading": "Preload Resources",
+	"resourceUnloading": "Unload Resources", 
+	"disableInputWhenNotFocused": "Disable Input when not Focused"
 }
