@@ -90,7 +90,7 @@ class CommitExtraInfo(CTk.CTkToplevel):
 		header_font = tkfont.Font(family="Helvetica", size=12, weight="bold")
 		textbox = CTk.CTkTextbox(body,height=200)
 		for data in diffs:
-			textbox.insert("end", f"\n-{data}")
+			textbox.insert("end", f"\n- {data}")
 		if len(diffs) == 0:
 			textbox.insert("1.0", f"\n{"We couldn't find any difference."}")
 		textbox.configure(state="disabled")

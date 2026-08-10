@@ -179,6 +179,11 @@ class Diff:
     data_str = []
     if self.propertiesDiff:
       data_str.append(f"Changed {len(self.propertiesDiff)} project properties")
+    if self.globalVarDiff:
+      data_str.append(f"Changed {len(self.globalVarDiff)} global variables")
+    if len(self.scene_diffs) > 0:
+      data_str.append(f"Modified {len(self.scene_diffs)} scenes")
+
     return data_str
 
   def changes_exists(self):
