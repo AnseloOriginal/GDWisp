@@ -25,7 +25,7 @@ from src.operations.git.watcher import GitWatcher, EventPayload
 
 if TYPE_CHECKING:
   from window.view import GUI_Functions
-  from src.operations.git.diff import Diff
+  from src.operations.git.diff.main import Diff
   
 
 def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, location: str):

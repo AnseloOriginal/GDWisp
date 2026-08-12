@@ -1,5 +1,5 @@
 import json
-from src.operations.git.diff import Diff
+from src.operations.git.diff.main import Diff
 import src.operations.git.project as git
 from src.operations.project.types import ProjectData
 

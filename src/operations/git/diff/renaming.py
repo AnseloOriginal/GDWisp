@@ -43,3 +43,19 @@ scene_properties = {
 	"resourceUnloading": "Unload Resources", 
 	"disableInputWhenNotFocused": "Disable Input when not Focused"
 }
+
+scene_layer = {
+	"ambientLightColor": "Ambient Light Color",
+	"name": "Name",
+	"renderingType": "Rendering Type",
+	"cameraType": "Camera Type",
+	"defaultCameraBehavior": "Default Camera Behaviour",
+    "visibility": "Visibility", 
+    "camera3DFieldOfView": "Camera 3D Field of View", 
+    "camera3DFarPlaneDistance": "Camera 3D Fare Plane Distance", 
+    "camera3DNearPlaneDistance": "Camera 3D Near Plane Distance",
+    "camera2DPlaneMaxDrawingDistance": "Camera 2D Plane Max Drawing Distance", 
+    "isLightingLayer": "Is Lighting Layer", 
+    "followBaseLayerCamera": "Follow Base Layer Camera", 
+    "isLocked": "Is Locked"
+}

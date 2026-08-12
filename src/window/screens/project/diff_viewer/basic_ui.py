@@ -1,5 +1,5 @@
 import customtkinter as CTk
-from src.operations.git.diff_types import VariableDiff
+from src.operations.git.diff.types import LayerDiff, VariableDiff
 from src.core.colors import standard_diff
 from src.media.image import ICON
 
@@ -63,3 +63,39 @@ class VarDiffWidget(CTk.CTkFrame):
                 str(diff["default"]["new"]),
             )
             default_value_line.grid(column=0,row=3,sticky="ew",padx=20,pady=10)
+
+
+class LayerDiffWidget(CTk.CTkFrame):
+
+    def __init__(self, master, diff: LayerDiff) -> None:
+        super().__init__(
+            master,
+            fg_color=standard_diff["frame_fg_color"],
+            border_color=standard_diff["frame_border_color"],
+            border_width=standard_diff["frame_border_width"]
+        )
+
+        self.columnconfigure(0, weight=1)
+
+        frame = CTk.CTkFrame(self)
+        frame.grid(column=0,row=0,sticky="ew",padx=20,pady=(10,0))
+        frame.columnconfigure(1, weight=1)
+        displayName = diff["name"] if diff["name"] != "" else "Base Layer"
+        name = CTk.CTkLabel(frame,text=displayName,anchor="w",font=(None, 14, "bold"))
+        name.grid(column=0,row=0,padx=(20,0))
+
+        change = CTk.CTkLabel(frame,text=diff["change"],anchor="w",font=(None, 12, "bold"))
+        change.grid(column=2,row=0,padx=(0,20))
+
+        count = 1
+        prop_diff = diff["diff"]
+        if not prop_diff:
+            return
+        for prop in prop_diff:
+            line = DiffLine(
+                self,prop["name"],
+                str(prop["old"]),
+                str(prop["new"]),
+            )
+            line.grid(column=0,row=count,sticky="ew",padx=20,pady=10)
+            count += 1

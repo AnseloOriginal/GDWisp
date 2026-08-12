@@ -5,7 +5,7 @@ from typing import Literal, Callable, Mapping
 import customtkinter
 from src.media.image import ICON
 from src.core.colors import tree_theme
-from src.operations.git.diff import Diff
+from src.operations.git.diff.main import Diff
 from src.operations.project.diff_related import project_diff
 from src.window.screens.project.extrainfo import GrowingProgressBar
 
@@ -211,6 +211,9 @@ def generate_tree_data(diff: "Diff"):
 
 		if scene_diff["variables"]:
 			scene_tree["Variables"] = prename+"variables"
+
+		if scene_diff["layers"]:
+			scene_tree["Layers"] = prename+"layers"
 
 		tree[f"{name} ( Scene )"] = scene_tree
 	print(tree)

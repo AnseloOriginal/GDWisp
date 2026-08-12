@@ -1,4 +1,4 @@
-from src.operations.git.diff_types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
+from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 
 def single_variable_diff(
     name: str, 
@@ -17,3 +17,6 @@ def single_variable_diff(
 
 def single_variable_diff_block(old: OldType, new: NewType, name: str) -> OldNewDiff:
    return {"old": old, "new": new, "name": name}
+
+def color_to_str(r: int, g: int, b: int):
+    return f"{r}; {g}; {b}"

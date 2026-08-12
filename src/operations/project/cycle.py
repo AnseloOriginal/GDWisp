@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from src.operations.project.diff_related import project_diff
 import src.operations.project.storage as storage
 import src.operations.git.project as git
-from src.operations.git.diff import Diff
 import json
 from src.operations.project.types import ProjectData
 

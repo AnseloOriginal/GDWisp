@@ -3,12 +3,12 @@ from types import NoneType
 from typing import Literal
 import customtkinter
 from git import diff
-from src.operations.git.diff_types import SceneDiff
+from src.operations.git.diff.types import SceneDiff
 from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
-from src.operations.git.diff import Diff
+from src.operations.git.diff.main import Diff
 from src.window.screens.shared.helpers import AutoHidingScrollFrame
-from src.window.screens.project.diff_viewer.basic_ui import DiffLine, VarDiffWidget
+from src.window.screens.project.diff_viewer.basic_ui import DiffLine, LayerDiffWidget, VarDiffWidget
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
@@ -89,6 +89,8 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_scene_properties(scene,scene_name)
         elif component == "variables":
             self._render_scene_variables(scene,scene_name)
+        elif component == "layers":
+            self._render_scene_layers(scene,scene_name)
 
     def _render_scene_variables(self, scene: SceneDiff, name: str):
         var = scene.get("variables")
@@ -118,6 +120,18 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             )
             line.grid(row=count,column=1, sticky="ew")
             count = count + 1
+
+    def _render_scene_layers(self, scene: SceneDiff, name: str):
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(area,f"{name} Layers")
+        layers = scene.get("layers")
+        if not layers:
+            return
+        count = 1
+        for layer in layers:
+            widget = LayerDiffWidget(area,layer)
+            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            count += 1
 
     def area_centered_helper(self, transparent: bool = False, expand: bool = False):
         area = self.create_content_area(transparent)

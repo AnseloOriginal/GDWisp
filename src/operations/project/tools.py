@@ -4,7 +4,7 @@ import src.operations.git.project as git
 from src.operations.git.tools import get_commit, file_in_commit
 from src.operations.project.storage import get_project_with_data
 from typing import cast
-from src.operations.git.diff import Diff
+from src.operations.git.diff.main import Diff
 import pathlib
 import json
 

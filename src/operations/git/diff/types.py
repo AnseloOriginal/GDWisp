@@ -15,6 +15,18 @@ class VariableDiff(TypedDict):
   default: OldNewDiff | None
   change: ActionType
 
+class LayerDiff(TypedDict):
+  name: str
+  change: ActionType
+  diff: list[OldNewDiff] | None
+
+class InstanceDiff(TypedDict):
+  change: ActionType
+  diff: list[OldNewDiff] | None
+  object_name: str
+
 class SceneDiff(TypedDict):
   properties: list[OldNewDiff] | None
   variables: list[VariableDiff] | None
+  layers: list[LayerDiff] | None
+  instances: list[InstanceDiff] | None
