@@ -215,6 +215,9 @@ def generate_tree_data(diff: "Diff"):
 		if scene_diff["layers"]:
 			scene_tree["Layers"] = prename+"layers"
 
+		if scene_diff["instances"]:
+			scene_tree["Instances"] = prename+"instances"
+
 		tree[f"{name} ( Scene )"] = scene_tree
 	print(tree)
 	return tree

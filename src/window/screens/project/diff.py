@@ -8,7 +8,7 @@ from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
 from src.operations.git.diff.main import Diff
 from src.window.screens.shared.helpers import AutoHidingScrollFrame
-from src.window.screens.project.diff_viewer.basic_ui import DiffLine, LayerDiffWidget, VarDiffWidget
+from src.window.screens.project.diff_viewer.basic_ui import DiffLine, InstanceDiffWidget, LayerDiffWidget, VarDiffWidget
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
@@ -91,6 +91,8 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_scene_variables(scene,scene_name)
         elif component == "layers":
             self._render_scene_layers(scene,scene_name)
+        elif component == "instances":
+            self._render_scene_instances(scene,scene_name)
 
     def _render_scene_variables(self, scene: SceneDiff, name: str):
         var = scene.get("variables")
@@ -107,7 +109,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
 
     def _render_scene_properties(self, scene: SceneDiff, name: str):
         area = self.area_centered_helper()
-        self.default_heading_helper(area,f"{name} Properties")
+        self.default_heading_helper(area,f"{name}  -  Scene Properties")
         props = scene.get("properties")
         if not props:
             return
@@ -123,7 +125,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
 
     def _render_scene_layers(self, scene: SceneDiff, name: str):
         area = self.area_centered_helper(True,True)
-        self.default_heading_helper(area,f"{name} Layers")
+        self.default_heading_helper(area,f"{name}  -  Scene Layers")
         layers = scene.get("layers")
         if not layers:
             return
@@ -132,6 +134,19 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             widget = LayerDiffWidget(area,layer)
             widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
             count += 1
+
+    def _render_scene_instances(self, scene: SceneDiff, name: str):
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(area,f"{name}  -  Scene Instances")
+        instances = scene.get("instances")
+        if not instances:
+            return
+        count = 1
+        for instance in instances:
+            widget = InstanceDiffWidget(area,instance)
+            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            count += 1
+
 
     def area_centered_helper(self, transparent: bool = False, expand: bool = False):
         area = self.create_content_area(transparent)

@@ -3,6 +3,7 @@ from typing import Literal, TypedDict, Any
 type OldType = str | bool | dict | int | list | float| None
 type NewType = str | bool | dict | int | list | float| None
 type ActionType = Literal["Modified", "Created", "Deleted"]
+
 class OldNewDiff(TypedDict):
   old: OldType
   new: NewType
@@ -24,6 +25,8 @@ class InstanceDiff(TypedDict):
   change: ActionType
   diff: list[OldNewDiff] | None
   object_name: str
+  display_name: str
+  uuid: str
 
 class SceneDiff(TypedDict):
   properties: list[OldNewDiff] | None

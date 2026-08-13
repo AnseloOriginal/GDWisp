@@ -8,27 +8,40 @@ def diff_scene_layers(current_scene: LayoutData, old_scene: LayoutData | None):
   layers: list[LayerDiff] = []
   source = {layer["name"]: layer for layer in current_scene["layers"]}
   old = {layer["name"]: layer for layer in old_scene["layers"]} if old_scene else None
-  processed: list[str] = []
-  for name, layer in source.items():
-    processed.append(name)
-    diffType: ActionType = "Modified"
+
+  source_list = set(source.keys())
+  old_list = set(old.keys() if old else [])
+  deleted_list = old_list - source_list
+  created_list = source_list - old_list
+  common_list = source_list | old_list
+  
+  for name in common_list:
+    layer = source.get(name)
     old_layer = old.get(name) if old else None
-    if not old_layer:
-      diffType = "Created"
-    diff = diff_scene_layer(layer,old_layer)
-    if not diff:
+    is_created = name in created_list
+    is_deleted = name in deleted_list
+    diffType: ActionType = "Modified"
+    diff = None
+
+    if not layer and not is_deleted:
       continue
+
+    if is_created:
+      diffType = "Created"
+
+    if is_deleted:
+      diffType = "Deleted"
+
+    if layer and not is_deleted:
+      diff = diff_scene_layer(layer,old_layer)
+
+    if not diff and not is_deleted:
+      continue
+
     layers.append(
       {"name": name, "diff": diff, "change": diffType}
     )
-  if not old:
-    return layers if layers else None
-  for name, layer in old.items():
-    if name in processed:
-      continue
-    layers.append(
-      {"name": name, "diff": None, "change": "Deleted"}
-    )
+
   return layers if layers else None
 
   

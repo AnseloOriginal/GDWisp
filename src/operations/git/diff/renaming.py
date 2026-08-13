@@ -59,3 +59,30 @@ scene_layer = {
     "followBaseLayerCamera": "Follow Base Layer Camera", 
     "isLocked": "Is Locked"
 }
+
+
+scene_instance = {
+	"layer": "Layer",
+	"locked": "Locked",
+	"sealed": "Sealed",
+	"name": "Object",
+	"x": "X",
+	"y": "Y",
+	"z": "Z",
+	"angle": "Angle",
+	"rotationX": "Rotation X",
+	"rotationY": "Rotation Y",
+	"zOrder": "Z-Order",
+	"opacity": "Opacity",
+	"flippedX": "Flipped X",
+	"flippedY": "Flipped Y",
+	"flippedZ": "Flipped Z",
+	"customSize": "Custom Size",
+	"width": "Width",
+	"height": "Height",
+	"depth": "Depth",
+	"numberProperties": "Number Properties",
+	"stringProperties": "String Properties",
+	"initialVariables": "Initial Variables",
+	"behaviorsOverridings": 'Behaviors Overridings'
+}

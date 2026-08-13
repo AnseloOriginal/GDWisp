@@ -1,5 +1,5 @@
 import customtkinter as CTk
-from src.operations.git.diff.types import LayerDiff, VariableDiff
+from src.operations.git.diff.types import ActionType, InstanceDiff, LayerDiff, OldNewDiff, VariableDiff
 from src.core.colors import standard_diff
 from src.media.image import ICON
 
@@ -25,10 +25,9 @@ class DiffLine(CTk.CTkFrame):
         arrow.grid(column=6, row=0)
         new.grid(column=8, row=0, sticky="ew")
 
+class ONDiffWidget(CTk.CTkFrame):
 
-class VarDiffWidget(CTk.CTkFrame):
-
-    def __init__(self, master, diff: VariableDiff) -> None:
+    def __init__(self, master, name: str, change: ActionType, diffs: list[OldNewDiff]) -> None:
         super().__init__(
             master,
             fg_color=standard_diff["frame_fg_color"],
@@ -41,61 +40,61 @@ class VarDiffWidget(CTk.CTkFrame):
         frame = CTk.CTkFrame(self)
         frame.grid(column=0,row=0,sticky="ew",padx=20,pady=(10,0))
         frame.columnconfigure(1, weight=1)
+        name_widget = CTk.CTkLabel(frame,text=name,anchor="w",font=(None, 14, "bold"))
+        name_widget.grid(column=0,row=0,padx=(20,0))
 
-        name = CTk.CTkLabel(frame,text=diff["name"],anchor="w",font=(None, 14, "bold"))
-        name.grid(column=0,row=0,padx=(20,0))
+        change_widget = CTk.CTkLabel(frame,text=change,anchor="w",font=(None, 12, "bold"))
+        change_widget.grid(column=2,row=0,padx=(0,20))
 
-        change = CTk.CTkLabel(frame,text=diff["change"],anchor="w",font=(None, 12, "bold"))
-        change.grid(column=2,row=0,padx=(0,20))
+        count = 1
+        self.rowconfigure(1, minsize=10)
+        for diff in diffs:
+            line = DiffLine(
+                self,diff["name"],
+                str(diff["old"]),
+                str(diff["new"]),
+            )
+            line.grid(column=0,row=count,sticky="ew",padx=20,pady=10)
+            count += 1
+
+
+class VarDiffWidget(ONDiffWidget):
+
+    def __init__(self, master, diff: VariableDiff) -> None:
+        ondiff: list[OldNewDiff] = []
 
         if diff["var_type"]:
-            var_type_line = DiffLine(
-                self,diff["var_type"]["name"],
-                str(diff["var_type"]["old"]),
-                str(diff["var_type"]["new"]),
-            )
-            var_type_line.grid(column=0,row=2,sticky="ew",padx=20,pady=10)
+            ondiff.append(diff["var_type"])
 
         if diff["default"]:
-            default_value_line = DiffLine(
-                self,diff["default"]["name"],
-                str(diff["default"]["old"]),
-                str(diff["default"]["new"]),
-            )
-            default_value_line.grid(column=0,row=3,sticky="ew",padx=20,pady=10)
+            ondiff.append(diff["default"])
+
+        super().__init__(
+            master,
+            diff["name"],
+            diff["change"],
+            ondiff
+        )
+        
 
 
-class LayerDiffWidget(CTk.CTkFrame):
+class LayerDiffWidget(ONDiffWidget):
 
     def __init__(self, master, diff: LayerDiff) -> None:
         super().__init__(
             master,
-            fg_color=standard_diff["frame_fg_color"],
-            border_color=standard_diff["frame_border_color"],
-            border_width=standard_diff["frame_border_width"]
+            diff["name"] if diff["name"] != "" else "Base Layer",
+            diff["change"],
+            diff["diff"] if diff["diff"] else []
         )
 
-        self.columnconfigure(0, weight=1)
 
-        frame = CTk.CTkFrame(self)
-        frame.grid(column=0,row=0,sticky="ew",padx=20,pady=(10,0))
-        frame.columnconfigure(1, weight=1)
-        displayName = diff["name"] if diff["name"] != "" else "Base Layer"
-        name = CTk.CTkLabel(frame,text=displayName,anchor="w",font=(None, 14, "bold"))
-        name.grid(column=0,row=0,padx=(20,0))
+class InstanceDiffWidget(ONDiffWidget):
 
-        change = CTk.CTkLabel(frame,text=diff["change"],anchor="w",font=(None, 12, "bold"))
-        change.grid(column=2,row=0,padx=(0,20))
-
-        count = 1
-        prop_diff = diff["diff"]
-        if not prop_diff:
-            return
-        for prop in prop_diff:
-            line = DiffLine(
-                self,prop["name"],
-                str(prop["old"]),
-                str(prop["new"]),
-            )
-            line.grid(column=0,row=count,sticky="ew",padx=20,pady=10)
-            count += 1
+    def __init__(self, master, diff: InstanceDiff) -> None:
+        super().__init__(
+            master,
+            diff["display_name"],
+            diff["change"],
+            diff["diff"] if diff["diff"] else []
+        )
