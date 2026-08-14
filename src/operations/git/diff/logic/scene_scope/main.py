@@ -1,3 +1,4 @@
+from src.operations.git.diff.logic.scene_scope.object_groups import diff_scene_object_groups
 from src.operations.git.diff.logic.scene_scope.instances import diff_scene_instances
 from src.operations.git.diff.logic.scene_scope.layers import diff_scene_layers
 from src.operations.git.diff.logic.scene_scope.properties import diff_scene_properties
@@ -18,7 +19,8 @@ def diff_scenes(source_data: ProjectData, old_data: ProjectData | None):
       "properties": diff_scene_properties(scene,old_scene),
       "variables": diff_scene_variables(scene,old_scene),
       "layers": diff_scene_layers(scene,old_scene),
-      "instances": diff_scene_instances(scene,old_scene)
+      "instances": diff_scene_instances(scene,old_scene),
+      "object_groups": diff_scene_object_groups(scene,old_scene)
     }
     for s, a in scene_diff.items():
        if a is None:

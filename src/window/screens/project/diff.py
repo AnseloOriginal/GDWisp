@@ -8,7 +8,7 @@ from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
 from src.operations.git.diff.main import Diff
 from src.window.screens.shared.helpers import AutoHidingScrollFrame
-from src.window.screens.project.diff_viewer.basic_ui import DiffLine, InstanceDiffWidget, LayerDiffWidget, VarDiffWidget
+from src.window.screens.project.diff_viewer.basic_ui import DiffLine, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, VarDiffWidget
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
@@ -93,6 +93,9 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_scene_layers(scene,scene_name)
         elif component == "instances":
             self._render_scene_instances(scene,scene_name)
+        elif component == "object_groups":
+            self._render_scene_object_groups(scene,scene_name)
+        
 
     def _render_scene_variables(self, scene: SceneDiff, name: str):
         var = scene.get("variables")
@@ -132,6 +135,18 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         count = 1
         for layer in layers:
             widget = LayerDiffWidget(area,layer)
+            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            count += 1
+
+    def _render_scene_object_groups(self, scene: SceneDiff, name: str):
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(area,f"{name}  -  Scene Object Groups")
+        groups = scene.get("object_groups")
+        if not groups:
+            return
+        count = 1
+        for group in groups:
+            widget = ObjectGroupDiffWidget(area,group)
             widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
             count += 1
 

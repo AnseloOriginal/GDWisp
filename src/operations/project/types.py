@@ -148,7 +148,7 @@ class InstanceContainerData(TypedDict):
 	variables: list[RootVariableData]
 	instances: list[InstanceData]
 	objects: list[ObjectData]
-	objectGroups: list[ObjectGroupData]
+	objectsGroups: list[ObjectGroupData]
 	layers: list[LayerData]
 
 class LayoutData(InstanceContainerData):

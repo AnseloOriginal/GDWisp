@@ -9,6 +9,10 @@ class OldNewDiff(TypedDict):
   new: NewType
   name: str
 
+class ObjectGroupDiff(TypedDict):
+  name: str
+  diff: OldNewDiff | None
+  change: ActionType
 
 class VariableDiff(TypedDict):
   name: str
@@ -33,3 +37,4 @@ class SceneDiff(TypedDict):
   variables: list[VariableDiff] | None
   layers: list[LayerDiff] | None
   instances: list[InstanceDiff] | None
+  object_groups: list[ObjectGroupDiff] | None
