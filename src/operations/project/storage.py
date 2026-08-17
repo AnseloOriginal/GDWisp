@@ -109,3 +109,11 @@ def get_project_with_data(
     raise FileNotFoundError
   else:
     return ret
+
+
+def project_modified(name: str):
+  for project in project_list:
+    if project["name"] == name:
+      project["last_accessed"] = datetime.now(timezone.utc).isoformat()
+  write_to_disk()
+
