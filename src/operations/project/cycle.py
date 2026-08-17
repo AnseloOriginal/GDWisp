@@ -35,9 +35,17 @@ def create_new_project(manager: "Manager"):
 
    
 def open_project(manager: "Manager", location: str):
+  try:
     print("Open Project: ",location)
     project_data = storage.get_project_with_data(location)
     manager.new_window("Project",project_data["name"],location)
     storage.project_modified(project_data["name"])
     manager.update_all("Main")
+  except FileNotFoundError:
+    manager.new_window(
+      "Error",
+      "Project Not Found",
+      f"There was an error accessing/finding project at {location}"
+    )
+
   
