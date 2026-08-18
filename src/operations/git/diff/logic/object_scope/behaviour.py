@@ -1,5 +1,5 @@
 from typing import Any
-
+from src.operations.git.diff import helper
 from src.operations.git.diff.logic.per_type import old_new_diff
 from src.operations.git.diff.types import ActionType, BehaviourDiff
 from src.operations.project.types import BehaviorData, ObjectData
@@ -8,12 +8,7 @@ def diff_object_behaviours(obj: ObjectData, old_obj: ObjectData | None):
     behaviours: list[BehaviourDiff] = []
     source = {obj["type"]: obj for obj in obj["behaviors"]}
     old = {obj["type"]: obj for obj in old_obj["behaviors"]} if old_obj else None
-
-    source_list = set(source.keys())
-    old_list = set(old.keys() if old else [])
-    deleted_list = old_list - source_list
-    created_list = source_list - old_list
-    common_list = source_list | old_list
+    common_list, deleted_list, created_list = helper.diff_sets(source,old)
 
     for type in common_list:
         behaviour = source.get(type)

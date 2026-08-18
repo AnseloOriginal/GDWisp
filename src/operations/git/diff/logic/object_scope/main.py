@@ -1,3 +1,4 @@
+from src.operations.git.diff import helper
 from src.operations.git.diff.logic.object_scope.behaviour import diff_object_behaviours
 from src.operations.git.diff.logic.per_type import variable_diff
 from src.operations.git.diff.types import ActionType, ObjectDiff
@@ -7,12 +8,7 @@ def diff_objects(source_objects: list[ObjectData], old_objects: list[ObjectData]
 	objects: list[ObjectDiff] = []
 	source = {object["persistentUuid"]: object for object in source_objects}
 	old = {object["persistentUuid"]: object for object in old_objects} if old_objects else None
-
-	source_list = set(source.keys())
-	old_list = set(old.keys() if old else [])
-	deleted_list = old_list - source_list
-	created_list = source_list - old_list
-	common_list = source_list | old_list
+	common_list, deleted_list, created_list = helper.diff_sets(source,old)
 
 	for uuid in common_list:
 		object = source.get(uuid)

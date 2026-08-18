@@ -9,12 +9,7 @@ def diff_scene_instances(current_scene: LayoutData, old_scene: LayoutData | None
   instances: list[InstanceDiff] = []
   source = {instance["persistentUuid"]: instance for instance in current_scene["instances"]}
   old = {instance["persistentUuid"]: instance for instance in old_scene["instances"]} if old_scene else None
-
-  source_list = set(source.keys())
-  old_list = set(old.keys() if old else [])
-  deleted_list = old_list - source_list
-  created_list = source_list - old_list
-  common_list = source_list | old_list
+  common_list, deleted_list, created_list = helper.diff_sets(source,old)
   
   for uuid in common_list:
     instance = source.get(uuid)

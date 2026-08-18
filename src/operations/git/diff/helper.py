@@ -1,3 +1,5 @@
+from typing import Mapping, Any
+
 from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 
 def single_variable_diff(
@@ -20,3 +22,23 @@ def single_variable_diff_block(old: OldType, new: NewType, name: str) -> OldNewD
 
 def color_to_str(r: int, g: int, b: int):
     return f"{r}; {g}; {b}"
+
+
+def diff_sets(source: Mapping[str, Any], old: Mapping[str, Any] | None):
+    """
+    Computes the set difference between source and old mappings.
+    
+    Args:
+        source: The current/new mapping
+        old: The previous mapping, or None if no previous version exists
+    
+    Returns:
+        Tuple of (common, deleted, created) as sets of keys
+    """
+    source_list = set(source.keys())
+    old_list = set(old.keys() if old else [])
+    deleted_list = old_list - source_list
+    created_list = source_list - old_list
+    common_list = source_list | old_list
+    return common_list, deleted_list, created_list
+  

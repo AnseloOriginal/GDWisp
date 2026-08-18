@@ -15,12 +15,7 @@ def diff_scene_object_groups(current_scene: LayoutData, old_scene: LayoutData | 
   groups: list[ObjectGroupDiff] = []
   source = {group["name"]: flatten(group["objects"]) for group in current_scene["objectsGroups"]}
   old = {group["name"]: flatten(group["objects"]) for group in old_scene["objectsGroups"]} if old_scene else None
-
-  source_list = set(source.keys())
-  old_list = set(old.keys() if old else [])
-  deleted_list = old_list - source_list
-  created_list = source_list - old_list
-  common_list = source_list | old_list
+  common_list, deleted_list, created_list = helper.diff_sets(source,old)
   
   for name in common_list:
     group = source.get(name)
