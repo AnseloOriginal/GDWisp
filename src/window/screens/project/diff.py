@@ -7,8 +7,9 @@ from src.operations.git.diff.types import SceneDiff
 from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
 from src.operations.git.diff.main import Diff
-from src.window.screens.shared.helpers import AutoHidingScrollFrame
-from src.window.screens.project.diff_viewer.basic_ui import DiffLine, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, VarDiffWidget
+from src.window.screens.shared.helpers import AutoHidingScrollFrame, safe_get
+from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, VarDiffWidget
+
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
@@ -42,7 +43,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_globalvar()
         elif newview.startswith("scene::"):
             parts = newview.split("::")
-            self._render_scene(parts[1],parts[2])
+            self._render_scene(parts[1],parts[2],parts[3:])
         else:
             self._render_placeholder()
         self.current_view = newview
@@ -77,7 +78,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
 
-    def _render_scene(self,scene_name: str, component: str):
+    def _render_scene(self,scene_name: str, component: str, extras: list = []):
         self.apply_fix(True)
         self.wipe()
         if not self.diff:
@@ -95,7 +96,43 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_scene_instances(scene,scene_name)
         elif component == "object_groups":
             self._render_scene_object_groups(scene,scene_name)
-        
+        elif component == "object":
+            index = int(safe_get(extras,0,False))
+            print("Safety:",index)
+            if isinstance(index,bool):
+                return
+            print("Safety:",index)
+            self._render_object("scene",index,scene)
+
+    def _render_object(self, source: Literal["scene", "global"], index: int, scene: SceneDiff | None = None):
+        diff = None
+        if source == "scene" and scene:
+            objs = scene.get("objects")
+            diff = safe_get(objs,index) if objs else None
+
+        if not diff:
+            return
+
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(self,f"{diff["name"]} {diff["uuid"][:6]} - Scene Object ({diff["change"]})")
+
+        count = 3
+        if diff["variables"]:
+            self.mini_heading_helper(area,"Object Variables",count,1)
+            count += 1
+            for var in diff["variables"]:
+                widget = VarDiffWidget(area,var)
+                widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+                count += 1
+
+        if diff["behaviours"]:
+            self.mini_heading_helper(area,"Object Behaviours",count,1)
+            count += 1
+            for behaviour in diff["behaviours"]:
+                widget = BehaviourDiffWidget(area,behaviour)
+                widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+                count += 1
+
 
     def _render_scene_variables(self, scene: SceneDiff, name: str):
         var = scene.get("variables")
@@ -180,7 +217,12 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         heading.grid(column=1,row=0, sticky="ew", pady=20)
         return heading
 
-
+    def mini_heading_helper(self,parent,text: str, row: int=0, column: int=0):
+        heading = customtkinter.CTkLabel(
+            parent,text=text,font=(None, 14, "bold"),anchor="nw"
+        )
+        heading.grid(column=column,row=row, sticky="ew", pady=5)
+        return heading
 
     def to_string(
             self,obj

@@ -221,6 +221,11 @@ def generate_tree_data(diff: "Diff"):
 		if scene_diff["object_groups"]:
 			scene_tree["Object Groups"] = prename+"object_groups"
 
+		if scene_diff["objects"]:
+			scene_tree["Objects"] = {}
+			for index, object_diff in enumerate(scene_diff["objects"]):
+				scene_tree["Objects"][object_diff["name"]] = prename+f"object::{index}"
+
 		tree[f"{name} ( Scene )"] = scene_tree
 	print(tree)
 	return tree

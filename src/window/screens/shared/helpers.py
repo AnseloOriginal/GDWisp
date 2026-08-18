@@ -69,3 +69,8 @@ class AdvancePadding(customtkinter.CTkFrame):
       widget.grid(column=1,row=n,sticky="ew",pady=spacing)
       n+=1
 
+def safe_get[T, D](lst: list[T], index: int, default: D = None) -> T | D:
+    try:
+        return lst[index]
+    except IndexError:
+        return default

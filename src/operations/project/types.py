@@ -21,6 +21,7 @@ class EventsFunctionsVariablesData(TypedDict):
 class ObjectData(TypedDict):
 	name: str
 	type: str
+	persistentUuid: str
 	variables: list[RootVariableData]
 	behaviors: list[BehaviorData | dict[str, Any]]
 	effects: list[EffectData]

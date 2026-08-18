@@ -32,9 +32,23 @@ class InstanceDiff(TypedDict):
   display_name: str
   uuid: str
 
+
+class BehaviourDiff(TypedDict):
+  diff: list[OldNewDiff] | None
+  change: ActionType
+  name: str
+
+class ObjectDiff(TypedDict):
+  variables: list[VariableDiff] | None
+  behaviours: list[BehaviourDiff] | None
+  name: str
+  uuid: str
+  change: ActionType
+
 class SceneDiff(TypedDict):
   properties: list[OldNewDiff] | None
   variables: list[VariableDiff] | None
   layers: list[LayerDiff] | None
   instances: list[InstanceDiff] | None
   object_groups: list[ObjectGroupDiff] | None
+  objects: list[ObjectDiff] | None

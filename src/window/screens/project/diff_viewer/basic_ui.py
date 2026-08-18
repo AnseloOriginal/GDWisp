@@ -1,5 +1,5 @@
 import customtkinter as CTk
-from src.operations.git.diff.types import ActionType, InstanceDiff, LayerDiff, ObjectGroupDiff, OldNewDiff, VariableDiff
+from src.operations.git.diff.types import ActionType, BehaviourDiff, InstanceDiff, LayerDiff, ObjectGroupDiff, OldNewDiff, VariableDiff
 from src.core.colors import standard_diff
 from src.media.image import ICON
 
@@ -107,4 +107,14 @@ class ObjectGroupDiffWidget(ONDiffWidget):
             diff["name"],
             diff["change"],
             [diff["diff"]] if diff["diff"] else []
+        )
+
+class BehaviourDiffWidget(ONDiffWidget):
+
+    def __init__(self, master, diff: BehaviourDiff) -> None:
+        super().__init__(
+            master,
+            diff["name"],
+            diff["change"],
+            diff["diff"] if diff["diff"] else []
         )
