@@ -20,6 +20,11 @@ class VariableDiff(TypedDict):
   default: OldNewDiff | None
   change: ActionType
 
+class ResouceDiff(TypedDict):
+  name: str
+  change: ActionType
+  diff: list[OldNewDiff] | None
+  
 class LayerDiff(TypedDict):
   name: str
   change: ActionType
@@ -38,9 +43,15 @@ class BehaviourDiff(TypedDict):
   change: ActionType
   name: str
 
+class EffectDiff(TypedDict):
+  diff: list[OldNewDiff] | None
+  change: ActionType
+  name: str
+
 class ObjectDiff(TypedDict):
   variables: list[VariableDiff] | None
   behaviours: list[BehaviourDiff] | None
+  effects: list[EffectDiff] | None
   name: str
   uuid: str
   change: ActionType
@@ -52,3 +63,5 @@ class SceneDiff(TypedDict):
   instances: list[InstanceDiff] | None
   object_groups: list[ObjectGroupDiff] | None
   objects: list[ObjectDiff] | None
+  ui: list[OldNewDiff] | None
+

@@ -1,3 +1,4 @@
+from src.operations.git.diff.logic.project_scope.resources import diff_resources
 from src.operations.git.diff.logic.scene_scope.main import diff_scenes
 from src.operations.git.diff.logic.project_scope.project_properties import diff_properties
 from src.operations.git.diff.logic.project_scope.global_variables import global_variable_diff
@@ -10,13 +11,15 @@ import src.operations.git.diff.keys as keys
 
 class Diff:
   def __init__(self,p1: ProjectData, p2: ProjectData | None):
-    #p1 is meant to be the current copy while p2 the copy from the repo
+    # p1 is meant to be the current copy while 
+    # p2 the copy from the repo (which may not exists)
     self.p1 = p1
     self.p2 = p2
 
     self.globalVarDiff = global_variable_diff(p1,p2)
     self.propertiesDiff = diff_properties(p1,p2)
     self.scene_diffs = diff_scenes(p1,p2)
+    self.resourcesDiff = diff_resources(p1,p2)
   
   def data_as_str(self):
     data_str = []

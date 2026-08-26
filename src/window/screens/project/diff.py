@@ -3,12 +3,13 @@ from types import NoneType
 from typing import Literal
 import customtkinter
 from git import diff
+from src.operations.git.diff import renaming
 from src.operations.git.diff.types import SceneDiff
 from src.core.colors import standard_diff, main_frame
 from src.media.image import ICON
 from src.operations.git.diff.main import Diff
 from src.window.screens.shared.helpers import AutoHidingScrollFrame, safe_get
-from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, VarDiffWidget
+from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, EffectsDiffWidget, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, ResourceDiffWidget, VarDiffWidget
 
 
 class ProjectViewDiff(customtkinter.CTkFrame):
@@ -41,6 +42,8 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_placeholder()
         elif newview == "globalvar":
             self._render_globalvar()
+        elif newview == "resources":
+            self._render_resources()
         elif newview.startswith("scene::"):
             parts = newview.split("::")
             self._render_scene(parts[1],parts[2],parts[3:])
@@ -78,6 +81,20 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
 
+    def _render_resources(self):
+        self.apply_fix(True)
+        self.wipe()
+        if (not self.diff or not self.diff.resourcesDiff):
+            return
+        
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(self,"Project Resources")
+        count = 1
+        for diff in self.diff.resourcesDiff:
+            widget = ResourceDiffWidget(area,diff)
+            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            count = count + 1
+
     def _render_scene(self,scene_name: str, component: str, extras: list = []):
         self.apply_fix(True)
         self.wipe()
@@ -103,6 +120,9 @@ class ProjectViewDiff(customtkinter.CTkFrame):
                 return
             print("Safety:",index)
             self._render_object("scene",index,scene)
+        elif component == "ui":
+            self._render_scene_ui(scene,scene_name)
+
 
     def _render_object(self, source: Literal["scene", "global"], index: int, scene: SceneDiff | None = None):
         diff = None
@@ -133,6 +153,13 @@ class ProjectViewDiff(customtkinter.CTkFrame):
                 widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
                 count += 1
 
+        if diff["effects"]:
+            self.mini_heading_helper(area,"Object Effects",count,1)
+            count += 1
+            for effect in diff["effects"]:
+                widget = EffectsDiffWidget(area,effect)
+                widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+                count += 1
 
     def _render_scene_variables(self, scene: SceneDiff, name: str):
         var = scene.get("variables")
@@ -155,6 +182,22 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             return
         count = 1
         for prop in props:
+            line = DiffLine(area,
+                prop["name"],
+                self.to_string(prop["old"]),
+                self.to_string(prop["new"])
+            )
+            line.grid(row=count,column=1, sticky="ew")
+            count = count + 1
+
+    def _render_scene_ui(self, scene: SceneDiff, name: str):
+        area = self.area_centered_helper()
+        self.default_heading_helper(area,f"{name}  -  Editor UI Settings")
+        ui = scene.get("ui")
+        if not ui:
+            return
+        count = 1
+        for prop in ui:
             line = DiffLine(area,
                 prop["name"],
                 self.to_string(prop["old"]),
@@ -230,7 +273,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         obj_type = type(obj)
         if (obj_type == str):
             return f'"{obj}"'
-        elif(obj_type == int or obj_type == bool):
+        elif(obj_type == int or obj_type == bool or obj_type == float):
             return str(obj)
         elif (type(obj) == NoneType):
             return ""

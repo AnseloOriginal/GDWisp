@@ -1,3 +1,4 @@
+from src.operations.git.diff.logic.object_scope.effects import diff_effects
 from src.operations.git.diff import helper
 from src.operations.git.diff.logic.object_scope.behaviour import diff_object_behaviours
 from src.operations.git.diff.logic.per_type import variable_diff
@@ -51,6 +52,7 @@ def diff_object(uuid: str, name: str, obj: ObjectData | None, old_obj: ObjectDat
 			"change": "Deleted",
 			"variables": None,
 			"behaviours": None,
+			"effects": None,
 			"name": name,
 			"uuid": uuid
 		}
@@ -58,11 +60,14 @@ def diff_object(uuid: str, name: str, obj: ObjectData | None, old_obj: ObjectDat
 		"variables": variable_diff(obj["variables"],old_obj["variables"] if old_obj else None),
 		"change": "Modified",
 		"behaviours": diff_object_behaviours(obj,old_obj),
+		"effects": diff_effects(
+			obj.get("effects"),
+			old_obj.get("effects") if old_obj else None
+		),
 		"name": name,
 		"uuid": uuid
 	}
 	for s, a in diff.items():
 		if a is not None and s != "change" and s != "name" and s != "uuid":
 			return diff
-	print("Skipped",name,uuid,diff.get("variables"))
 	return None

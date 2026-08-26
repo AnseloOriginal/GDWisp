@@ -8,12 +8,7 @@ def diff_scene_layers(current_scene: LayoutData, old_scene: LayoutData | None):
   layers: list[LayerDiff] = []
   source = {layer["name"]: layer for layer in current_scene["layers"]}
   old = {layer["name"]: layer for layer in old_scene["layers"]} if old_scene else None
-
-  source_list = set(source.keys())
-  old_list = set(old.keys() if old else [])
-  deleted_list = old_list - source_list
-  created_list = source_list - old_list
-  common_list = source_list | old_list
+  common_list, deleted_list, created_list = helper.diff_sets(source,old)
   
   for name in common_list:
     layer = source.get(name)

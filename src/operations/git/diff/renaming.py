@@ -1,3 +1,4 @@
+
 properties = {
 	"adaptGameResolutionAtRuntime": "Adapt Game Resolution",
 	"folderProject": "Folder Project",
@@ -31,8 +32,8 @@ properties = {
 	"sceneResourcesUnloading": "Scene Resoucrce Unloading Method",
 	"areEffectsHiddenInEditor": "Hide Effects in Editor",
 	"templateSlug": "Template Identifier",
-	"description": "Project Description"
-
+	"description": "Project Description",
+	"gdversion": "Gdevelop Version"
 }
 
 scene_properties = {
@@ -85,4 +86,36 @@ scene_instance = {
 	"stringProperties": "String Properties",
 	"initialVariables": "Initial Variables",
 	"behaviorsOverridings": 'Behaviors Overridings'
+}
+
+resources = {
+	"file": "File Location",
+     "kind": "File Kind",
+     "metadata": "Gdevelop Metadata",
+     "smoothed": "Smoothed",
+     "userAdded": "Added by User"
+}
+
+effects = {
+	"effectType": "Effect Type",
+	"disabled": "Disabled"
+}
+
+
+uisettings = {
+    "grid": "Grid Activated",
+    "gridType": "Grid Type",
+    "gridWidth": "Grid Width",
+    "gridHeight": "Grid Height",
+    "gridDepth": "Grid Depth",
+    "gridOffsetX": "Grid Offset X",
+    "gridOffsetY": "Grid Offset Y",
+    "gridOffsetZ": "Grid Offset Z",
+    "gridColor": "Grid Color",
+    "gridAlpha": "Grid Alpha",
+    "snap": "Snap Grid",
+    "zoomFactor": "Zoom",
+    "windowMask": "Window Mask",
+    "selectedLayer": "Selected Layer",
+    "gameEditorMode": "Editor Mode"
 }

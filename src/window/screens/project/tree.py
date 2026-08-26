@@ -203,6 +203,10 @@ def generate_tree_data(diff: "Diff"):
 		ensure_exist(tree,"Project")
 		tree["Project"]["Global Variables"] = "globalvar"
 
+	if diff.resourcesDiff != None:
+		ensure_exist(tree,"Project")
+		tree["Project"]["Resources"] = "resources"
+
 	for name, scene_diff in diff.scene_diffs.items():
 		scene_tree = {}
 		prename = f"scene::{name}::"
@@ -220,6 +224,9 @@ def generate_tree_data(diff: "Diff"):
 
 		if scene_diff["object_groups"]:
 			scene_tree["Object Groups"] = prename+"object_groups"
+
+		if scene_diff["ui"]:
+			scene_tree["Editor UI"] = prename+"ui"
 
 		if scene_diff["objects"]:
 			scene_tree["Objects"] = {}

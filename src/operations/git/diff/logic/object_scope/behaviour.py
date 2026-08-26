@@ -27,7 +27,6 @@ def diff_object_behaviours(obj: ObjectData, old_obj: ObjectData | None):
             name = prename if isinstance(prename,str) else name
 
         if not behaviour and not is_deleted:
-            print(f"Skipping Behaviour {name} due to noexistent")
             continue
 
         if is_created:
@@ -39,7 +38,6 @@ def diff_object_behaviours(obj: ObjectData, old_obj: ObjectData | None):
             diff = diff_behaviour(behaviour,old_behaviour)
 
         if not diff and not is_deleted:
-            print(f"Skipping Behaviour {name} due to no-diff")
             continue
 
         behaviours.append({
@@ -56,7 +54,6 @@ def diff_behaviour(
     old_behaviour: BehaviorData | dict[str, Any] | None
 ):
     properties = set(behaviour)
-    print("Behaviour",properties)
     if old_behaviour:
         properties = properties | set(old_behaviour)
     return old_new_diff(
