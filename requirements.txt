@@ -1,0 +1,7 @@
+customtkinter
+GitPython
+pillow
+pydantic
+pydantic-settings
+python-dotenv
+pytest
