@@ -1,0 +1,49 @@
+from src.operations.git.diff.logic.events_scope.events.helpers import diff_strings
+from src.operations.git.diff.types import ActionType, CommentEventDiff
+import rapidfuzz
+from src.operations.git.diff.logic.events_scope.helper import comment_color_to_string
+from src.operations.project.types import CommentEventColorData, CommentEventData
+from rapidfuzz import fuzz
+
+def to_color(color: CommentEventColorData | None):
+	if color:
+		return comment_color_to_string(color)
+	else:
+		return None
+
+def comment_similarity_score(evt_a: CommentEventData, evt_b: CommentEventData):
+	evt_a_map = f"{comment_color_to_string(evt_a["color"])} {evt_a["comment"]}"
+	evt_b_map = f"{comment_color_to_string(evt_b["color"])} {evt_b["comment"]}"
+	score = fuzz.ratio(evt_a_map, evt_b_map)
+	return score
+
+#Evt_b acts as old while Evt_a as new/source_
+def diff_comment(evt_a: CommentEventData | None, evt_b: CommentEventData | None):
+	change: ActionType = "Modified"
+
+	if evt_b is None:
+		change = "Created"
+	elif evt_a is None:
+		change = "Deleted"
+
+	comment_string_diff = diff_strings(
+		"Comment",
+		evt_a["comment"] if evt_a else None,
+		evt_b["comment"] if evt_b else None
+	)
+
+	comment_color_diff = diff_strings(
+		"Color",
+		to_color(evt_a["color"] if evt_a else None),
+		to_color(evt_b["color"] if evt_b else None)
+	)
+	comment = evt_a["comment"] if evt_a else evt_b["comment"] if evt_b else ""
+	color = comment_color_to_string(evt_a["color"]) if evt_a else comment_color_to_string(evt_b["color"]) if evt_b else ""
+	comment_diff: CommentEventDiff = {
+		"type": "Comment",
+		"comment": comment_string_diff if comment_string_diff else comment,
+		"color": comment_color_diff if comment_color_diff else color,
+		"change": change
+	}
+	print("A comment diff",comment_diff)
+	return comment_diff

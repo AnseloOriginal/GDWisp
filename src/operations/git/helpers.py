@@ -52,12 +52,18 @@ class CommitHelper:
       return final_refs
 
   def commits(self,skip: int,max=20):
-    print("Skipping:",skip,"with a max:",20)
-    commits = self.repo.iter_commits(max_count=max,skip=skip,branches=True)
-    return commits
+    if self.repo.head.is_valid():
+      print("Skipping:",skip,"with a max:",20)
+      commits = self.repo.iter_commits(max_count=max,skip=skip,branches=True)
+      return commits
+    else:
+      return []
 
   def no_of_commits(self):
-    return int(self.repo.git.rev_list('--count', 'HEAD'))
+    try:
+      return int(self.repo.git.rev_list('--count', 'HEAD'))
+    except git.GitCommandError:
+      return 0
 
 def safe_get(seq, index, default=None):
     try:

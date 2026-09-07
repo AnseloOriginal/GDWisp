@@ -1,5 +1,5 @@
 import customtkinter as CTk
-from src.operations.git.diff.types import ActionType, BehaviourDiff, InstanceDiff, LayerDiff, ObjectGroupDiff, OldNewDiff, ResouceDiff, VariableDiff
+from src.operations.git.diff.types import ActionType, BehaviourDiff, EffectDiff, InstanceDiff, LayerDiff, ObjectGroupDiff, OldNewDiff, ResouceDiff, VariableDiff
 from src.core.colors import standard_diff
 from src.media.image import ICON
 
@@ -131,7 +131,7 @@ class ResourceDiffWidget(ONDiffWidget):
 
 class EffectsDiffWidget(ONDiffWidget):
 
-    def __init__(self, master, diff: ResouceDiff) -> None:
+    def __init__(self, master, diff: EffectDiff) -> None:
         super().__init__(
             master,
             diff["name"],

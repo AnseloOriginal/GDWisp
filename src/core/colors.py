@@ -5,7 +5,6 @@ import customtkinter
 def set_theme():
 	SCRIPT_DIR = Path(__file__).parents[2]
 	THEME_PATH = SCRIPT_DIR / "data" / "color-theme.json"
-	print(THEME_PATH)
 	customtkinter.set_default_color_theme(str(THEME_PATH))
 
 main_frame = {

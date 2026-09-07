@@ -228,13 +228,15 @@ def generate_tree_data(diff: "Diff"):
 		if scene_diff["ui"]:
 			scene_tree["Editor UI"] = prename+"ui"
 
+		if scene_diff["events"]:
+			scene_tree["Events"] = prename+"events"
+
 		if scene_diff["objects"]:
 			scene_tree["Objects"] = {}
 			for index, object_diff in enumerate(scene_diff["objects"]):
 				scene_tree["Objects"][object_diff["name"]] = prename+f"object::{index}"
 
 		tree[f"{name} ( Scene )"] = scene_tree
-	print(tree)
 	return tree
 
 

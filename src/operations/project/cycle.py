@@ -18,7 +18,6 @@ def create_new_project(manager: "Manager"):
   )
   if (not file_path): 
     return
-  print(file_path)
   try:
     file = open(file_path)
     data = json.loads(file.read())

@@ -1,9 +1,11 @@
-from typing import Literal, TypedDict, Any
+from typing import Literal, TypedDict, Any, Union
+
+from src.operations.project.types import EventData
 
 type OldType = str | bool | dict | int | list | float| None
 type NewType = str | bool | dict | int | list | float| None
 type ActionType = Literal["Modified", "Created", "Deleted"]
-
+type EventStore = list[EventData | EventDiff]
 class OldNewDiff(TypedDict):
   old: OldType
   new: NewType
@@ -64,4 +66,12 @@ class SceneDiff(TypedDict):
   object_groups: list[ObjectGroupDiff] | None
   objects: list[ObjectDiff] | None
   ui: list[OldNewDiff] | None
+  events: EventStore | None
 
+class CommentEventDiff(TypedDict):
+  type: Literal["Comment"]
+  comment: OldNewDiff | str
+  color: OldNewDiff | str
+  change: ActionType
+
+type EventDiff = CommentEventDiff

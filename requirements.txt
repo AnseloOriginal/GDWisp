@@ -5,3 +5,7 @@ pydantic
 pydantic-settings
 python-dotenv
 pytest
+rapidfuzz
+pystray
+platformdirs
+watchdog

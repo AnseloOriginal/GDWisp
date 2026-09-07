@@ -17,7 +17,6 @@ class AutoHidingScrollFrame(customtkinter.CTkScrollableFrame):
     self.update_idletasks()
     viewport_height = self._parent_canvas.winfo_height()
     content_height = self.winfo_reqheight()
-    print(content_height,viewport_height)
     needs_scrollbar = content_height > viewport_height
     if needs_scrollbar == self._scrollbar_visible:
         return

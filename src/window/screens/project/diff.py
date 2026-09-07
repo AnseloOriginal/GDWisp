@@ -10,6 +10,7 @@ from src.media.image import ICON
 from src.operations.git.diff.main import Diff
 from src.window.screens.shared.helpers import AutoHidingScrollFrame, safe_get
 from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, EffectsDiffWidget, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, ResourceDiffWidget, VarDiffWidget
+from src.window.screens.project.diff_viewer.events_ui import create_event_widget
 
 
 class ProjectViewDiff(customtkinter.CTkFrame):
@@ -122,7 +123,8 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             self._render_object("scene",index,scene)
         elif component == "ui":
             self._render_scene_ui(scene,scene_name)
-
+        elif component == "events":
+            self._render_scene_events(scene,scene_name)
 
     def _render_object(self, source: Literal["scene", "global"], index: int, scene: SceneDiff | None = None):
         diff = None
@@ -280,7 +282,6 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         elif (type(obj) == list):
             return str(obj)
         else:
-            print(obj,type(obj))
             return "[COMPLEX]"
 
     def create_content_area(self,transparent: bool):
@@ -301,6 +302,20 @@ class ProjectViewDiff(customtkinter.CTkFrame):
                 fg_color=color
         )
         return scroll
+
+    def _render_scene_events(self, scene: SceneDiff, name: str):
+        area = self.area_centered_helper(True,True)
+        self.default_heading_helper(area,f"{name}  -  Scene Events")
+        event_store = scene.get("events")
+        if not event_store:
+            return
+        count = 1
+        for event in event_store:
+            widget =  create_event_widget(area,event)
+            if not widget:
+                continue
+            widget.grid(row=count,column=1, pady=10, padx=10,sticky="ew")
+            count += 1
 
     def apply_fix(self,shouldApply: bool):
         if (not self.parent):
