@@ -1,5 +1,4 @@
 from src.operations.git.diff.logic.events_scope.events.comment import comment_similarity_score
-from src.operations.git.diff.logic.events_scope.helper import comment_color_to_string
 from src.operations.project.types import EventData
 from rapidfuzz import fuzz
 

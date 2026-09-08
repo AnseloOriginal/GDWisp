@@ -1,4 +1,3 @@
-from src.operations.git.helpers import has_repo
 import git
 from typing import cast
 

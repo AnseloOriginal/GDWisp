@@ -1,11 +1,12 @@
-from typing import Literal
 from PIL.Image import new
+from typing import Literal
 import customtkinter as CTk
+import src.core.colors as colors
+from src.utils.colors import rgb_to_hex
+from src.utils.diff import old_new_extractor
 import src.operations.git.diff.types as diff
 import src.operations.project.types as events
-from src.window.screens.project.diff_viewer.helper import old_new_extractor, rgb_to_hex
-import src.core.colors as colors
-from src.window.screens.project.diff_viewer.helper import string_to_comment_color
+from src.utils.colors import string_to_comment_color
 
 def create_event_widget(parent,event: diff.EventDiff | events.EventData):
 	match event:

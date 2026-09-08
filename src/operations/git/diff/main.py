@@ -1,13 +1,11 @@
-from src.operations.git.diff.logic.project_scope.resources import diff_resources
+from src.operations.project.types import ProjectData
 from src.operations.git.diff.logic.scene_scope.main import diff_scenes
+from src.operations.git.diff.logic.project_scope.resources import diff_resources
 from src.operations.git.diff.logic.project_scope.project_properties import diff_properties
 from src.operations.git.diff.logic.project_scope.global_variables import global_variable_diff
-from src.operations.project.types import LayerData, ProjectData, ProjectPropertiesData, LayoutData, RootVariableData
-from typing import Any, Iterable, Mapping, Union, Literal
-from src.operations.git.diff.types import LayerDiff, OldNewDiff, SceneDiff, VariableDiff, OldType, NewType, ActionType
-import src.operations.git.diff.renaming as renaming
-import src.operations.git.diff.helper as helper
-import src.operations.git.diff.keys as keys
+
+
+
 
 class Diff:
   def __init__(self,p1: ProjectData, p2: ProjectData | None):

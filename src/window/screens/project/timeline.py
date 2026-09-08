@@ -1,17 +1,17 @@
-from itertools import count
-from time import perf_counter
-from git import Commit
-from src.operations.git.helpers import CommitHelper
-from collections.abc import Iterator
-import customtkinter
-from typing import Literal, TypedDict, Callable
-from src.media.image import ICON
-from queue import Queue
-import threading
-import tkinter as tk
-from src.core.colors import main_frame
 import colorsys
-import random
+import threading
+import customtkinter
+import tkinter as tk
+from git import Commit
+from queue import Queue
+from time import perf_counter
+from src.media.image import ICON
+from src.core.colors import main_frame
+from src.utils.colors import generate_unique_color
+from typing import Literal, TypedDict, Callable
+from src.operations.git.commit_manager import CommitManager
+
+
 
 bullet = customtkinter.CTkImage(ICON["bullet"])
 type ParentChildData = list[tuple[str,str]]
@@ -68,15 +68,15 @@ class Timeline(customtkinter.CTkScrollableFrame):
 		
 	def update_info(self,is_top=False):
 		start = perf_counter()
-		helper = CommitHelper(self.path)
+		commits_manager = CommitManager(self.path)
 		if self.no_of_commits is None:
-			self.no_of_commits = helper.no_of_commits()
+			self.no_of_commits = commits_manager.no_of_commits()
 		if is_top:
-			raw_commits = helper.commits(0,max=10)
+			raw_commits = commits_manager.commits(0,max=10)
 		else:
-			raw_commits = helper.commits(self.processed)
+			raw_commits = commits_manager.commits(self.processed)
 		commits = [ConsumedCommit(commit) for commit in raw_commits]
-		refs = helper.get_refs()
+		refs = commits_manager.get_refs()
 		evt: InfoEventType = {
 			"commits": commits,
 			"refs": refs
@@ -264,7 +264,7 @@ class BranchDrawingEngine(tk.Canvas):
 		else:
 			count = len(self.branches)
 			lane = -40 + (len(self.branches) * 20)
-			branch = Branch(lane,color=self.generate_unique_color(count+1))
+			branch = Branch(lane,color=generate_unique_color(count+1))
 			branch.add_child(hexsha)
 			self.branches[branch_name] = branch
 
@@ -303,14 +303,6 @@ class BranchDrawingEngine(tk.Canvas):
 			if parent:
 				parents.append(parent)
 		return parents
-
-	def generate_unique_color(self,index: int):
-		golden_ratio_conjugate = 0.618033988749895
-		h = (index * golden_ratio_conjugate) % 1.0
-		s = 0.85
-		v = 0.90
-		r, g, b = colorsys.hsv_to_rgb(h, s, v)
-		return f"#{int(r * 255):02x}{int(g * 255):02x}{int(b * 255):02x}"
 
 	def commit_type(self,hexsha: str):
 		if hexsha in self.master_merge_list:

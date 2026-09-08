@@ -1,6 +1,6 @@
 import git
 from typing import TypedDict
-from src.operations.git.helpers import current_time
+from src.utils.time import current_time
 from src.operations.git.types import GitError
 from src.core.constants import app_name
 

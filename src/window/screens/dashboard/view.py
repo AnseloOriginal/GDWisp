@@ -2,7 +2,7 @@ import customtkinter
 from src.window.screens.shared.buttons import create_icon_butn, create_project_butn
 from typing import TYPE_CHECKING, Callable
 from src.core.colors import main_frame, theme_colors
-from src.window.screens.dashboard.helpers import is_configured
+from src.utils.settings import is_configured
 from src.window.screens.dashboard.welcome_menu import  WelcomeMenu
 if TYPE_CHECKING:
   from src.window.view import GUI_Functions

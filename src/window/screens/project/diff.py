@@ -1,17 +1,15 @@
 from __future__ import annotations
+import customtkinter
+
 from types import NoneType
 from typing import Literal
-import customtkinter
-from git import diff
-from src.operations.git.diff import renaming
-from src.operations.git.diff.types import SceneDiff
-from src.core.colors import standard_diff, main_frame
-from src.media.image import ICON
+from src.utils.list import safe_get
 from src.operations.git.diff.main import Diff
-from src.window.screens.shared.helpers import AutoHidingScrollFrame, safe_get
-from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, EffectsDiffWidget, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, ResourceDiffWidget, VarDiffWidget
+from src.core.colors import standard_diff
+from src.operations.git.diff.types import SceneDiff
 from src.window.screens.project.diff_viewer.events_ui import create_event_widget
-
+from src.window.screens.shared.auto_scrollable_frame import AutoHidingScrollFrame
+from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, EffectsDiffWidget, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, ResourceDiffWidget, VarDiffWidget
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):

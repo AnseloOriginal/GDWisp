@@ -1,9 +1,10 @@
-from src.operations.git.diff.logic.events_scope.events.helpers import diff_strings
-from src.operations.git.diff.types import ActionType, CommentEventDiff
 import rapidfuzz
-from src.operations.git.diff.logic.events_scope.helper import comment_color_to_string
-from src.operations.project.types import CommentEventColorData, CommentEventData
 from rapidfuzz import fuzz
+from src.utils.colors import comment_color_to_string
+from src.operations.git.diff.logic.per_type import diff_strings
+from src.operations.git.diff.types import ActionType, CommentEventDiff
+from src.operations.project.types import CommentEventColorData, CommentEventData
+
 
 def to_color(color: CommentEventColorData | None):
 	if color:

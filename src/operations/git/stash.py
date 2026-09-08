@@ -1,5 +1,4 @@
-
-from src.operations.git.helpers import run_git_command
+from src.utils.git import run_git_command
 
 def pretify(text: str):
 	start = text.find("On")

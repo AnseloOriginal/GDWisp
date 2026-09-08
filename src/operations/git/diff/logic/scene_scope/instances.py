@@ -1,15 +1,15 @@
-from src.operations.git.diff import helper
+from src.utils.diff import diff_sets
+from src.operations.git.diff import renaming
 from src.operations.git.diff.logic.per_type import old_new_diff
-from src.operations.git.diff import keys, renaming
 from src.operations.git.diff.types import ActionType, InstanceDiff
-from src.operations.project.types import InstanceData, LayerData, LayoutData
+from src.operations.project.types import InstanceData, LayoutData
 
 def diff_scene_instances(current_scene: LayoutData, old_scene: LayoutData | None):
 
   instances: list[InstanceDiff] = []
   source = {instance["persistentUuid"]: instance for instance in current_scene["instances"]}
   old = {instance["persistentUuid"]: instance for instance in old_scene["instances"]} if old_scene else None
-  common_list, deleted_list, created_list = helper.diff_sets(source,old)
+  common_list, deleted_list, created_list = diff_sets(source,old)
   
   for uuid in common_list:
     instance = source.get(uuid)

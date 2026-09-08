@@ -1,6 +1,5 @@
 import git
-from src.operations.git.types import GitError
-from src.operations.git.helpers import run_git_command
+from src.utils.git import run_git_command
 
 def revert(folder: str, hexsha: str):
 	return run_git_command(

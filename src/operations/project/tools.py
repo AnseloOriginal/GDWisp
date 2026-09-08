@@ -1,12 +1,15 @@
-from src.operations.git.helpers import safe_get
-import src.operations.project.storage as storage
+import json
+import pathlib
+from typing import cast
+from src.utils.list import general_safe_get as safe_get
 import src.operations.git.project as git
+from src.operations.git.diff.main import Diff
+import src.operations.project.storage as storage
 from src.operations.git.tools import get_commit, file_in_commit
 from src.operations.project.storage import get_project_with_data
-from typing import cast
-from src.operations.git.diff.main import Diff
-import pathlib
-import json
+
+
+
 
 from src.operations.project.types import ProjectData
 

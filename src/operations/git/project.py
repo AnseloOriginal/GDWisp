@@ -1,7 +1,7 @@
-from src.operations.git.helpers import has_repo, create_repo
 import git
 import pathlib
 from typing import cast
+from src.utils.git import has_repo, create_repo
 
 def setup(path: str):
   """Creates and Setup a new repo"""

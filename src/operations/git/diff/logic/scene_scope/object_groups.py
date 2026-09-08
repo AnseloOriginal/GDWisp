@@ -1,4 +1,4 @@
-from src.operations.git.diff import helper
+from src.utils.diff import diff_sets
 from src.operations.git.diff.logic.per_type import old_new_diff
 from src.operations.git.diff import keys, renaming
 from src.operations.git.diff.types import ActionType, LayerDiff, ObjectGroupDiff, OldNewDiff
@@ -15,7 +15,7 @@ def diff_scene_object_groups(current_scene: LayoutData, old_scene: LayoutData | 
   groups: list[ObjectGroupDiff] = []
   source = {group["name"]: flatten(group["objects"]) for group in current_scene["objectsGroups"]}
   old = {group["name"]: flatten(group["objects"]) for group in old_scene["objectsGroups"]} if old_scene else None
-  common_list, deleted_list, created_list = helper.diff_sets(source,old)
+  common_list, deleted_list, created_list = diff_sets(source,old)
   
   for name in common_list:
     group = source.get(name)

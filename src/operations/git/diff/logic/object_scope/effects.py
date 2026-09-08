@@ -1,5 +1,5 @@
 from src.operations.git.diff import renaming
-from src.operations.git.diff.helper import diff_sets
+from src.utils.diff import diff_sets
 from src.operations.git.diff.logic.per_type import old_new_diff
 from src.operations.git.diff.types import ActionType, EffectDiff
 from src.operations.project.types import EffectData

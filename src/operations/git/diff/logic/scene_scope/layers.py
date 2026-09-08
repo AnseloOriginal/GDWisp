@@ -1,14 +1,15 @@
-from src.operations.git.diff import helper
-from src.operations.git.diff.logic.per_type import old_new_diff
+from src.utils.diff import diff_sets
+from src.utils.colors import color_to_str
 from src.operations.git.diff import keys, renaming
-from src.operations.git.diff.types import ActionType, LayerDiff
 from src.operations.project.types import LayerData, LayoutData
+from src.operations.git.diff.logic.per_type import old_new_diff
+from src.operations.git.diff.types import ActionType, LayerDiff
 
 def diff_scene_layers(current_scene: LayoutData, old_scene: LayoutData | None):
   layers: list[LayerDiff] = []
   source = {layer["name"]: layer for layer in current_scene["layers"]}
   old = {layer["name"]: layer for layer in old_scene["layers"]} if old_scene else None
-  common_list, deleted_list, created_list = helper.diff_sets(source,old)
+  common_list, deleted_list, created_list = diff_sets(source,old)
   
   for name in common_list:
     layer = source.get(name)
@@ -42,11 +43,11 @@ def diff_scene_layers(current_scene: LayoutData, old_scene: LayoutData | None):
   
 def diff_scene_layer(source: LayerData, old: LayerData | None):
   newpluscolor = source | {
-    "ambientLightColor": helper.color_to_str(source["ambientLightColorR"],source["ambientLightColorG"],source["ambientLightColorB"])
+    "ambientLightColor": color_to_str(source["ambientLightColorR"],source["ambientLightColorG"],source["ambientLightColorB"])
   }
   newpluscolor["name"] = "Base Layer" if newpluscolor["name"] == "" else newpluscolor["name"]
   oldpluscolor = old | {
-    "ambientLightColor": helper.color_to_str(old["ambientLightColorR"],old["ambientLightColorG"],old["ambientLightColorB"])
+    "ambientLightColor": color_to_str(old["ambientLightColorR"],old["ambientLightColorG"],old["ambientLightColorB"])
   } if old else None
   if oldpluscolor:
     oldpluscolor["name"] = "Base Layer" if oldpluscolor["name"] == "" else oldpluscolor["name"]

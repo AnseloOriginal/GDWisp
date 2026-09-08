@@ -1,6 +1,6 @@
 from src.operations.git.diff import renaming
 from src.operations.git.diff.logic.per_type import old_new_diff
-from src.operations.git.diff import helper
+from src.utils.diff import diff_sets
 from src.operations.git.diff.types import ActionType, ResouceDiff, SceneDiff
 from src.operations.project.types import ProjectData, ResourceData
 
@@ -9,7 +9,7 @@ def diff_resources(current: ProjectData, old_project: ProjectData | None):
 	source = {resource["name"]: resource for resource in current["resources"]["resources"]}
 	old = {resource["name"]: resource for resource in old_project["resources"]["resources"]} if old_project else None
 
-	common_list, deleted_list, created_list = helper.diff_sets(source,old)
+	common_list, deleted_list, created_list = diff_sets(source,old)
 
 	for name in common_list:
 		resource = source.get(name)

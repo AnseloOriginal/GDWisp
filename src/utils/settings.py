@@ -6,11 +6,3 @@ def is_configured():
 		return False
 	else:
 		return True
-
-
-
-
-
-
-
-

@@ -5,12 +5,13 @@ from typing import TYPE_CHECKING, Literal
 from datetime import datetime, timezone, timedelta
 
 from src.core.colors import main_frame
+from src.window.screens.project.tree import Tree
 from src.window.screens.project.commitlogic import CommitLogic
-from src.window.screens.project.tree import Tree, TreeStructure, generate_tree_data
-from src.window.screens.project.timeline import BranchLine, ConsumedCommit, Timeline
-from src.window.screens.shared.helpers import AutoHidingScrollFrame, LabeledText, AdvancePadding
+from src.window.screens.project.timeline import ConsumedCommit, Timeline
+
+from src.window.screens.shared.labelled_text import LabeledText
+from src.window.screens.shared.padding import AdvancePadding
 from src.window.screens.shared.buttons import multiple_button
-from src.window.screens.shared.forced_popup import ForcedPopup
 from src.window.screens.project.diff import ProjectViewDiff
 from src.window.screens.project.extrainfo import CommitExtraInfo
 from src.window.screens.project.branch_tool import BranchTool
@@ -20,7 +21,6 @@ from src.window.screens.project.branch_tool import modes as BranchToolModes
 from src.window.screens.project.sync_tool import SyncTool
 from src.window.screens.project.timeline_action import TimelineAction, SelectedCommit
 from src.operations.project.watcher import Projectwatcher
-import src.operations.git.tools as git_tools
 from src.operations.git.watcher import GitWatcher, EventPayload
 
 if TYPE_CHECKING:
