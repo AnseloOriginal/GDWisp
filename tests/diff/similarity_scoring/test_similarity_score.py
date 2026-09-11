@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-
 from src.operations.project.types import EventData
 import src.operations.git.diff.logic.events_scope.score as score
 

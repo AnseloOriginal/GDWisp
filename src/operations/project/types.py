@@ -303,8 +303,12 @@ class JsCodeEventData(TypedDict):
 	disabled: NotRequired[bool]
 	folded: NotRequired[bool]
 
+class InstructionType(TypedDict):
+	type: str
+	inverted: NotRequired[bool]
+
 class InstructionData(TypedDict):
-    type: dict[str, str]
+    type: InstructionType
     parameters: list[str]
     subInstructions: NotRequired[list[InstructionData]]
 

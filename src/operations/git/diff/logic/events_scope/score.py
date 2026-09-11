@@ -19,7 +19,7 @@ def similarity_score(
 	if evt_b_location == 0:
 		evt_b_location = 0.00001
 
-	location_score = max(100-((abs(evt_a_location-evt_b_location)/evt_a_location)*100), 0)
+	location_score = location_similarity_score(evt_a_location,evt_b_location)
 	score = 0
 	if evt_a["type"] == "BuiltinCommonInstructions::Comment" and evt_b["type"] == "BuiltinCommonInstructions::Comment":
 		score = comment_similarity_score(evt_a,evt_b)
