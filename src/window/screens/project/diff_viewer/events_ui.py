@@ -70,11 +70,6 @@ class BaseEventWidget(CTk.CTkFrame):
 		self.apply_flag(flag)
 
 	def apply_flag(self,flag: Flag,replace: CTk.CTkBaseClass | None = None, second_flag: None | Flag = None):
-		# bearer = replace or self
-		# bearer.grid_columnconfigure(0,minsize=30)
-		# if flag == UNMODIFIED:
-		# 	self.flag_frame.grid_forget()
-		# else:
 		self.flag = flag
 		color_map = {
 			MODIFIED: colors.event_sheet["modified"],
