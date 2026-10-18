@@ -12,7 +12,7 @@ Project structure at [[project]]
 ## Design Contribution
 
 You can contribute directly through Lunacy:
- >Lunacy Link <<<
+ >https://www.lunacyapp.com/in/1xfgAjkdgkWkP-9qMFWsmg/GDWisp?layer=2BfgAjkdgkWkP-9qMFWsmg&vp=-654%2c-14%2c2635%2c1344
 
 Your contributions would be reviewed and added to the roadmap. See our [design philosophy](https://www.gdwisp.com/roadmap#design) for guidance.
 

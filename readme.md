@@ -1,6 +1,6 @@
 Welcome to the GDWisp Repo!
 
-If you want to **[[contribute]]**.
+If you want to **[contribute](docs/contribute)**.
 
 **GDWisp** is tool for GDevelop that aids collaboration through a visual git interface and project management. Check out more about GDWisp at [our website](https://www.gdwisp.com) (with screenshots).
 
