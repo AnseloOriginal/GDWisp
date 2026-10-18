@@ -3,7 +3,7 @@ from src.operations.git.diff.logic.scene_scope.main import diff_scenes
 from src.operations.git.diff.logic.project_scope.resources import diff_resources
 from src.operations.git.diff.logic.project_scope.project_properties import diff_properties
 from src.operations.git.diff.logic.project_scope.global_variables import global_variable_diff
-
+import src.operations.git.diff.logic.events_scope.metadata_scanner as scanner
 
 
 
@@ -18,6 +18,10 @@ class Diff:
     self.propertiesDiff = diff_properties(p1,p2)
     self.scene_diffs = diff_scenes(p1,p2)
     self.resourcesDiff = diff_resources(p1,p2)
+    self.metadata_scanner = scanner.MetadataScanner()
+    self.metadata_scanner.load_project(p1)
+    if p2:
+      self.metadata_scanner.load_project(p2)
   
   def data_as_str(self):
     data_str = []

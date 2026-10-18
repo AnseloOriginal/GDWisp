@@ -41,3 +41,13 @@ status_colors = {
 	"error": "#D32F2F",
 	"success": "#2E7D32"
 }
+
+event_sheet = {
+	"bg": ("#FFFAFA","#FFFAFA"),
+	"icon": ("#FFFFFF","#FFFFFF"),
+	"modified": ("#006699","#006699"),
+	"added": ("#007843","#007843"),
+	"removed": ("#960000","#960000"),
+	"border": ("#000000","#000000"),
+	"unmodified": ("#8C9BAE","#8C9BAE")
+}

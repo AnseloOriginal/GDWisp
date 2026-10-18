@@ -1,6 +1,7 @@
 from typing import Literal
-from src.operations.git.diff.types import OldNewDiff
 from typing import Mapping, Any
+from src.operations.git.diff.types import OldNewDiff
+from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 
 def old_new_extractor(type: Literal["new","old"], ondiff: OldNewDiff | str) -> str | None:
     if isinstance(ondiff,str):
@@ -25,8 +26,6 @@ def diff_sets(source: Mapping[str, Any], old: Mapping[str, Any] | None):
     created_list = source_list - old_list
     common_list = source_list | old_list
     return common_list, deleted_list, created_list
-
-from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 
 def single_variable_diff(
     name: str, 

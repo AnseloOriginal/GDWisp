@@ -9,3 +9,4 @@ rapidfuzz
 pystray
 platformdirs
 watchdog
+pyinstaller

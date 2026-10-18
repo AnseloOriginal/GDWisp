@@ -1,4 +1,5 @@
 from __future__ import annotations
+from tkinter import Event
 from typing import TypedDict, NotRequired, Union, Required, Any, Literal
 
 class ProjectData(TypedDict):
@@ -252,8 +253,28 @@ class ExternalLayoutData(TypedDict):
 class EventsFunctionsExtensionData(TypedDict):
 	name: str
 	eventsBasedObjects: list[EventsBasedObjectData]
+	eventsBasedBehaviors: list[EventFunctionsBehaviourData]
 	globalVariables: list[RootVariableData]
 	sceneVariables: list[RootVariableData]
+	eventsFunctions: list[EventsFunction]
+
+class EventFunctionsBehaviourData(TypedDict):
+	description: str
+	fullName: str
+	helpPath: str
+	iconUrl: str
+	name: str
+	objectType: str
+	previewIconUrl: str
+	eventsFunctions: list[EventsFunction]
+	
+class EventsFunction(TypedDict):
+	name: str
+	sentence: str
+	fullName: str
+	description: str
+	functionType: Literal["Expression","Action","Condition"]
+	events: list[EventData]
 
 class EventsBasedObjectVariantData(InstanceContainerData):
 	name: str
@@ -293,8 +314,9 @@ class InstanceNumberProperty(TypedDict):
 class InstanceStringProperty(TypedDict):
   name: str
   value: str
-
-class JsCodeEventData(TypedDict):
+class ParentEventData(TypedDict):
+	pass
+class JsCodeEventData(ParentEventData):
 	type: Literal["BuiltinCommonInstructions::JsCode"]
 	inlineCode: str | list[str]
 	parameterObjects: str
@@ -304,7 +326,7 @@ class JsCodeEventData(TypedDict):
 	folded: NotRequired[bool]
 
 class InstructionType(TypedDict):
-	type: str
+	value: str
 	inverted: NotRequired[bool]
 
 class InstructionData(TypedDict):
@@ -312,7 +334,7 @@ class InstructionData(TypedDict):
     parameters: list[str]
     subInstructions: NotRequired[list[InstructionData]]
 
-class CommentEventData(TypedDict):
+class CommentEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::Comment"]
     color: CommentEventColorData
     comment: str
@@ -328,7 +350,7 @@ class CommentEventColorData(TypedDict):
     textG: int
     textB: int
 
-class ElseEventData(TypedDict):
+class ElseEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::Else"]
     conditions: list[InstructionData]
     actions: list[InstructionData]
@@ -337,7 +359,7 @@ class ElseEventData(TypedDict):
     disabled: NotRequired[bool]
     folded: NotRequired[bool]
 
-class ForEachChildVariableEventData(TypedDict):
+class ForEachChildVariableEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::ForEachChildVariable"]
     iterableVariableName: str
     valueIteratorVariableName: str
@@ -350,7 +372,7 @@ class ForEachChildVariableEventData(TypedDict):
     disabled: NotRequired[bool]
     folded: NotRequired[bool]
 
-class ForEachEventData(TypedDict):
+class ForEachEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::ForEach"]
     object: str
     conditions: list[InstructionData]
@@ -364,7 +386,7 @@ class ForEachEventData(TypedDict):
     disabled: NotRequired[bool]
     folded: NotRequired[bool]
 
-class GroupEventData(TypedDict):
+class GroupEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::Group"]
     name: str
     source: str
@@ -377,20 +399,20 @@ class GroupEventData(TypedDict):
     disabled: NotRequired[bool]
     folded: NotRequired[bool]
 
-class LinkEventIncludeData(TypedDict):
+class LinkEventIncludeData(ParentEventData):
     includeConfig: int
     eventsGroup: NotRequired[str]
     start: NotRequired[int]
     end: NotRequired[int]
 
-class LinkEventData(TypedDict):
+class LinkEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::Link"]
     include: LinkEventIncludeData
     target: str
     disabled: NotRequired[bool]
     folded: NotRequired[bool]
 
-class RepeatEventData(TypedDict):
+class RepeatEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::Repeat"]
     repeatExpression: str
     conditions: list[InstructionData]
@@ -401,7 +423,7 @@ class RepeatEventData(TypedDict):
     disabled: NotRequired[bool]
     folded: NotRequired[bool]
 
-class StandardEventData(TypedDict):
+class StandardEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::Standard"]
     conditions: list[InstructionData]
     actions: list[InstructionData]
@@ -410,7 +432,7 @@ class StandardEventData(TypedDict):
     disabled: NotRequired[bool]
     folded: NotRequired[bool]
 
-class WhileEventData(TypedDict):
+class WhileEventData(ParentEventData):
     type: Literal["BuiltinCommonInstructions::While"]
     infiniteLoopWarning: bool
     whileConditions: list[InstructionData]

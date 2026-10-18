@@ -1,3 +1,4 @@
+from src.operations.git.diff.logic.events_scope.events.standard_diff import standard_event_similarity_score
 from src.operations.git.diff.logic.events_scope.events.comment import comment_similarity_score
 from src.operations.project.types import EventData
 from rapidfuzz import fuzz
@@ -23,6 +24,8 @@ def similarity_score(
 	score = 0
 	if evt_a["type"] == "BuiltinCommonInstructions::Comment" and evt_b["type"] == "BuiltinCommonInstructions::Comment":
 		score = comment_similarity_score(evt_a,evt_b)
+	elif evt_a["type"] == 'BuiltinCommonInstructions::Standard' and evt_b["type"] == "BuiltinCommonInstructions::Standard":
+		score = standard_event_similarity_score(evt_a,evt_b)
 
 	return (location_score + score) / 2
 

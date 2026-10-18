@@ -1,6 +1,5 @@
 from typing import Literal, TypedDict, Any, Union
-
-from src.operations.project.types import EventData
+from src.operations.project.types import EventData, InstructionData
 
 type OldType = str | bool | dict | int | list | float| None
 type NewType = str | bool | dict | int | list | float| None
@@ -68,10 +67,41 @@ class SceneDiff(TypedDict):
   ui: list[OldNewDiff] | None
   events: EventStore | None
 
+type InstructionDiff = Union[DeletedInstructionDiff, CreatedInstructionDiff, ModifiedInstructionDiff]
+class DeletedInstructionDiff(TypedDict):
+  type: Literal["Deleted"]
+  data: InstructionData
+
+class CreatedInstructionDiff(TypedDict):
+  type: Literal["Created"]
+  data: InstructionData
+
+class ModifiedInstructionDiff(TypedDict):
+  type: Literal["Modified"]
+  instr_type: str
+  parameters: list[OldNewDiff | str]
+  sub_instructions: list[InstructionDiff | InstructionData]
+
+
 class CommentEventDiff(TypedDict):
   type: Literal["Comment"]
   comment: OldNewDiff | str
   color: OldNewDiff | str
-  change: ActionType
 
-type EventDiff = CommentEventDiff
+class StandardEventDiff(TypedDict):
+  type: Literal["Standard Event"]
+  actions: list[InstructionDiff | InstructionData]
+  conditions: list[InstructionDiff | InstructionData]
+
+type SpecificEventDiff = CommentEventDiff | StandardEventDiff
+
+class SingularEventDiff(TypedDict):
+  diff_type: Literal["created", "deleted"]
+  data: EventData
+
+class BaseEventDiff(TypedDict):
+  diff_type: Literal["modified"]
+  data: SpecificEventDiff
+
+type EventDiff = Union[SingularEventDiff, BaseEventDiff]
+

@@ -7,8 +7,8 @@ from src.operations.git.diff.logic.object_scope.behaviour import diff_object_beh
 
 def diff_objects(source_objects: list[ObjectData], old_objects: list[ObjectData] | None):
 	objects: list[ObjectDiff] = []
-	source = {object["persistentUuid"]: object for object in source_objects}
-	old = {object["persistentUuid"]: object for object in old_objects} if old_objects else None
+	source = {object.get("persistentUuid") or object["name"]: object for object in source_objects}
+	old = {object.get("persistentUuid") or object["name"]: object for object in old_objects} if old_objects else None
 	common_list, deleted_list, created_list = diff_sets(source,old)
 
 	for uuid in common_list:

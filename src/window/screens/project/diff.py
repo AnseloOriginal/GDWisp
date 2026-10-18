@@ -1,15 +1,20 @@
 from __future__ import annotations
+from math import floor
 import customtkinter
-
+import time
 from types import NoneType
 from typing import Literal
 from src.utils.list import safe_get
+from src.utils.widget import deep_count_elements, get_visible_children_count
 from src.operations.git.diff.main import Diff
 from src.core.colors import standard_diff
 from src.operations.git.diff.types import SceneDiff
-from src.window.screens.project.diff_viewer.events_ui import create_event_widget
+from src.window.screens.project.diff_viewer.events_ui import UNMODIFIED, create_event_widget
 from src.window.screens.shared.auto_scrollable_frame import AutoHidingScrollFrame
 from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, EffectsDiffWidget, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, ResourceDiffWidget, VarDiffWidget
+from src.window.screens.project.diff_viewer.event_pocket import EventPocket
+import cProfile, pstats
+
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
@@ -243,9 +248,10 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             count += 1
 
 
-    def area_centered_helper(self, transparent: bool = False, expand: bool = False):
+    def area_centered_helper(self, transparent: bool = False, expand: bool = False, autogrid: bool = True):
         area = self.create_content_area(transparent)
-        area.grid(column=1,row=1,sticky="nsew")
+        if autogrid:
+            area.grid(column=1,row=1,sticky="nsew")
         if expand:
             area.grid_columnconfigure(1,weight=1)
             area.grid_columnconfigure((0,2),minsize=20)
@@ -302,18 +308,55 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         return scroll
 
     def _render_scene_events(self, scene: SceneDiff, name: str):
-        area = self.area_centered_helper(True,True)
+        area = self.area_centered_helper(True,True,False)
         self.default_heading_helper(area,f"{name}  -  Scene Events")
         event_store = scene.get("events")
-        if not event_store:
+        meta = self.diff.metadata_scanner if self.diff else None
+        if not event_store or not meta:
             return
         count = 1
+        context_count = 0
+        current_pocket: None | EventPocket = None
+        def batch_widget_grid(time: int, widget, row: int):
+            self.after(
+                time,
+                lambda: widget.grid(row=row,column=1, pady=5, padx=10,sticky="ew")
+            )
+        start_time = time.perf_counter()
+        # profiler.enable()
         for event in event_store:
-            widget =  create_event_widget(area,event)
+            widget =  create_event_widget(area,event,meta)
+            queue_time = floor(count / 10) * 500
             if not widget:
                 continue
-            widget.grid(row=count,column=1, pady=10, padx=10,sticky="ew")
-            count += 1
+            if widget.flag == UNMODIFIED:
+                if context_count < 2:
+                    context_count += 1
+                    # widget.grid(row=count,column=1, pady=5, padx=10,sticky="ew")
+                    batch_widget_grid(queue_time,widget,count)
+                else:
+                    if current_pocket is None:
+                        current_pocket = EventPocket(area,bg_color="black")
+                        batch_widget_grid(queue_time,widget,count)
+                        count += 1
+                    # Must happen before adding to pocket for checks
+                    batch_widget_grid(queue_time,widget,count)
+                    current_pocket.add(widget)
+                count += 1
+            else:    
+                batch_widget_grid(queue_time,widget,count)
+                count += 1
+                context_count = 0
+                current_pocket = None
+        area.grid(column=1,row=1,sticky="nsew")
+        # area.update_idletasks()
+        # profiler.disable()
+        end_time = time.perf_counter()
+        # stats = pstats.Stats(profiler).sort_stats("tottime")
+        # stats.print_stats(15) 
+        print(f"""The event rendering took {end_time - start_time}s with  
+            {get_visible_children_count(area)-1} visible events, {len(event_store)} events in total""")
+        print(f"Deep count of elements: {deep_count_elements(area)}")
 
     def apply_fix(self,shouldApply: bool):
         if (not self.parent):

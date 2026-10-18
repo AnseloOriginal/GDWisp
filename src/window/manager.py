@@ -1,9 +1,12 @@
+import os
+
 import customtkinter
 from src.window.view import View_Manager
 from typing import TYPE_CHECKING
 from src.window.types import VIEW_TYPE, ManagedWindow
 from typing import TypedDict
 from uuid import uuid4
+from src.core.paths import get_asset_path
 
 class Manager:
   """Manages windows"""
@@ -12,6 +15,9 @@ class Manager:
   def __init__(self) -> None:
     root = customtkinter.CTk()
     root.withdraw()
+    customtkinter.FontManager.load_font(
+      get_asset_path(os.path.join("fonts","Inter-Regular.ttf"))
+    )
     self.root = root
     self.view = View_Manager(self)
 

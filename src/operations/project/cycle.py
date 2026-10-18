@@ -1,3 +1,4 @@
+import pathlib
 from tkinter import filedialog
 from typing import TYPE_CHECKING
 from src.operations.project.diff_related import project_diff
@@ -37,6 +38,14 @@ def open_project(manager: "Manager", location: str):
   try:
     print("Open Project: ",location)
     project_data = storage.get_project_with_data(location)
+    folder = project_data["folder_dir"]
+
+    if not git.has_repo(folder):
+      raise git.git.InvalidGitRepositoryError
+
+    if not pathlib.Path(location).exists():
+      raise FileNotFoundError
+
     manager.new_window("Project",project_data["name"],location)
     storage.project_modified(project_data["name"])
     manager.update_all("Main")
@@ -46,5 +55,12 @@ def open_project(manager: "Manager", location: str):
       "Project Not Found",
       f"There was an error accessing/finding project at {location}"
     )
+  except (git.git.InvalidGitRepositoryError, git.git.NoSuchPathError):
+    manager.new_window(
+      "Error",
+      "Project Has No Repo",
+      f"There was an error accessing git at {location}"
+    )
+
 
   

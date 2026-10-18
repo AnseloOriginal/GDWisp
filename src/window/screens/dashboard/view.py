@@ -41,7 +41,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
   projects = funcs.get_projects_by_date()
   
   customtkinter.set_appearance_mode("light")
-  app.title("Gdevelop Forge")
+  app.title("GDWisp")
   app.grid_columnconfigure(0, weight=1)
   app.grid_columnconfigure(1, weight=1, minsize=300)
   app.grid_columnconfigure(2, weight=1, minsize=300)
@@ -72,7 +72,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
   c2.grid_columnconfigure(1,minsize=200,weight=1)
   c2.grid_columnconfigure(2,minsize=50)
   c2.grid_rowconfigure(0,minsize=10)
-  main_title = customtkinter.CTkLabel(c1, text="Gdevelop SVN", font=(None, 24, "bold"))
+  main_title = customtkinter.CTkLabel(c1, text="GDWisp", font=(None, 24, "bold"))
   main_title.grid(row=2,column=1)
 
   add_project_butn = create_icon_butn(c1,"Add Project","add",None,None,1,4, command=funcs.add_new_project)

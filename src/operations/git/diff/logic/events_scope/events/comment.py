@@ -19,13 +19,7 @@ def comment_similarity_score(evt_a: CommentEventData, evt_b: CommentEventData):
 	return score
 
 #Evt_b acts as old while Evt_a as new/source_
-def diff_comment(evt_a: CommentEventData | None, evt_b: CommentEventData | None):
-	change: ActionType = "Modified"
-
-	if evt_b is None:
-		change = "Created"
-	elif evt_a is None:
-		change = "Deleted"
+def diff_comment(evt_a: CommentEventData, evt_b: CommentEventData):
 
 	comment_string_diff = diff_strings(
 		"Comment",
@@ -40,11 +34,9 @@ def diff_comment(evt_a: CommentEventData | None, evt_b: CommentEventData | None)
 	)
 	comment = evt_a["comment"] if evt_a else evt_b["comment"] if evt_b else ""
 	color = comment_color_to_string(evt_a["color"]) if evt_a else comment_color_to_string(evt_b["color"]) if evt_b else ""
-	comment_diff: CommentEventDiff = {
-		"type": "Comment",
-		"comment": comment_string_diff if comment_string_diff else comment,
-		"color": comment_color_diff if comment_color_diff else color,
-		"change": change
-	}
-	print("A comment diff",comment_diff)
-	return comment_diff
+
+	return CommentEventDiff(
+		type="Comment",
+		comment= comment_string_diff if comment_string_diff else comment,
+		color= comment_color_diff if comment_color_diff else color
+	)
