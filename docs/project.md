@@ -4,7 +4,7 @@ Each folder / main file of the project (alphabetically)
 This is the entry file. It does checks and starts the app loop.
 
 ### data/
-Contains the static files used by the app while its running. 
+Contains the static files used by the app while it's running. 
 - **color-theme.json** is a CTk theme file
 - **gdevelop-metadata.json** is a generated file containing event metadata.
 
@@ -19,17 +19,17 @@ Images icons and logo we use.
 
 ### scripts/
 These are external scripts not used by the app. 
-- extract-extensions.js is used to generate gdevelop-metadata.json. See [[updating-metadata]]
+- extract-extensions.js is used to generate gdevelop-metadata.json. See [updating-metadata](updating-metadata.md)
 
 ### src/ 
 This is the main app.
 - **core** contains live configurations used at runtime
-- **debug** contains dead code
+- **debug** contains dummy functions
 - **media** contains all live media e.g ImageFile etc
 - **operations** contains high level functions in each domain (git, project)
 - **preferences** contains code for settings and user configuration
 - **utils** contains helper code
 - **window** contains rendering logic
 
-## tests/ 
+### tests/ 
 Pytest functions are here

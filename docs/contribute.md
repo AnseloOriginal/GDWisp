@@ -4,11 +4,11 @@ To setup the code on your system
 - Clone the repo
 - Install dependencies from the requirement.txt
 - Run the run.bat to easily enter the .venv
-- Type app.py to run the project
+- Type python app.py to run the project
 
-> **Tested on python version 1.13**
+> **Tested on python version 3.13**
 
-Project structure at [[project]]
+Project structure at [project](project.md).
 ## Design Contribution
 
 You can contribute directly through Lunacy:
