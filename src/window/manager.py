@@ -1,12 +1,12 @@
+import tkinter as tk
 import os
-
+import sys
 import customtkinter
 from src.window.view import View_Manager
-from typing import TYPE_CHECKING
 from src.window.types import VIEW_TYPE, ManagedWindow
-from typing import TypedDict
 from uuid import uuid4
 from src.core.paths import get_asset_path
+
 
 class Manager:
   """Manages windows"""
@@ -24,6 +24,7 @@ class Manager:
   def new_window(self, window_type: VIEW_TYPE ,*extras):
     id = uuid4().__str__()
     window = customtkinter.CTkToplevel(self.root)
+    self.root.after(300,lambda: self.set_icon(window))
     window.geometry("800x600")
     update = self.view.create_gui(window,window_type,*extras)
     win: ManagedWindow = {
@@ -50,3 +51,16 @@ class Manager:
     for window in self.app_window_list:
       if window["window_type"] == window_type:
         window["update"]()
+
+  def set_icon(self,window: customtkinter.CTkToplevel):
+    print("Starting the icon process for this",str(window))
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    png_path = os.path.join(base, "images", "logo.png")
+    ico_path = os.path.join(base, "images", "logo.ico")
+    if sys.platform.startswith("win") and os.path.exists(ico_path):
+        window.iconbitmap(ico_path)
+        print("windows ICON set:",str(ico_path))
+    else:
+        icon = tk.PhotoImage(file=png_path)
+        window.iconphoto(True, icon)
+        window._icon_ref = icon # pyright: ignore[reportAttributeAccessIssue]

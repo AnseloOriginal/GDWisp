@@ -1,4 +1,5 @@
 from pathlib import Path
+from tkinter import PhotoImage
 from PIL import Image
 
 
