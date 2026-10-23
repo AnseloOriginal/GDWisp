@@ -8,6 +8,7 @@ def get_asset_path(relative_path: str):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.abspath(relative_path)
 
-folder_path = user_data_path(appname="Gdevelop Forge",ensure_exists=True, roaming=True)
+folder_path = user_data_path(appname="GDWisp", appauthor=False, ensure_exists=True, roaming=True)
+print(f"[DEBUG] GDWisp folder initialized at: {folder_path.resolve()}")
 
 

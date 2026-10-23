@@ -54,9 +54,9 @@ class Manager:
 
   def set_icon(self,window: customtkinter.CTkToplevel):
     print("Starting the icon process for this",str(window))
-    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    png_path = os.path.join(base, "images", "logo.png")
-    ico_path = os.path.join(base, "images", "logo.ico")
+    # base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    png_path = get_asset_path(os.path.join("images", "logo.png"))
+    ico_path = get_asset_path(os.path.join("images", "logo.ico"))
     if sys.platform.startswith("win") and os.path.exists(ico_path):
         window.iconbitmap(ico_path)
         print("windows ICON set:",str(ico_path))

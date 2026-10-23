@@ -4,6 +4,7 @@ from src.window.tray import Tray
 from src.media.image import logo_image
 from src.window.manager import Manager
 from src.core.colors import set_theme
+from src.utils.logging import setup_logging
 import src.operations.project.storage as storage
 import src.preferences.settings as settings
 from tkinter import messagebox
@@ -21,6 +22,7 @@ def start_app():
 	manager.mainloop()
 
 def pre_check():
+	setup_logging()
 	GIT_INSTALLED = shutil.which("git")
 	if GIT_INSTALLED:
 		start_app()

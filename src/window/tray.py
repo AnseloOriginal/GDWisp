@@ -12,7 +12,7 @@ class Tray:
       pystray.MenuItem("New Window",self.on_new_window),
       pystray.MenuItem("Quit",self.quit)
     )
-    self.icon = pystray.Icon("Gdevelop Git",image, "Gdevelop Git",self.menu)
+    self.icon = pystray.Icon("GDWisp",image, "GDWisp",self.menu)
     self.icon.run_detached()
   
   def on_new_window(self):
