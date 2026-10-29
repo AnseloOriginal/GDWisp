@@ -83,7 +83,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         self.default_heading_helper(self,"Global Variables")
         count = 1
         for diff in self.diff.globalVarDiff:
-            widget = lambda: VarDiffWidget(area,diff)
+            widget = lambda diff=diff: VarDiffWidget(area,diff)
             lazy.add(widget,row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
 
@@ -98,7 +98,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         count = 1
         start = time.perf_counter()
         for diff in self.diff.resourcesDiff:
-            create_widget = lambda: ResourceDiffWidget(area,diff)
+            create_widget = lambda diff=diff: ResourceDiffWidget(area,diff)
             lazy.add(create_widget,row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
         end = time.perf_counter()
@@ -180,7 +180,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
 
         count = 1
         for diff in var:
-            widget = lambda: VarDiffWidget(area,diff)
+            widget = lambda diff=diff: VarDiffWidget(area,diff)
             lazy.add(widget,row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
 
