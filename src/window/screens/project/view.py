@@ -4,6 +4,7 @@ import customtkinter
 from typing import TYPE_CHECKING, Literal
 from datetime import datetime, timezone, timedelta
 
+from src.media.image import ICON
 from src.core.colors import main_frame
 from src.window.screens.project.tree import Tree
 from src.window.screens.project.commitlogic import CommitLogic
@@ -48,7 +49,8 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
       border_color=main_frame["border_color"],
       border_width=main_frame["border_width"]
     )
-    c1.grid_rowconfigure((0,2,4,6,8,10,12), minsize=10)
+    c1.grid_rowconfigure((0,2,8,10,12), minsize=10)
+    c1.grid_rowconfigure((4,6),minsize=5)
     c1.grid_columnconfigure((0,2), minsize=20)
     c1.grid_rowconfigure(3, weight=1, minsize=200)
     c1.grid_rowconfigure(7, weight=1, minsize=100)
@@ -74,7 +76,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
     for button in c2._segmented_button._buttons_dict.values():
       button.configure(width=100, height=40) # Set your size in pixels
 
-    changes_text = customtkinter.CTkLabel(c1, text="Changes",font=(None, 18, "bold"),anchor="w")
+    changes_text = customtkinter.CTkLabel(c1, text="Changes",font=(None, 16, "bold"),anchor="w")
     changes_text.grid(row=1, column=1, sticky="ew")
     tree = Tree(c1,location,info["folder_dir"])
     tree.grid(row=3,column=1,sticky="ew")
@@ -82,9 +84,22 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
       tree.reset()
       tree.refresh()
     watcher = Projectwatcher(info["folder_dir"],lambda: app.after(0,on_project_change))
-    current_branch = customtkinter.CTkLabel(c1, text="Current Branch: "+info.get("branch","Unknown"),
-      font=(None, 18, "bold"),anchor="w")
+
+    current_branch = customtkinter.CTkFrame(c1)
+    current_branch_image = customtkinter.CTkLabel(
+        current_branch, 
+        image=customtkinter.CTkImage(ICON["branch"],ICON["branch"]),
+        text=""
+      )
+    current_branch_text = customtkinter.CTkLabel(
+      current_branch, 
+      text=info.get("branch","Unknown"),
+      font=(None, 18, "bold"),anchor="center"
+    )
+    current_branch_image.grid(row=0,column=0,padx=10)
+    current_branch_text.grid(row=0,column=1,sticky="nsew")
     current_branch.grid(row=5, column=1, sticky="ew")
+
     commit_textbox = customtkinter.CTkTextbox(c1,width=100, height=200)
     commit_textbox.grid(row=7, column=1, sticky="ew")
     placeholder_text = "Enter details of your changes."
@@ -141,8 +156,8 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions", name: str, loca
       if not payload:
         return
       if "name" in payload:
-         current_branch.configure(
-          text="Current Branch: "+payload["name"]
+         current_branch_text.configure(
+          text=payload["name"]
         )
       if "is_tracked" in payload:
         update_sync_butn(payload["is_tracked"])

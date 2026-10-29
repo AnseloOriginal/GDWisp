@@ -13,6 +13,7 @@ ICON_CONTRACT_IMAGE_PATH = Path(__file__).resolve().parents[2] / "images" / "ico
 ICON_QUICK_OPEN_IMAGE_PATH = Path(__file__).resolve().parents[2] / "images" / "icons" / "Quick Open.png"
 ICON_RIGHT_ARROW_IMAGE_PATH = Path(__file__).resolve().parents[2] / "images" / "icons" / "Right Arrow.png"
 ICON_BULLET_IMAGE_PATH = Path(__file__).resolve().parents[2] / "images" / "icons" / "BUllet.png"
+ICON_BRANCH_IMAGE_PATH = Path(__file__).resolve().parents[2] / "images" / "icons" / "branch.png"
 
 logo_image = Image.open(LOGO_IMAGE_PATH)
 
@@ -25,6 +26,7 @@ ICON = {
   "contracted": Image.open(ICON_CONTRACT_IMAGE_PATH),
   "open": Image.open(ICON_QUICK_OPEN_IMAGE_PATH),
   "right arrow": Image.open(ICON_RIGHT_ARROW_IMAGE_PATH),
-  "bullet": Image.open(ICON_BULLET_IMAGE_PATH)
+  "bullet": Image.open(ICON_BULLET_IMAGE_PATH),
+  "branch": Image.open(ICON_BRANCH_IMAGE_PATH)
 }
 
