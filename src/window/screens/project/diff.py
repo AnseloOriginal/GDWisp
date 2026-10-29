@@ -15,6 +15,8 @@ from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget,
 from src.window.screens.project.diff_viewer.event_pocket import EventPocket
 import cProfile, pstats
 
+from src.window.screens.shared.lazy_scroller import LazyScroller
+
 
 class ProjectViewDiff(customtkinter.CTkFrame):
     def __init__(self, master: customtkinter.CTkBaseClass, diff: Diff | None, parent: customtkinter.CTkTabview | None =None):
@@ -61,7 +63,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         if (not self.diff or not self.diff.propertiesDiff):
             return
 
-        area = self.area_centered_helper()
+        area, lazy = self.area_centered_helper()
         self.default_heading_helper(area,"Project Properties")
         count = 1
         for props in self.diff.propertiesDiff:
@@ -77,12 +79,12 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         if (not self.diff or not self.diff.globalVarDiff):
             return
         
-        area = self.area_centered_helper(True,True)
+        area, lazy = self.area_centered_helper(True,True,max_lazy_item=10)
         self.default_heading_helper(self,"Global Variables")
         count = 1
         for diff in self.diff.globalVarDiff:
-            widget = VarDiffWidget(area,diff)
-            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            widget = lambda: VarDiffWidget(area,diff)
+            lazy.add(widget,row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
 
     def _render_resources(self):
@@ -91,13 +93,16 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         if (not self.diff or not self.diff.resourcesDiff):
             return
         
-        area = self.area_centered_helper(True,True)
+        area, lazy = self.area_centered_helper(True,True,max_lazy_item=5)
         self.default_heading_helper(self,"Project Resources")
         count = 1
+        start = time.perf_counter()
         for diff in self.diff.resourcesDiff:
-            widget = ResourceDiffWidget(area,diff)
-            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            create_widget = lambda: ResourceDiffWidget(area,diff)
+            lazy.add(create_widget,row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
+        end = time.perf_counter()
+        print("[LAZY] Took",(end-start),"seconds")
 
     def _render_scene(self,scene_name: str, component: str, extras: list = []):
         self.apply_fix(True)
@@ -138,7 +143,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         if not diff:
             return
 
-        area = self.area_centered_helper(True,True)
+        area, lazy = self.area_centered_helper(True,True)
         self.default_heading_helper(self,f"{diff["name"]} {diff["uuid"][:6]} - Scene Object ({diff["change"]})")
 
         count = 3
@@ -170,17 +175,17 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         var = scene.get("variables")
         if not var:
             return
-        area = self.area_centered_helper(True,True)
+        area, lazy = self.area_centered_helper(True,True,max_lazy_item=10)
         self.default_heading_helper(self,f"{name} Variables")
 
         count = 1
         for diff in var:
-            widget = VarDiffWidget(area,diff)
-            widget.grid(row=count,column=1, pady=20, padx=10,sticky="ew")
+            widget = lambda: VarDiffWidget(area,diff)
+            lazy.add(widget,row=count,column=1, pady=20, padx=10,sticky="ew")
             count = count + 1
 
     def _render_scene_properties(self, scene: SceneDiff, name: str):
-        area = self.area_centered_helper()
+        area, lazy = self.area_centered_helper()
         self.default_heading_helper(area,f"{name}  -  Scene Properties")
         props = scene.get("properties")
         if not props:
@@ -196,7 +201,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             count = count + 1
 
     def _render_scene_ui(self, scene: SceneDiff, name: str):
-        area = self.area_centered_helper()
+        area, lazy = self.area_centered_helper()
         self.default_heading_helper(area,f"{name}  -  Editor UI Settings")
         ui = scene.get("ui")
         if not ui:
@@ -212,7 +217,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             count = count + 1
 
     def _render_scene_layers(self, scene: SceneDiff, name: str):
-        area = self.area_centered_helper(True,True)
+        area, lazy = self.area_centered_helper(True,True)
         self.default_heading_helper(area,f"{name}  -  Scene Layers")
         layers = scene.get("layers")
         if not layers:
@@ -224,7 +229,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             count += 1
 
     def _render_scene_object_groups(self, scene: SceneDiff, name: str):
-        area = self.area_centered_helper(True,True)
+        area, lazy = self.area_centered_helper(True,True)
         self.default_heading_helper(area,f"{name}  -  Scene Object Groups")
         groups = scene.get("object_groups")
         if not groups:
@@ -236,7 +241,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             count += 1
 
     def _render_scene_instances(self, scene: SceneDiff, name: str):
-        area = self.area_centered_helper(True,True)
+        area, lazy = self.area_centered_helper(True,True)
         self.default_heading_helper(area,f"{name}  -  Scene Instances")
         instances = scene.get("instances")
         if not instances:
@@ -248,8 +253,13 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             count += 1
 
 
-    def area_centered_helper(self, transparent: bool = False, expand: bool = False, autogrid: bool = True):
+    def area_centered_helper(
+            self, transparent: bool = False, 
+            expand: bool = False, autogrid: bool = True,
+            max_lazy_item = 10
+        ):
         area = self.create_content_area(transparent)
+        lazy_scroller = LazyScroller(area._scrollbar,max_lazy_item)
         if autogrid:
             area.grid(column=1,row=1,sticky="nsew")
         if expand:
@@ -257,7 +267,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             area.grid_columnconfigure((0,2),minsize=20)
         else:
             area.grid_columnconfigure(0,minsize=20)
-        return area
+        return area, lazy_scroller
 
     def default_heading_helper(self,parent,text: str):
         heading = customtkinter.CTkLabel(
@@ -308,7 +318,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         return scroll
 
     def _render_scene_events(self, scene: SceneDiff, name: str):
-        area = self.area_centered_helper(True,True,False)
+        area, lazy_scroller = self.area_centered_helper(True,True,False)
         self.default_heading_helper(area,f"{name}  -  Scene Events")
         event_store = scene.get("events")
         meta = self.diff.metadata_scanner if self.diff else None
@@ -332,7 +342,6 @@ class ProjectViewDiff(customtkinter.CTkFrame):
             if widget.flag == UNMODIFIED:
                 if context_count < 2:
                     context_count += 1
-                    # widget.grid(row=count,column=1, pady=5, padx=10,sticky="ew")
                     batch_widget_grid(queue_time,widget,count)
                 else:
                     if current_pocket is None:
