@@ -42,8 +42,8 @@ class WelcomeMenu(CTk.CTkToplevel):
 
 		
 	def on_press(self, evt):
-		name = self.name.get("1.0","end")
-		email = self.email.get("1.0","end")
+		name = self.name.get("1.0","end").strip()
+		email = self.email.get("1.0","end").strip()
 		if name.lstrip() == "" or email.lstrip() == "":
 			self.done_butn.configure(state="disabled")
 		else:

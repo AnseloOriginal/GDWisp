@@ -46,6 +46,6 @@ def change_mode(selected: str):
 
 def change_git_info(name: str, email: str):
 	current_settings = settings.get_settings()
-	current_settings.name = name
-	current_settings.email = email
+	current_settings.name = name.strip()
+	current_settings.email = email.strip()
 	settings.save_settings()
