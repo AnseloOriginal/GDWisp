@@ -1,5 +1,6 @@
 import sys
 import shutil
+import customtkinter as CTk
 from src.window.tray import Tray
 from src.media.image import logo_image
 from src.window.manager import Manager
@@ -13,6 +14,7 @@ def start_app():
 	set_theme()
 	storage.load_app_list()
 	settings.load()
+	CTk.set_appearance_mode(settings.get_settings().theme)
 	tray = Tray(logo_image)
 	manager = Manager()
 

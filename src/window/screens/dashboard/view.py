@@ -39,8 +39,7 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
     WelcomeMenu(app)
     
   projects = funcs.get_projects_by_date()
-  
-  customtkinter.set_appearance_mode("light")
+
   app.title("GDWisp")
   app.grid_columnconfigure(0, weight=1)
   app.grid_columnconfigure(1, weight=1, minsize=300)
@@ -77,7 +76,9 @@ def view(app: customtkinter.CTkToplevel, funcs: "GUI_Functions"):
 
   add_project_butn = create_icon_butn(c1,"Add Project","add",None,None,1,4, command=funcs.add_new_project)
   diff_project_butn = create_icon_butn(c1,"Diff Tool","diff",None,None,1,5)
-  settings_project_butn = create_icon_butn(c1,"Settings","settings",None,None,1,6)
+  settings_project_butn = create_icon_butn(
+    c1,"Settings","settings",None,None,1,6,command=lambda: funcs.manager.new_window("Settings")
+  )
   help_project_butn = create_icon_butn(c1,"Help","help",None,None,1,7)
   project_title = customtkinter.CTkLabel(c2, text="Projects", font=(None, 24, "bold"))
   project_title.grid(row=2,column=1)

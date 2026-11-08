@@ -3,6 +3,7 @@ import customtkinter
 from src.window.screens.dashboard.view import view as main_view
 from src.window.screens.shared.error_view import view as error_view
 from src.window.screens.project.view import view as project_view
+from src.window.screens.settings.view import view as settings_view
 from src.debug.dummy import log_special_message
 from src.operations.project.cycle import create_new_project, open_project
 from src.operations.project.tools import get_project_information
@@ -24,6 +25,7 @@ class GUI_Functions:
     self.get_project_information = get_project_information
 
 
+
 class View_Manager:
   def __init__(self,manager: "Manager", *extras) -> None:
     from src.window.manager import Manager
@@ -37,6 +39,8 @@ class View_Manager:
       func = error_view(app,self.funcs,extras[0],extras[1])
     elif (view  == "Project"):
       func = project_view(app,self.funcs,extras[0],extras[1])
+    elif (view  == "Settings"):
+      func = settings_view(app,self.funcs)
     return func
       
 

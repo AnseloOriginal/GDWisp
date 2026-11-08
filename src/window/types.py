@@ -1,7 +1,7 @@
 from typing import Literal,TypedDict,Callable
 from customtkinter import CTkToplevel
 
-VIEW_TYPE = Literal["Main", "Error", "Project"]
+VIEW_TYPE = Literal["Main", "Error", "Project", "Settings"]
 
 class ManagedWindow(TypedDict):
   window: CTkToplevel

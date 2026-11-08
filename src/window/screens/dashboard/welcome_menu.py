@@ -1,14 +1,7 @@
 import src.preferences.settings as settings
 from src.core.colors import main_frame, theme_colors
 import customtkinter as CTk
-
-def labeled(parent,text: str,default: str):
-	frame = CTk.CTkFrame(parent)
-	label_text = CTk.CTkLabel(frame,text=text)
-	textbox = CTk.CTkTextbox(frame, height=20)
-	label_text.grid(column=0,row=0,padx=(20,0))
-	textbox.grid(column=1,row=0,padx=10)
-	return frame,textbox
+from src.window.screens.shared.labelled_text import labeled
 
 class WelcomeMenu(CTk.CTkToplevel):
 
@@ -30,8 +23,8 @@ class WelcomeMenu(CTk.CTkToplevel):
 		label = CTk.CTkLabel(f,text="Welcome to Gdwisp. Let's get started.",font=(None,15,"bold"))
 		label.grid(column=1,row=1,pady=(20,0),padx=(20,0))
 
-		f1, name  = labeled(f,"Name:","")
-		f2, email  = labeled(f,"Email:","")
+		f1, name  = labeled(f,"Name:",settings.get_settings().name)
+		f2, email  = labeled(f,"Email:",settings.get_settings().email)
 		name.bind("<KeyRelease>", self.on_press)
 		email.bind("<KeyRelease>", self.on_press)
 

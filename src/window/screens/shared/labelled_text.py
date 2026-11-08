@@ -20,3 +20,13 @@ class LabeledText(customtkinter.CTkFrame):
   def update_spacing(self):
     size = self.label.winfo_width()
     self.grid_columnconfigure(1,minsize=(self.spacing-size))
+
+
+def labeled(parent,text: str,default: str):
+  frame = customtkinter.CTkFrame(parent)
+  label_text = customtkinter.CTkLabel(frame,text=text)
+  textbox = customtkinter.CTkTextbox(frame, height=20,activate_scrollbars=False)
+  textbox.insert("1.0",default)
+  label_text.grid(column=0,row=0,padx=(20,0))
+  textbox.grid(column=1,row=0,padx=10)
+  return frame,textbox
