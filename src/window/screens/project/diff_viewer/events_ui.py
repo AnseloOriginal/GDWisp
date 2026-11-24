@@ -1,12 +1,12 @@
 import re
 import tkinter as Tk
-from typing import Literal, Sequence, Tuple
+from typing import Callable, Literal, Sequence, Tuple
 import customtkinter as CTk
-from customtkinter.windows.widgets.ctk_progressbar import math
 from src.operations.git.diff.logic.events_scope.metadata_scanner import MetadataScanner
 import src.core.colors as colors
 from src.utils.colors import rgb_to_hex
 from src.utils.diff import old_new_extractor
+from src.utils.text_settings import variable_diff_to_text_setting
 from src.utils.list import safe_get, seq_safe_get
 import src.operations.git.diff.types as diff
 import src.operations.project.types as events
@@ -31,9 +31,15 @@ def create_event_widget(parent,event: diff.EventDiff | events.EventData, meta: M
 	if is_event_diff(event) and is_base_event_diff(event):
 		match event["data"]:
 			case {"type": "Comment"}:
-				return CommentWidget(parent,event["data"],MODIFIED)
+				return FutureWidget(
+					lambda data=event["data"]: CommentWidget(parent,data,MODIFIED),
+					MODIFIED
+				)
 			case {"type": "Standard Event"}:
-				return StandardEventWidget(parent,event["data"],meta,MODIFIED)
+				return FutureWidget(
+					lambda data=event["data"]: StandardEventWidget(parent,data,meta,MODIFIED),
+					MODIFIED
+				)
 	elif is_singular_event_diff(event) or is_event_data(event):
 		main_event = (event["data"] if is_singular_event_diff(event) 
 				else event if is_event_data(event) else None)
@@ -43,9 +49,15 @@ def create_event_widget(parent,event: diff.EventDiff | events.EventData, meta: M
 			return
 		match main_event:
 			case {"type": "BuiltinCommonInstructions::Comment"}:
-				return CommentWidget(parent,main_event,flag)
+				return FutureWidget(
+					lambda: CommentWidget(parent,main_event,flag),
+					flag
+				)
 			case {"type": "BuiltinCommonInstructions::Standard"}:
-				return StandardEventWidget(parent,main_event,meta,flag)
+				return FutureWidget(
+					lambda: StandardEventWidget(parent,main_event,meta,flag),
+					flag
+				)
 	return None
 	
 
@@ -85,14 +97,31 @@ class BaseEventWidget(CTk.CTkFrame):
 		}
 		# print("Mounting flag",color_map[flag],icon_map[flag])
 		self.flag_frame.configure(bg_color=color_map[flag],text=icon_map[flag])
-		self.flag_frame.grid(column=0,row=0,sticky="ns",padx=(EVENT_BORDER,0),pady=EVENT_BORDER)
+		self.flag_frame.grid(column=0,row=1,sticky="ns",padx=(EVENT_BORDER,0),pady=EVENT_BORDER)
 		if second_flag is not None:
 			self.flag_frame.grid_configure(pady=(EVENT_BORDER,0))
 			self.flag_frame2.configure(bg_color=color_map[second_flag],text=icon_map[second_flag])
-			self.flag_frame2.grid(column=0,row=1,sticky="ns",padx=(EVENT_BORDER,0),pady=(0,EVENT_BORDER))
+			self.flag_frame2.grid(column=0,row=2,sticky="ns",padx=(EVENT_BORDER,0),pady=(0,EVENT_BORDER))
 
+	def activate_flank(self, side: Literal["left", "right"]):
+		if side == "left":
+			self.left_flank.grid(column=1,row=0,sticky="nswe")
+			self.left_flank.update_size()
 
+class FutureWidget:
+	def  __init__(
+		self,
+		evt_gen: Callable[[],BaseEventWidget],
+		flag: Flag = 0
+	):
+		self.flag = flag
+		self.evt_gen = evt_gen
 
+	def process(self, **kwargs):
+		widget = self.evt_gen()
+		if not widget.variables or widget.properties:
+			widget.grid(**kwargs)
+			return widget
 
 class CommentWidget(BaseEventWidget):
 
@@ -104,7 +133,7 @@ class CommentWidget(BaseEventWidget):
 	):
 		super().__init__(parent,flag)
 		self.columnconfigure(1,weight=1)
-		self.row = 0
+		self.row = 1
 
 		if data["type"] == "BuiltinCommonInstructions::Comment":
 			self._create_panel(
@@ -173,10 +202,14 @@ class StandardEventWidget(BaseEventWidget):
 		actions = InstructionDiffWidget(self,event["actions"],meta,type="actions")
 		conditions = InstructionDiffWidget(self,event["conditions"],meta,type="conditions")
 		self.columnconfigure((1,3), weight=1, uniform="ac")
-		self.rowconfigure(0, weight=1)
-		horizontal_line.grid(row=0,column=2,sticky="ns", padx=10, pady=EVENT_BORDER)
-		actions.grid(column=3,row=0,sticky="nsew",pady=2*EVENT_BORDER,padx=(0,EVENT_BORDER))
-		conditions.grid(column=1,row=0,sticky="nsew",pady=2*EVENT_BORDER)
+		self.rowconfigure(1, weight=1)
+		horizontal_line.grid(row=1,column=2,sticky="ns", padx=10, pady=EVENT_BORDER)
+		actions.grid(column=3,row=1,sticky="nsew",pady=2*EVENT_BORDER,padx=(0,EVENT_BORDER))
+		conditions.grid(column=1,row=1,sticky="nsew",pady=2*EVENT_BORDER)
+
+		variable_diff = event.get("variables")
+		self.variables = variable_diff_to_text_setting(variable_diff) if variable_diff else None
+		
 
 class InstructionDiffWidget(CTk.CTkFrame):
 	def __init__(
@@ -320,3 +353,4 @@ class InstructionDiffWidget(CTk.CTkFrame):
 				"color": "green"
 			}
 		]
+

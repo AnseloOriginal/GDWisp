@@ -1,8 +1,14 @@
-from typing import Any, Callable
+from typing import Any, Callable, TypedDict
 from customtkinter import CTkScrollbar, CTkBaseClass
 from threading import Timer
 
 type ScrollItem = tuple[CTkBaseClass | Callable[[],CTkBaseClass], int, int, dict[str, Any]]
+
+class RenderQueueItem(TypedDict):
+	widget: CTkBaseClass
+	row: int
+	column: int
+	extras: dict
 
 class LazyScroller:
 
@@ -14,13 +20,14 @@ class LazyScroller:
 		self.debounce_timer: None | Timer = None
 		self.processed_widgets = set()
 		self.max_item = max_item
+		self.render_queue: list[RenderQueueItem] = []
 
 	def add(self, widget: CTkBaseClass | Callable[[],CTkBaseClass], row: int, column: int, **extras):
 		item: ScrollItem = (widget,row,column,extras)
 		self.master_list[row] = item
 		if len(self.processed_widgets) < self.max_item:
-			self.place_item(item)
-			self.processed_widgets.add(row)
+			self.process_item(item)
+		self.process_render_queue()
 
 	def manage_scroll(self, *kwargs):
 		if self.old_scroll_function:
@@ -43,15 +50,26 @@ class LazyScroller:
 			if row in self.processed_widgets:
 				continue
 			else:
-				self.place_item(item)
-				self.processed_widgets.add(row)
+				self.process_item(item)
 				item_count += 1
+		self.process_render_queue()
 
-	def place_item(self, item: ScrollItem):
+	def process_item(self, item: ScrollItem):
 		widget, row, column, extras = item
 		if isinstance(widget,Callable):
 			widget = widget()
-		widget.grid(row=row,column=column,**extras)
+		self.processed_widgets.add(row)
+		queue_item = RenderQueueItem(widget=widget,row=row,column=column,extras=extras)
+		self.render_queue.append(queue_item)
+
+	def process_render_queue(self):
+		for item in self.render_queue:
+			item["widget"].grid(
+				row=item["row"],column=item["column"],
+				**item["extras"]
+			)
+		self.render_queue = []
+
 
 
 

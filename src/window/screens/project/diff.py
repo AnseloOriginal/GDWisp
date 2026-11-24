@@ -9,12 +9,10 @@ from src.utils.widget import deep_count_elements, get_visible_children_count
 from src.operations.git.diff.main import Diff
 from src.core.colors import standard_diff
 from src.operations.git.diff.types import SceneDiff
-from src.window.screens.project.diff_viewer.events_ui import UNMODIFIED, create_event_widget
+from src.window.screens.project.diff_viewer.events_ui import UNMODIFIED, FutureWidget, create_event_widget
 from src.window.screens.shared.auto_scrollable_frame import AutoHidingScrollFrame
 from src.window.screens.project.diff_viewer.basic_ui import BehaviourDiffWidget, DiffLine, EffectsDiffWidget, InstanceDiffWidget, LayerDiffWidget, ObjectGroupDiffWidget, ResourceDiffWidget, VarDiffWidget
 from src.window.screens.project.diff_viewer.event_pocket import EventPocket
-import cProfile, pstats
-
 from src.window.screens.shared.lazy_scroller import LazyScroller
 
 
@@ -318,7 +316,7 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         return scroll
 
     def _render_scene_events(self, scene: SceneDiff, name: str):
-        area, lazy_scroller = self.area_centered_helper(True,True,False)
+        area, lazy_scroller = self.area_centered_helper(True,True,False,5)
         self.default_heading_helper(area,f"{name}  -  Scene Events")
         event_store = scene.get("events")
         meta = self.diff.metadata_scanner if self.diff else None
@@ -327,42 +325,49 @@ class ProjectViewDiff(customtkinter.CTkFrame):
         count = 1
         context_count = 0
         current_pocket: None | EventPocket = None
-        def batch_widget_grid(time: int, widget, row: int):
-            self.after(
-                time,
-                lambda: widget.grid(row=row,column=1, pady=5, padx=10,sticky="ew")
-            )
+        
         start_time = time.perf_counter()
-        # profiler.enable()
+
         for event in event_store:
+            extra_config = {"pady": 5, "padx": 10,"sticky": "ew"}
             widget =  create_event_widget(area,event,meta)
-            queue_time = floor(count / 10) * 500
             if not widget:
                 continue
             if widget.flag == UNMODIFIED:
                 if context_count < 2:
                     context_count += 1
-                    batch_widget_grid(queue_time,widget,count)
+                    lazy_scroller.add(
+                        lambda w=widget: w.process(),
+                        count, 1, **extra_config
+                    )
                 else:
                     if current_pocket is None:
                         current_pocket = EventPocket(area,bg_color="black")
-                        batch_widget_grid(queue_time,widget,count)
+                        lazy_scroller.add(current_pocket, count, 1)
                         count += 1
                     # Must happen before adding to pocket for checks
-                    batch_widget_grid(queue_time,widget,count)
-                    current_pocket.add(widget)
+                    def add(widget: FutureWidget, pocket: EventPocket):
+                        w = widget.process()
+                        pocket.add(w)
+                        return w
+
+                    lazy_scroller.add(
+                        lambda w=widget, e=current_pocket: add(w,e),
+                        count, 1, **extra_config
+                    )
                 count += 1
             else:    
-                batch_widget_grid(queue_time,widget,count)
+                lazy_scroller.add(
+                    lambda w=widget: w.process(),
+                    count, 1, **extra_config
+                )
                 count += 1
                 context_count = 0
                 current_pocket = None
         area.grid(column=1,row=1,sticky="nsew")
-        # area.update_idletasks()
-        # profiler.disable()
+        
         end_time = time.perf_counter()
-        # stats = pstats.Stats(profiler).sort_stats("tottime")
-        # stats.print_stats(15) 
+        
         print(f"""The event rendering took {end_time - start_time}s with  
             {get_visible_children_count(area)-1} visible events, {len(event_store)} events in total""")
         print(f"Deep count of elements: {deep_count_elements(area)}")
@@ -379,4 +384,4 @@ class ProjectViewDiff(customtkinter.CTkFrame):
     def refresh(self):
         if self.current_view == "placeholder":
             return
-        self.change_view(self.current_view)
+        self.change_view(self.current_view) 
