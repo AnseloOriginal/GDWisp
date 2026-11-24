@@ -6,11 +6,25 @@ from src.operations.git.diff.logic.events_scope.score import similarity_score
 from src.operations.project.types import EventData
 import src.utils.typing as check
 
+unsupported_events = [
+    "BuiltinCommonInstructions::JsCode",
+    "BuiltinCommonInstructions::Else",
+    "BuiltinCommonInstructions::ForEachChildVariable",
+    "BuiltinCommonInstructions::ForEach",
+    "BuiltinCommonInstructions::Group",
+    "BuiltinCommonInstructions::Link",
+    "BuiltinCommonInstructions::Repeat",
+    "BuiltinCommonInstructions::While"
+]
 def diff_events(events: list[EventData], old: list[EventData] | None):
     print("-----Testing Events----")
     e: EventStore = []
+    at_least_one_diff = False #This ignores undiffed events (similar)
     shadow_clone = old.copy() if old else []
     for event_location, event in enumerate(events):
+        if event["type"] in unsupported_events:
+            print(f"Found an unsupported event {event["type"]}")
+            continue
         matched: bool = False
         diff: EventDiff | None = None
         if not old:
@@ -39,18 +53,24 @@ def diff_events(events: list[EventData], old: list[EventData] | None):
                 matched = True
                 print(f"Found a close to event {event["type"]} with score {score}")
                 e.append(diff) if diff else None
+                at_least_one_diff = True
         if not matched:
             # a new event
             print(f"Found a new event {event["type"]}")
             diff = diff_event(event,None)
             e.append(diff) if diff else None
+            at_least_one_diff = True
             
     for old_event in shadow_clone:
         # Deleted
+        if old_event["type"] in unsupported_events:
+            print(f"Found an unsupported event {old_event["type"]}")
+            continue
         print(f"Found a deleted {old_event["type"]}")
         diff = diff_event(None,old_event)
         e.append(diff) if diff else None
-    return e if e else None
+        at_least_one_diff = True
+    return e if e and at_least_one_diff else None
 
 
 def diff_event(new: EventData | None, old: EventData | None) -> EventDiff | None:
