@@ -1,6 +1,6 @@
 from typing import Literal
 from typing import Mapping, Any
-from src.operations.git.diff.types import OldNewDiff
+from src.operations.project.types import RootVariableData
 from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 
 def old_new_extractor(type: Literal["new","old"], ondiff: OldNewDiff | str) -> str | None:
@@ -44,3 +44,15 @@ def single_variable_diff(
 
 def single_variable_diff_block(old: OldType, new: NewType, name: str) -> OldNewDiff:
    return {"old": old, "new": new, "name": name}
+
+def context_aware_variable_diff(
+    varA: list[RootVariableData] | None, 
+    varB: list[RootVariableData] | None
+):
+    from src.operations.git.diff.logic.per_type import variable_diff
+    master_var = varA or varB or None
+    if not master_var:
+        return None
+    second_var = varB if master_var == varA else varA
+    return variable_diff(master_var,second_var)
+
