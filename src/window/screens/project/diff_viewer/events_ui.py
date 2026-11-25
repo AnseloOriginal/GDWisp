@@ -6,13 +6,14 @@ from src.operations.git.diff.logic.events_scope.metadata_scanner import Metadata
 import src.core.colors as colors
 from src.utils.colors import rgb_to_hex
 from src.utils.diff import old_new_extractor
-from src.utils.text_settings import variable_diff_to_text_setting
+from src.utils.text_settings import create_heading, variable_diff_to_text_setting
 from src.utils.list import safe_get, seq_safe_get
 import src.operations.git.diff.types as diff
 import src.operations.project.types as events
 from src.utils.colors import string_to_comment_color
 from src.utils.typing import is_base_event_diff, is_event_data, is_event_diff, is_instruction_data, is_singular_event_diff, is_instruction_diff
 from src.window.screens.shared.configurable_textbox import ConfigurableTextSetting, ConfigurableTextbox
+from src.window.screens.shared.weighted_spacing import WeightedSpacing
 
 UNMODIFIED = 0
 CREATED = 1
@@ -32,13 +33,16 @@ def create_event_widget(parent,event: diff.EventDiff | events.EventData, meta: M
 		match event["data"]:
 			case {"type": "Comment"}:
 				return FutureWidget(
-					lambda data=event["data"]: CommentWidget(parent,data,MODIFIED),
+					parent,
+					lambda master,data=event["data"]: CommentWidget(master,data,MODIFIED),
 					MODIFIED
 				)
 			case {"type": "Standard Event"}:
 				return FutureWidget(
-					lambda data=event["data"]: StandardEventWidget(parent,data,meta,MODIFIED),
-					MODIFIED
+					parent,
+					lambda master,data=event["data"]: StandardEventWidget(master,data,meta,MODIFIED),
+					MODIFIED,
+					event["data"]["variables"]
 				)
 	elif is_singular_event_diff(event) or is_event_data(event):
 		main_event = (event["data"] if is_singular_event_diff(event) 
@@ -50,13 +54,16 @@ def create_event_widget(parent,event: diff.EventDiff | events.EventData, meta: M
 		match main_event:
 			case {"type": "BuiltinCommonInstructions::Comment"}:
 				return FutureWidget(
-					lambda: CommentWidget(parent,main_event,flag),
+					parent,
+					lambda master: CommentWidget(master,main_event,flag),
 					flag
 				)
 			case {"type": "BuiltinCommonInstructions::Standard"}:
 				return FutureWidget(
-					lambda: StandardEventWidget(parent,main_event,meta,flag),
-					flag
+					parent,
+					lambda master: StandardEventWidget(master,main_event,meta,flag),
+					flag,
+					main_event.get("variables")
 				)
 	return None
 	
@@ -79,6 +86,7 @@ class BaseEventWidget(CTk.CTkFrame):
 			font=("Inter",15)
 		)
 		self.flag: None | Flag = None
+		self.properties: list[ConfigurableTextSetting] | None = None
 		self.apply_flag(flag)
 
 	def apply_flag(self,flag: Flag,replace: CTk.CTkBaseClass | None = None, second_flag: None | Flag = None):
@@ -103,25 +111,49 @@ class BaseEventWidget(CTk.CTkFrame):
 			self.flag_frame2.configure(bg_color=color_map[second_flag],text=icon_map[second_flag])
 			self.flag_frame2.grid(column=0,row=2,sticky="ns",padx=(EVENT_BORDER,0),pady=(0,EVENT_BORDER))
 
-	def activate_flank(self, side: Literal["left", "right"]):
-		if side == "left":
-			self.left_flank.grid(column=1,row=0,sticky="nswe")
-			self.left_flank.update_size()
-
 class FutureWidget:
 	def  __init__(
 		self,
-		evt_gen: Callable[[],BaseEventWidget],
-		flag: Flag = 0
+		parent,
+		evt_gen: Callable[[Tk.Widget],BaseEventWidget],
+		flag: Flag = 0,
+		variables: list[events.RootVariableData] | list[diff.VariableDiff] | None = None
 	):
 		self.flag = flag
 		self.evt_gen = evt_gen
+		self.variables = variable_diff_to_text_setting(variables) if variables else None
+		self.parent = parent
+		print(variables)
 
 	def process(self, **kwargs):
-		widget = self.evt_gen()
-		if not widget.variables or widget.properties:
+		if not self.variables:
+			widget = self.evt_gen(self.parent)
 			widget.grid(**kwargs)
 			return widget
+		else:
+			master = Tk.Frame(self.parent)
+			widget = self.evt_gen(master)
+			widget.grid(row=1,column=0,stick="ew")
+			master.columnconfigure(0,weight=1)
+			# properties = ConfigurableTextbox(master,widget.properties) if widget.properties else None
+			if self.variables:
+				weighted = WeightedSpacing(master)
+				variable_heading = create_heading("Variables")
+				variables = ConfigurableTextbox(
+					weighted,variable_heading + self.variables,True,
+					background=colors.event_sheet["bg"],borderwidth=2,
+					foreground=colors.event_sheet["bg"],
+					font=events_font,
+					pady=5,padx=5
+				)
+				weighted.apply_spacing(variables)
+				print(self.variables)
+				weighted.grid(column=0,row=0)
+			# if properties:
+			# 	properties.grid(column=0,row=2)
+			master.grid(**kwargs)
+			return master
+			
 
 class CommentWidget(BaseEventWidget):
 
@@ -208,7 +240,7 @@ class StandardEventWidget(BaseEventWidget):
 		conditions.grid(column=1,row=1,sticky="nsew",pady=2*EVENT_BORDER)
 
 		variable_diff = event.get("variables")
-		self.variables = variable_diff_to_text_setting(variable_diff) if variable_diff else None
+		
 		
 
 class InstructionDiffWidget(CTk.CTkFrame):

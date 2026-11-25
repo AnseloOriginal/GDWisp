@@ -1,6 +1,7 @@
 from src.operations.project.types import RootVariableData, VariableType
 from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 from src.window.screens.shared.configurable_textbox import ConfigurableTextSetting
+import src.core.colors as colors
 
 def ondiff_to_text_setting(diff: OldNewDiff):
     settings: list[ConfigurableTextSetting] = []
@@ -9,7 +10,7 @@ def ondiff_to_text_setting(diff: OldNewDiff):
     )
     if diff["new"] is not None:
         settings.append(
-            ConfigurableTextSetting(text="▶"),
+            ConfigurableTextSetting(text=" ▶ "),
         )
         settings.append(
             ConfigurableTextSetting(text=str(diff["new"]))
@@ -19,11 +20,25 @@ def ondiff_to_text_setting(diff: OldNewDiff):
 def variable_diff_to_text_setting(diff: list[VariableDiff] | list[RootVariableData]):
     settings: list[ConfigurableTextSetting] = []
     for var in diff:
-        settings.append(ConfigurableTextSetting(text=var["name"] + " ("))
 
         change_type = var["change"] if "change" in var else None
         if change_type:
-            settings.append(ConfigurableTextSetting(text=change_type))
+            color_map: dict[ActionType,tuple[str,str]] = {
+                "Modified": colors.event_sheet["modified"],
+                "Deleted": colors.event_sheet["removed"],
+                "Created": colors.event_sheet["added"]
+            }
+            icon_map: dict[ActionType,str] = {
+                "Modified": "●",
+                "Deleted": "-",
+                "Created": "+"
+            }
+            settings.append(ConfigurableTextSetting(
+                text=f" {icon_map.get(change_type) or "●"} ", 
+                color=color_map.get(change_type)
+            ))
+
+        settings.append(ConfigurableTextSetting(text=var["name"] + " ("))
 
         var_type: VariableType | OldNewDiff | None = var.get("type") or var.get("var_type")
         if isinstance(var_type,str):
@@ -43,5 +58,15 @@ def variable_diff_to_text_setting(diff: list[VariableDiff] | list[RootVariableDa
         else:
             settings.append(ConfigurableTextSetting(text=str(value)))
 
+        # settings.append(ConfigurableTextSetting(text="\n"))
+    return settings
+
+
+def create_heading(text: str, colon: str = ":", gaps = 2):
+    settings:list[ConfigurableTextSetting] = [
+        ConfigurableTextSetting(text=text),
+        ConfigurableTextSetting(text=colon)
+    ]
+    for i in range(gaps):
         settings.append(ConfigurableTextSetting(text="\n"))
     return settings

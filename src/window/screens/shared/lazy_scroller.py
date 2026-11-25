@@ -1,11 +1,14 @@
 from typing import Any, Callable, TypedDict
 from customtkinter import CTkScrollbar, CTkBaseClass
 from threading import Timer
+import tkinter as Tk
 
-type ScrollItem = tuple[CTkBaseClass | Callable[[],CTkBaseClass], int, int, dict[str, Any]]
+type BaseWidget = Tk.Widget
+type Widget = BaseWidget | Callable[[],BaseWidget]
+type ScrollItem = tuple[Widget, int, int, dict[str, Any]]
 
 class RenderQueueItem(TypedDict):
-	widget: CTkBaseClass
+	widget: BaseWidget
 	row: int
 	column: int
 	extras: dict
@@ -22,7 +25,7 @@ class LazyScroller:
 		self.max_item = max_item
 		self.render_queue: list[RenderQueueItem] = []
 
-	def add(self, widget: CTkBaseClass | Callable[[],CTkBaseClass], row: int, column: int, **extras):
+	def add(self, widget: Widget, row: int, column: int, **extras):
 		item: ScrollItem = (widget,row,column,extras)
 		self.master_list[row] = item
 		if len(self.processed_widgets) < self.max_item:
