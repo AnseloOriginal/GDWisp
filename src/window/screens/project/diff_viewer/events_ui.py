@@ -6,7 +6,8 @@ from src.operations.git.diff.logic.events_scope.metadata_scanner import Metadata
 import src.core.colors as colors
 from src.utils.colors import rgb_to_hex
 from src.utils.diff import old_new_extractor
-from src.utils.text_settings import create_heading, variable_diff_to_text_setting
+from src.utils.string import center_padding
+from src.utils.text_settings import create_heading, variable_diff_to_text_setting, ondiff_to_text_setting
 from src.utils.list import safe_get, seq_safe_get
 import src.operations.git.diff.types as diff
 import src.operations.project.types as events
@@ -42,7 +43,7 @@ def create_event_widget(parent,event: diff.EventDiff | events.EventData, meta: M
 					parent,
 					lambda master,data=event["data"]: StandardEventWidget(master,data,meta,MODIFIED),
 					MODIFIED,
-					event["data"]["variables"]
+					event["data"]["variables"], event["data"]["properties"]
 				)
 	elif is_singular_event_diff(event) or is_event_data(event):
 		main_event = (event["data"] if is_singular_event_diff(event) 
@@ -117,11 +118,26 @@ class FutureWidget:
 		parent,
 		evt_gen: Callable[[Tk.Widget],BaseEventWidget],
 		flag: Flag = 0,
-		variables: list[events.RootVariableData] | list[diff.VariableDiff] | None = None
+		variables: list[events.RootVariableData] | list[diff.VariableDiff] | None = None,
+		properties: list[diff.OldNewDiff] | None = None
 	):
 		self.flag = flag
 		self.evt_gen = evt_gen
 		self.variables = variable_diff_to_text_setting(variables) if variables else None
+		if properties:
+			self.properties: list[ConfigurableTextSetting] | None = []
+			space = ConfigurableTextSetting(text="\n")
+			padding = center_padding()
+			for index, property in enumerate(properties):
+				name = ConfigurableTextSetting(
+					text=padding+(property.get("name") or "Unknown")+": "
+				)
+				self.properties.append(name)
+				self.properties += ondiff_to_text_setting(property)
+				self.properties.append(space)
+		else: 
+			self.properties = None
+	
 		self.parent = parent
 		print(variables)
 
@@ -135,22 +151,32 @@ class FutureWidget:
 			widget = self.evt_gen(master)
 			widget.grid(row=1,column=0,stick="ew")
 			master.columnconfigure(0,weight=1)
-			# properties = ConfigurableTextbox(master,widget.properties) if widget.properties else None
+
+			extra_details =  ConfigurableTextbox(
+				master,[],True,
+				background=colors.event_sheet["bg"],borderwidth=2,
+				foreground=colors.event_sheet["bg"],relief="solid",
+				font=events_font,
+				padx=5,pady=5
+			)
+			if self.variables or self.properties:
+				extra_details.grid(column=0,row=0,sticky="ew")
+			else:
+				extra_details.destroy()
+
 			if self.variables:
-				weighted = WeightedSpacing(master)
 				variable_heading = create_heading("Variables")
-				variables = ConfigurableTextbox(
-					weighted,variable_heading + self.variables,True,
-					background=colors.event_sheet["bg"],borderwidth=2,
-					foreground=colors.event_sheet["bg"],
-					font=events_font,
-					pady=5,padx=5
-				)
-				weighted.apply_spacing(variables)
-				print(self.variables)
-				weighted.grid(column=0,row=0)
-			# if properties:
-			# 	properties.grid(column=0,row=2)
+				extra_details.add_texts(variable_heading + self.variables)
+
+			if self.properties:
+				if self.variables:
+					extra_details.add_texts([
+						ConfigurableTextSetting(text="\n"),
+						ConfigurableTextSetting(text="\n")
+					])
+				properties_heading = create_heading("Properties")
+				extra_details.add_texts(properties_heading + self.properties)
+
 			master.grid(**kwargs)
 			return master
 			
@@ -238,9 +264,6 @@ class StandardEventWidget(BaseEventWidget):
 		horizontal_line.grid(row=1,column=2,sticky="ns", padx=10, pady=EVENT_BORDER)
 		actions.grid(column=3,row=1,sticky="nsew",pady=2*EVENT_BORDER,padx=(0,EVENT_BORDER))
 		conditions.grid(column=1,row=1,sticky="nsew",pady=2*EVENT_BORDER)
-
-		variable_diff = event.get("variables")
-		
 		
 
 class InstructionDiffWidget(CTk.CTkFrame):
@@ -281,7 +304,7 @@ class InstructionDiffWidget(CTk.CTkFrame):
 		sentence = instr_metadata["sentence"] if instr_metadata else event_type
 		flag_settings = self.get_flag_setting(flag)
 		settings = self.get_text_settings(sentence,event_params)
-		frame = CTk.CTkFrame(self)
+		frame = CTk.CTkFrame(self,bg_color=colors.event_sheet["bg"])
 		frame.grid_columnconfigure(1,weight=1)
 		frame.grid_rowconfigure(0,weight=1)
 		flag_text = CTk.CTkLabel(

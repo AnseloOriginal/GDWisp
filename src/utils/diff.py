@@ -1,6 +1,6 @@
 from typing import Literal
 from typing import Mapping, Any
-from src.operations.project.types import RootVariableData
+from src.operations.project.types import EventData, RootVariableData
 from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 
 def old_new_extractor(type: Literal["new","old"], ondiff: OldNewDiff | str) -> str | None:
@@ -56,3 +56,14 @@ def context_aware_variable_diff(
     second_var = varB if master_var == varA else varA
     return variable_diff(master_var,second_var)
 
+
+def basic_event_properties_diff(
+    evtA: EventData,
+    evtB: EventData
+):
+    from src.operations.git.diff.logic.per_type import old_new_diff
+    return old_new_diff(
+        ["disabled","folded"],
+        evtA, evtB,
+        alt_names={"disabled": "Disabled", "folded": "Folded"}
+    )

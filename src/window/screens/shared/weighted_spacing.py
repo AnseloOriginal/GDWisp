@@ -19,6 +19,6 @@ class WeightedSpacing(Tk.Frame):
 		space_column = 0 if space_first else 1
 		widget.grid(row=0,column=widget_column,sticky="ew")
 		self.frame_spacing.grid(column=space_column)
-		self.columnconfigure(0,weight=weight[0],uniform="ac")
-		self.columnconfigure(1,weight=weight[1],uniform="ac")
+		self.columnconfigure(widget_column,weight=weight[0],uniform="ac")
+		self.columnconfigure(space_column,weight=weight[1],uniform="ac")
 

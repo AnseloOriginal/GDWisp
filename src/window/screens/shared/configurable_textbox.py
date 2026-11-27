@@ -1,5 +1,6 @@
 import math
 import tkinter as tk
+from tkinter import font
 from typing import NotRequired, Text, TypedDict
 
 import customtkinter as CTk
@@ -9,6 +10,7 @@ class ConfigurableTextSetting(TypedDict):
 	size: NotRequired[int]
 	color: NotRequired[Color]
 	highlight: NotRequired[str]
+	bold: NotRequired[bool]
 
 class ConfigurableTextbox(tk.Text):
 	def __init__(
@@ -23,6 +25,7 @@ class ConfigurableTextbox(tk.Text):
 			background=take_one_str(background),
 			foreground=take_one_str(foreground), 
 			**kwargs)
+		self.last_settings: list[ConfigurableTextSetting] = []
 		if settings:
 			self.load_texts(settings)
 		if update_size:
@@ -30,6 +33,7 @@ class ConfigurableTextbox(tk.Text):
 			pass
 
 	def load_texts(self,settings: list[ConfigurableTextSetting]):
+		self.configure(state="normal")
 		self.delete("1.0","end")
 		for tag in self.tag_names():
 			self.tag_delete(tag)
@@ -39,9 +43,19 @@ class ConfigurableTextbox(tk.Text):
 			self.tag_config(
 				tag_name, 
 				foreground=take_one_str(setting.get("color")), 
-				# background=take_one_str(setting.get("highlight"))
+				font=font.Font(
+					family="Inter",
+					size=setting.get("size") or -14,
+					weight="bold" if setting.get("bold") else "normal",
+				)
 			)
+		self.last_settings = settings.copy()
 		self.update_size()
+		self.configure(state="disabled")
+
+	def add_texts(self, settings: list[ConfigurableTextSetting]):
+		new_settings = self.last_settings + settings
+		self.load_texts(new_settings)
 
 	def update_size(self):
 		if self.winfo_width() <= 1:  # not mapped yet, retry once it is

@@ -1,19 +1,26 @@
 from src.operations.project.types import RootVariableData, VariableType
 from src.operations.git.diff.types import OldNewDiff, VariableDiff, OldType, NewType, ActionType
 from src.window.screens.shared.configurable_textbox import ConfigurableTextSetting
+from src.utils.string import center_padding
 import src.core.colors as colors
 
 def ondiff_to_text_setting(diff: OldNewDiff):
     settings: list[ConfigurableTextSetting] = []
     settings.append(
-        ConfigurableTextSetting(text=str(diff["old"]))
+        ConfigurableTextSetting(
+            text=str(diff["old"]),
+            color=colors.event_sheet["removed"]
+        )
     )
     if diff["new"] is not None:
         settings.append(
             ConfigurableTextSetting(text=" ▶ "),
         )
         settings.append(
-            ConfigurableTextSetting(text=str(diff["new"]))
+            ConfigurableTextSetting(
+                text=str(diff["new"]),
+                color=colors.event_sheet["added"]
+            )
         )
     return settings
 
@@ -34,9 +41,12 @@ def variable_diff_to_text_setting(diff: list[VariableDiff] | list[RootVariableDa
                 "Created": "+"
             }
             settings.append(ConfigurableTextSetting(
-                text=f" {icon_map.get(change_type) or "●"} ", 
+                text=center_padding(char=icon_map.get(change_type) or "●"), 
                 color=color_map.get(change_type)
             ))
+        else:
+            settings.append(ConfigurableTextSetting(text=center_padding()))
+
 
         settings.append(ConfigurableTextSetting(text=var["name"] + " ("))
 
@@ -62,11 +72,11 @@ def variable_diff_to_text_setting(diff: list[VariableDiff] | list[RootVariableDa
     return settings
 
 
-def create_heading(text: str, colon: str = ":", gaps = 2):
+def create_heading(text: str, colon: str = ":", gaps = 1):
     settings:list[ConfigurableTextSetting] = [
-        ConfigurableTextSetting(text=text),
-        ConfigurableTextSetting(text=colon)
+        ConfigurableTextSetting(text=text, size=-15, bold=True),
+        ConfigurableTextSetting(text=colon, size=-15, bold=True)
     ]
-    for i in range(gaps):
-        settings.append(ConfigurableTextSetting(text="\n"))
+    
+    settings.append(ConfigurableTextSetting(text="\n"*gaps))
     return settings

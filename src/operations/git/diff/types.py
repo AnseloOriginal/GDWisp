@@ -93,6 +93,7 @@ class StandardEventDiff(TypedDict):
   actions: list[InstructionDiff | InstructionData]
   conditions: list[InstructionDiff | InstructionData]
   variables: list[VariableDiff] | None
+  properties: list[OldNewDiff] | None
 
 type SpecificEventDiff = CommentEventDiff | StandardEventDiff
 
